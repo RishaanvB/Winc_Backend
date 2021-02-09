@@ -5,13 +5,13 @@ __human_name__ = 'strings'
 # Add your code after this line
 
 # Part 1
-name_scorer = "Ruud Gullit"
-name_scorer2 = "Marco van Basten"
+scorer = "Ruud Gullit"
+scorer2 = "Marco van Basten"
 goal_0 = 32
 goal_1 = 54
-scorers = name_scorer + " " + str(goal_0) + ", " + name_scorer2 + " " + str(goal_1)
-report = F"{name_scorer} scored in the {goal_0}nd minute \n{name_scorer2} scored in the {goal_1}th minute"
-
+scorers = scorer + " " + str(goal_0) + ", " + scorer2 + " " + str(goal_1)
+# report = f"{scorer} scored in the {goal_0}nd minute\n{scorer2} scored in the {goal_1}th minute"
+report = f"{scorer} scored in the {goal_0}th minute\n{scorer2} scored in the {goal_1}th minute"
 print(report)
 print(type(report))
 # Part 2
