@@ -1,7 +1,6 @@
-answer = 41
+string_a = ''
 
-print(answer)
-question = "???"
-print(question)
-possible_question = "How many roads must someone walk down"
-print(possible_question)
+if string_a:
+    print("expression results in a truthy value")
+else:
+    print("expression results in a falsy value")
