@@ -8,7 +8,7 @@ __human_name__ = 'functions'
 
 
 def greet(name):
-    return print(f"Hello, {name}!")
+    return (f"Hello, {name}!")
 
 # 2
 
@@ -21,38 +21,50 @@ def add(x, y, z):
 
 def scottish_greet(name, isChild):
     if isChild == False:
-        return print(f"Hello, {name}")
+        return (f"Hello, {name}!")
     else:
-        return print(f"Hello, wee {name}")
+        return (f"Hello, wee {name}!")
+
+
+print(scottish_greet('Ian', True))
+
 # 4
 
 
 def positive(num):
-    if num > 0:
-        return print(True)
-    else:
-        return print(False)
+    return num > 0
 
 # 5
 
+
 def negative(num):
     if num < 0:
-        return print(True)
+        return (True)
     else:
-        return print(False)
+        return (False)
 
 # 6
+
+
 def sign(num):
-    if type(num) == str:
-        return print("This doesn't have a sign")
+    if type(num) is not int and type(num) is not float:
+        return ("This doesn't have a sign!")
     if num > 0:
         return print(1)
     if num < 0:
-        return print(-1)
+         print(-1)
+         return print(0)
 # 7
+
 
 def nag(name, item, int):
     sentence = f"{name}{int * '.'} Why can't I have a {item}?!\n"
     return print((sentence * int))
 
-nag("John", "cookie", 6)
+
+sign(0.9)
+def main():
+    print("do things")
+
+
+main()
