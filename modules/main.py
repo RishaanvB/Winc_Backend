@@ -7,10 +7,14 @@ __human_name__ = "modules"
 
 from time import sleep
 from math import sin
+from datetime import datetime
+from sys import platform as pf
+from greet import supergreeting
 
 # 1
 
-import this
+# import this
+
 
 # 2
 
@@ -20,9 +24,25 @@ def wait(seconds):
     return
 
 
+# 3
+
+
 def my_sin(radial):
     return sin(radial)
 
 
-for i in range(1, 5):
-    print(i)
+# 4
+def iso_now():
+    return datetime.now().strftime("%Y-%m-%dT%H:%M")
+
+
+# 5
+
+
+def platform():
+    return pf
+
+
+# 6
+def supergreeting_wrapper(name):
+    return supergreeting(name)

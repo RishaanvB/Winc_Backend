@@ -11,7 +11,6 @@ def greet(name, greet_template="Hello, <name>!"):
     greet_template = greet_template.replace("<name>", name)
     return (greet_template)
 
-
 # part 2 Force
 
 
