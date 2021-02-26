@@ -4,20 +4,12 @@ __human_name__ = "arguments"
 
 # Add your code after this line
 
-
 # part 1 Greet Template
 
 
-""" A greeting template (str). Set this template parameter to 'Hello, <name>!' by default."""
-# Zie bovenstaande regel, ik weet niet hoe je een variable = x
-# als  2e parameter kan doorgeven, waarbij def f(a, b="string" + a)
-
-
-def greet(name, greet_template="Hello"):
-    """wincpy geeft hier een error voor  "greet handles an optional template
-    string correctly", weet niet precies wat hier nu verwacht wordt
-    als 2e param"""
-    return f"{greet_template}, {name}!"
+def greet(name, greet_template="Hello, <name>!"):
+    greet_template = greet_template.replace("<name>", name)
+    return (greet_template)
 
 
 # part 2 Force

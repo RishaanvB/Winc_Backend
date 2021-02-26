@@ -1,7 +1,13 @@
-def f(x, y, /, z):
-    print(f"x: {x}")
-    print(f"y: {y}")
-    print(f"z: {z}")
+def f():
+    s = 'foo'
+    loc = locals()
+    print(loc)
+
+    x = 20
+    print(loc)
+    print(locals())
+    loc['s'] = 'bar'
+    print(s)
 
 
-f(1, 2, 3, 4)
+f()
