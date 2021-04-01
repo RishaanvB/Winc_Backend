@@ -80,7 +80,7 @@ class Commentator:
                 return player_with_most_points[0]
 
 
-player1 = Player("player1", 0.5, 0.5, 0.7)
+player1 = Player("player1", 0.5, 0.5, 0.1)
 player2 = Player("player2", 0.5, 0.3, 0.7)
 print(player1.strength(), "strength")
 comment = Commentator("John")
