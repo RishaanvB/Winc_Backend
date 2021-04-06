@@ -47,18 +47,34 @@ def most_vowels():
     # return print([x[0] for x in leaderboard[:3]])
 # copy/paste
 
-most_vowels()
+# most_vowels()
 
-def alphabet_set():
-    alphabet = list("abcdefghijklmnopqrstuvwxyz")
-    countries_used = []
-    countrie_lower = [country.lower() for country in countries]
+# def alphabet_set():
+#     alphabet = list("abcdefghijklmnopqrstuvwxyz")
+#     countries_used = []
+#     countrie_lower = [country.lower() for country in countries]
+#     for country in countries:
+#         for char in country:
+#             if char in alphabet:
+#                 alphabet.remove(char)
+#                 if country not in countries_used:
+#                     countries_used.append(country)
+#     if len(alphabet) == 0:
+#         print(countries_used) 
+# alphabet_set()
+
+def alphabet_set(countries):
+    alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+    names_alphabet_list = []
     for country in countries:
-        for char in country:
-            if char in alphabet:
-                alphabet.remove(char)
-                if country not in countries_used:
-                    countries_used.append(country)
-    if len(alphabet) == 0:
-        print(countries_used) 
-alphabet_set()
+        count = 0
+        for letter in alphabet:
+            count_letter = country.lower().count(letter)
+            count += count_letter
+            print(country, count)
+        names_alphabet_list.append([country,count])
+    # names_alphabet_list.sort(key=get_count)
+    print(count)
+    return list(map(lambda x:x[0], names_alphabet_list[:14]))
+
+print(alphabet_set(countries))

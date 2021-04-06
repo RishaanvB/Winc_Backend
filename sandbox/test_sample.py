@@ -1,15 +1,11 @@
-def func(x):
-    return x + 1
+import argparse
 
-
-def test_answer():
-    assert func(3) == 5
-
-
-import ctypes, os
-try:
- is_admin = os.getuid() == 0
-except AttributeError:
- is_admin = ctypes.windll.shell32.IsUserAnAdmin() != 0
-
-print(is_admin) 
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    "-s", "--square", help="display a square of a given number", type=int
+)
+parser.add_argument(
+    "-q", "--q", help="display a square of a given number", type=int
+)
+args = parser.parse_args()
+print(args)
