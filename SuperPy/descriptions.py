@@ -1,50 +1,70 @@
+import colorama
+from colorama import Fore, Back, Style
 
-parser_epilog = "epilogue superpy"
-# parser_epilog = """
-#            |
-#      \     |     /
-#        \       /
-#          ,000,           .,
-#  (')-")_ 00000 ---   ;';'  ';'.
-# ('-  (. ')000'      ';.,;    ,;
-#  '-.(___)'     \       '.';.'
-#            |    \ 
-#            |
-#  ____                                         ____               
-# /\  _`\                                      /\  _`\             
-# \ \,\L\_\    __  __   _____      __    _ __  \ \ \L\ \ __  __    
-#  \/_\__ \   /\ \/\ \ /\ '__`\  /'__`\ /\`'__\ \ \ ,__//\ \/\ \   
-#    /\ \L\ \ \ \ \_\ \\ \ \L\ \/\  __/ \ \ \/   \ \ \/ \ \ \_\ \  
-#    \ `\____\ \ \____/ \ \ ,__/\ \____\ \ \_\    \ \_\  \/`____ \ 
-#     \/_____/  \/___/   \ \ \/  \/____/  \/_/     \/_/   `/___/> \ 
-#                         \ \_\                              /\___/
-#                          \/_/                              \/__/ 
 
-# _.~"(_.~"(_.~"(_.~"(_.~"(_.~"(_.~"(_.~"(_.~"(_.~"(_.~"(_.~"(_.~"
-#                                                             v1.00
-#     """
+# parser_epilog = "epilogue superpy"
+parser_epilog = f"""
+{Fore.YELLOW}           |
+      \    |   /
+       \      /
+         ,000,           .,
+ (')-")_ 00000 ---   ;';'  ';'.
+('-  (. ')000'      ';.,;    ,;
+ '-.(___)'     \       '.';.'
+           |    \ 
+           |{Fore.RESET}
+ ____                                         ____               
+/\  _`\                                      /\  _`\             
+\ \,\L\_\    __  __   _____      __    _ __  \ \ \L\ \ __  __    
+ \/_\__ \   /\ \/\ \ /\ '__`\  /'__`\ /\`'__\ \ \ ,__//\ \/\ \   
+   /\ \L\ \ \ \ \_\ \\ \ \L\ \/\  __/ \ \ \/   \ \ \/ \ \ \_\ \  
+   \ `\____\ \ \____/ \ \ ,__/\ \____\ \ \_\    \ \_\  \/`____ \ 
+    \/_____/  \/___/   \ \ \/  \/____/  \/_/     \/_/   `/___/> \ 
+                        \ \_\                              /\___/
+                         \/_/                              \/__/ 
+
+{Fore.BLUE}_.~"(_.~"(_.~"(_.~"(_.~"(_.~"(_.~"(_.~"(_.~"(_.~"(_.~"(_.~"(_.~"{Fore.RESET}
+                                                            v1.00
+    """
 
 subparser_buy_description = f"""
 
-       
-        subcommand to purchase products.
-        Mandatory arguments are:
-            <productname>
-            <price>
-
-        <productname> has to be chosen from specific product list.
-        To view the product list, see '-ll' or '-ls'
-
-        <price> can be set as either integer or float.
+<================================================================================>
+        
+        Subcommand to purchase products.
+        Positional arguments are:
+            {Fore.YELLOW}<productname>
+            <price>{Fore.RESET}
 
         Optional arguments include:
-            <expirationdate>   -e/-exp/-expirydate
-            <amount>            -a/-amount
+            {Fore.YELLOW}<expirationdate>{Fore.RESET}    -e/-exp/--expdate
+            {Fore.YELLOW}<amount>{Fore.RESET}            -a/-amount
+        
+<================================================================================>
+        
+        Where {Fore.YELLOW}<productname>{Fore.RESET} has to be chosen from specific product list.
+        To view the product list, see {Fore.BLUE}'%(prog)s -ll' or '%(prog)s -ls'{Fore.RESET}
+        
+        {Fore.YELLOW}<price>{Fore.RESET} can be set as either integer or float.
+        
+        {Fore.YELLOW}<expirationdate>{Fore.RESET} argument should be in format: {Fore.BLUE}'YYYY-MM-DD'{Fore.RESET}
+        
+        Set {Fore.YELLOW}<amount>{Fore.RESET} in integers, 
+        where {Fore.YELLOW}<amount>{Fore.RESET} is the amount of products to buy.
 
-        <expirationdate> argument should be in format:
-        'YYYY-MM-DD'
-        If omitted, expiration date will be set as 2100-01-01
+<================================================================================>
 
-        <amount> argument accepts only integers.
-        If omitted, amount will be set as 1.
+        {Fore.GREEN}Valid inputs include, but are not restricted to:
+
+        %(prog)s orange 
+        %(prog)s orange 2
+        %(prog)s orange -e 2012-12-01
+        %(prog)s orange -a 30 -e 2012-12-01{Fore.RESET}
+               
+        {Fore.WHITE}{Back.RED}!!!ATTENTION!!!{Style.RESET_ALL}
+        {Fore.RED}If omitted, {Fore.YELLOW}<expirationdate>{Fore.RESET} {Fore.RED}will be set as {Fore.BLUE}2100-01-01{Fore.RESET}
+        {Fore.RED}If omitted, {Fore.YELLOW}<amount>{Fore.RESET} {Fore.RED}will be set as {Fore.BLUE}1{Fore.RESET}
+  
+<================================================================================>
+  
         """
