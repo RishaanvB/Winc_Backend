@@ -27,7 +27,7 @@ parser_epilog = f"""
                                                             v1.00
     """
 
-subparser_buy_description = f"""
+subparser_buy = f"""
 
 <================================================================================>
         
@@ -68,3 +68,17 @@ subparser_buy_description = f"""
 <================================================================================>
   
         """
+parser = f"""
+        {Fore.RED}
+        Program for keeping {Fore.RESET} track of inventory.
+        Possible usages are buying and selling of products,
+        advancing time to check inventory at specific dates,
+        and checking revenue and profit over certain period of time.
+        """
+
+subparsers = """description for all subparsers buy/sell/report etc """ 
+
+subparser_sell = """
+description for the sell subparser argument. 
+Moet ik nog aan werken 
+"""

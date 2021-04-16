@@ -4,7 +4,7 @@ import csv
 from datetime import date
 from rich.console import Console
 
-from descriptions import subparser_buy_description, parser_epilog
+import descriptions as d  # mss onduidelijk als d, maar waar ze worden gebruikt, maakt het duidelijk genoeg hoop ik
 from helpers import create_log_dir, buy_product, sell_product
 
 import colorama
@@ -24,14 +24,8 @@ def main():
 
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter,
-        description=f"""
-        {Fore.RED}
-        Program for keeping {Fore.RESET} track of inventory.
-        Possible usages are buying and selling of products,
-        advancing time to check inventory at specific dates,
-        and checking revenue and profit over certain period of time.
-        """,
-        epilog=parser_epilog,
+        description=d.parser,
+        epilog=d.parser_epilog,
     )
     parser.set_defaults(func=None)
     # show list of available products
@@ -42,10 +36,7 @@ def main():
     subparsers = parser.add_subparsers(
         help=f"help message {Fore.RED}for{Fore.RESET} subparsers",
         dest="subparser_name",
-        description="""
-
-            description for the subcommands buy/sell etc.
-            """,
+        description=d.subparsers,
     )
     # or use nargs = ? to read/write to external file!!!
 
@@ -53,20 +44,22 @@ def main():
     subparser_buy = subparsers.add_parser(
         "buy",
         formatter_class=argparse.RawTextHelpFormatter,
-        description=subparser_buy_description,
+        description=d.subparser_buy,
     )
     subparser_sell = subparsers.add_parser(
         "sell",
         formatter_class=argparse.RawTextHelpFormatter,
-        # description=subparser_sell_description, # moet ik nog maken
+        description=d.subparser_sell
     )
+
+    # function defaults for subparser arguments
     subparser_buy.set_defaults(func=buy_product)
-    subparser_sell.set_defaults(func=sell_product)  # moet ik nog maken
+    subparser_sell.set_defaults(func=sell_product)
 
     # ==========Arguments for BUY subparser===========
 
     subparser_buy.add_argument(
-        "productname",
+        "product_name",
         choices=product_list,
         metavar="name [product]",
         help="set product name from list",
@@ -83,7 +76,7 @@ def main():
         default="2100-01-01",
         help="set product expiration date (default: 2100-01-01)",
     )
-    subparser_buy.add_argument(  # set limiet op aantal zodat je niet 1000X iets kan kopen.
+    subparser_buy.add_argument(  # set limiet op aantal zodat je niet 1000X iets kan kopen. met lambda functie??? kijken wat dat is.
         "-a",
         "--amount",
         default=1,
@@ -94,7 +87,7 @@ def main():
     # ==========Arguments for SELL subparser===========
 
     subparser_sell.add_argument(
-        "productname",
+        "product_name",
         choices=product_list,
         metavar="name [product]",
         help="set product name from list",
@@ -111,16 +104,15 @@ def main():
         metavar="product amount",
         help="set amount of product to be sold (default: 1)",
     )
-    # add sell group
 
     # add report group
     # add revenue group
     # add profit group
     args = parser.parse_args()
-    print(args)
+    # print(args)
 
     if args.func:
-        args.func(args)
+        args.func(args)         # calls appropiate function for subparser args
     if args.list:
         print(f"There are {len(product_list)} available products for purchase:")
         [print("\t", i, p) for i, p in (enumerate(sorted(product_list), start=1))]
