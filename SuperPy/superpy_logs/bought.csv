@@ -1,0 +1,5 @@
+id,product_name,buy_price,product_amount,buy_date,expiration_date
+1,orange,3.0,1,empty buy date,2100-01-01
+1,orange,3.0,1,empty buy date,2100-01-01
+1,orange,3.0,1,empty buy date,2100-01-01
+1,milk,3.0,1,empty buy date,2100-01-01

@@ -5,7 +5,14 @@ from datetime import date
 from rich.console import Console
 
 import descriptions as d  # mss onduidelijk als d, maar waar ze worden gebruikt, maakt het duidelijk genoeg hoop ik
-from helpers import create_log_dir, buy_product, sell_product
+from helpers import (
+    create_log_dir,
+    buy_product,
+    sell_product,
+    product_list_lst,
+    handle_list,
+    handle_inventory,
+)
 
 import colorama
 from colorama import Fore, Back, Style
@@ -20,8 +27,7 @@ __human_name__ = "superpy"
 def main():
     create_log_dir()
     console = Console()
-    product_list = ["orange", "bread", "milk", "eggs", "water", "apple", "candy"]
-
+    # moet een functie maken die de product list kan updaten
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter,
         description=d.parser,
@@ -29,12 +35,13 @@ def main():
     )
     parser.set_defaults(func=None)
     # show list of available products
-    parser.add_argument(
+
+    parser.add_argument(  # deze kan ik verwijderen. Heb al list subparser command
         "-ls", "--list", action="store_true", help="show list of products"
     )
 
     subparsers = parser.add_subparsers(
-        help=f"help message {Fore.RED}for{Fore.RESET} subparsers",
+        help=f"help message {Fore.RED}for{Fore.RESET} subparsers",  # wijzigen
         dest="subparser_name",
         description=d.subparsers,
     )
@@ -49,18 +56,29 @@ def main():
     subparser_sell = subparsers.add_parser(
         "sell",
         formatter_class=argparse.RawTextHelpFormatter,
-        description=d.subparser_sell
+        description=d.subparser_sell,
     )
-
+    subparser_list = subparsers.add_parser(
+        "list",
+        formatter_class=argparse.RawTextHelpFormatter,
+        description=d.subparser_list,
+    )
+    subparser_inventory = subparsers.add_parser(
+        "inventory",
+        formatter_class=argparse.RawTextHelpFormatter,
+        description=d.subparser_inventory,
+    )
     # function defaults for subparser arguments
     subparser_buy.set_defaults(func=buy_product)
     subparser_sell.set_defaults(func=sell_product)
+    subparser_list.set_defaults(func=handle_list)
+    subparser_inventory.set_defaults(func=handle_inventory)
 
     # ==========Arguments for BUY subparser===========
 
     subparser_buy.add_argument(
         "product_name",
-        choices=product_list,
+        choices=product_list_lst,
         metavar="name [product]",
         help="set product name from list",
     )
@@ -76,19 +94,21 @@ def main():
         default="2100-01-01",
         help="set product expiration date (default: 2100-01-01)",
     )
-    subparser_buy.add_argument(  # set limiet op aantal zodat je niet 1000X iets kan kopen. met lambda functie??? kijken wat dat is.
+    subparser_buy.add_argument(
         "-a",
         "--amount",
+        choices=range(1, 11),
         default=1,
         type=int,
         metavar="product amount",
         help="set amount of product to be purchased (default: 1)",
     )
+
     # ==========Arguments for SELL subparser===========
 
     subparser_sell.add_argument(
         "product_name",
-        choices=product_list,
+        choices=product_list_lst,
         metavar="name [product]",
         help="set product name from list",
     )
@@ -103,8 +123,35 @@ def main():
         default=1,
         metavar="product amount",
         help="set amount of product to be sold (default: 1)",
+        choices=range(1, 11),
     )
 
+    # ==========Arguments for LIST subparser===========
+
+    list_group = subparser_list.add_mutually_exclusive_group()
+    list_group.add_argument(
+        "--add",
+        "-a",
+        type=str,
+        metavar="list to expand",
+        help="expand available list of products",
+    )
+    list_group.add_argument(
+        "--remove",
+        "-rm",
+        type=str,
+        metavar="list to shorten",
+        help="shorten available list of products",
+    )
+
+    # ==========Arguments for INVENTORY subparser===========
+
+    subparser_inventory.add_argument(
+        "--short", "-s", help="displays short inventory", action="store_true"
+    )
+    subparser_inventory.add_argument(
+        "--long", "-l", help="displays short inventory", action="store_true"
+    )
     # add report group
     # add revenue group
     # add profit group
@@ -112,10 +159,11 @@ def main():
     # print(args)
 
     if args.func:
-        args.func(args)         # calls appropiate function for subparser args
+        args.func(args)  # calls appropiate function for subparser args
     if args.list:
-        print(f"There are {len(product_list)} available products for purchase:")
-        [print("\t", i, p) for i, p in (enumerate(sorted(product_list), start=1))]
+        print(f"There are {len(product_list_lst)} available products for purchase:")
+        [print("\t", i, p) for i, p in (enumerate(sorted(product_list_lst), start=1))]
+    print(args)
 
 
 if __name__ == "__main__":
