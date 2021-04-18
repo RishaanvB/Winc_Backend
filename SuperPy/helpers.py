@@ -6,11 +6,12 @@ from colorama import Fore, Back, Style
 from colorama import init
 import sys
 import datetime as dt
-from pprint import pprint
-
+from rich.console import Console
+from rich.table import Table
 
 # is het verstandig om zoveel globals te hebben?
 # product amount kan mss weggelaten worden in fieldnames. is alleen van belang voor aantal writerow()
+print(dt.date.today())
 log_dir = "superpy_logs"
 log_txt_file = "log_id_superpy.txt"
 
@@ -21,15 +22,7 @@ csv_sold = "sold.csv"
 bought_file = os.path.join(log_dir, csv_bought)
 sold_file = os.path.join(log_dir, csv_sold)
 product_list_csv = os.path.join(log_dir, products_file)
-product_list_lst = [
-    "orange",
-    "bread",
-    "milk",
-    "eggs",
-    "water",
-    "apple",
-    "candy",
-]  # placeholder product list
+
 
 fieldnames_bought = [
     "id",
@@ -49,13 +42,14 @@ fieldnames_sold = [
     "sell_date",
     "expiration_date",
 ]
+console = Console(record=True)
 
 
-def create_log_dir():  # meeste is niet nodig, maar vond het leuk om te doen :)
-    """
-    If it doesn't exists, creates a new folder with .csv files in the current working directory.
-    If folder already exist, checks if there is a specific .txt file in the folder.
-    If specific .txt file can't be found, program will terminate with error message.
+def create_log_dir():
+    f"""
+    If it doesn't exists, creates a new folder {log_dir} with necessary files in the current working directory.
+    If folder already exist, checks if there is a {log_txt_file} file in the folder.
+    If {log_txt_file} file can't be found, program will terminate with error message.
     """
 
     if log_dir in os.listdir():
@@ -82,9 +76,20 @@ The program will quit now. Bye!!!
             sys.exit()
 
     if log_dir not in os.listdir():
+        # product_list_lst = [
+        #     "orange",
+        #     "bread",
+        #     "milk",
+        #     "eggs",
+        #     "water",
+        #     "apple",
+        #     "candy",
+        # ]  # placeholder product list
         os.mkdir(log_dir)
-        with open(os.path.join(log_dir, log_txt_file), "w") as file:
-            file.write(
+        with open(os.path.join(log_dir, "time.txt"), "w") as time_txt:
+            time_txt.write(f"{dt.date.today()}")
+        with open(os.path.join(log_dir, log_txt_file), "w") as file_log:
+            file_log.write(
                 f"""created file for first time at {dt.datetime.now()}
             WARNING!!! Do NOT remove this file."""
             )
@@ -96,7 +101,19 @@ The program will quit now. Bye!!!
             writer.writeheader()
         with open(product_list_csv, "w", newline="") as p_lst:
             writer = csv.writer(p_lst)
-            [writer.writerow([p]) for p in product_list_lst]
+            # volgende writerows om alvast producten te kunnen kopen/verkopen, zodat je geen producten hoeft aan te maken
+            writer.writerow(["eggs"])
+            writer.writerow(["milk"])
+            writer.writerow(["bread"])
+            writer.writerow(["water"])
+            writer.writerow(["orange"])
+
+
+def read_productlist_csv():
+    with open(product_list_csv) as p_file:
+        reader = csv.reader(p_file)
+        product_list = [row[0] for row in reader]
+        return product_list
 
 
 def buy_product(args):
@@ -183,15 +200,17 @@ def sell_product(args):
 
 
 def handle_list(args):
-    """Takes in attribute for args and adds or removes product
-    from the list of available products"""
+    """Takes in attribute for args, which are 'add' or 'remove'
+    and adds or removes the argument given from the list of available products
+    It will print out a list of products available for purchase/sell if no args are given.
+    """
+    # product_list_lst is de default list, zodat je zelf geen producten hoeft aan te maken
     with open(product_list_csv) as lst:
         reader = csv.reader(lst)
         flat_list = [product for sublist in list(reader) for product in sublist]
-        print(args.add)
-        print(args.remove)
         # add product to list
         if args.add:
+            args.add = args.add.lower()
             if args.add in flat_list:
                 raise ValueError(f"{args.add} already exist")
 
@@ -200,8 +219,9 @@ def handle_list(args):
                     writer = csv.writer(lst)
                     writer.writerow([args.add])
 
-        # remove product to list
+        # remove product from list
         if args.remove:
+            args.remove = args.remove.lower()
             if args.remove not in flat_list:
                 raise ValueError(f"{args.remove} does not exist")
 
@@ -212,34 +232,143 @@ def handle_list(args):
                     [writer.writerow([product]) for product in flat_list]
 
         if args.add is None and args.remove is None:
-            print(flat_list)
+            print(f"Total unique products in stock: {len(flat_list)}")
+            [print(product) for product in sorted(flat_list)]
 
 
 def handle_inventory(args):
-    print("handling inventory function")
-    # handling simple inventory: product, amount,
-    # handling product inventory: amount, buyprice, expdate
-    # handling all inventory: product:
-    # amount, buyprice, expdate
+    """
+    handles what kind of table and information will be displayed,
+    depending on the attribute of args given, will call
+    one of 3 functions.
+    1) short_inventory()
+    2) product_inventory()
+    3) long_inventory()
+    4) sold_inventory()
+    """
+    # er zitten wat overlappingen in de functies die hier inzitten, maar ik wilde ze toch
+    # apart houden omdat ik dacht dat het dan overzichtelijker zou zijn, vooral als er bv iets mis
+    # zou gaan met een bepaalde functie, dan kon ik makkelijker zien waar ik de fout kan vinden.
+    
+    def write_table_to_file(txt_data):
+        """
+        Writes the printed out inventory table to inventory.txt
+        If the inventory.txt file already exist it will overwrite it.
+        """
+        with open(
+            os.path.join(log_dir, "inventory.txt"), "w", encoding="utf-8"   #encoding anders kon die bepaalde characters niet decoden.
+        ) as inventory:
+            inventory.write(txt_data)
 
-    with open(bought_file) as bought_r, open(product_list_csv) as lst:
-        reader_lst = csv.reader(lst)
-        flat_list = [product for sublist in list(reader_lst) for product in sublist]
-        simple_inventory = {flat_list: 0 for flat_list in flat_list}
-        reader_bought = csv.DictReader(bought_r)
-        for row in reader_bought:
-            for product, count in simple_inventory.items():
-                if product == row["product_name"]:
-                    simple_inventory[product] += 1
-    print(simple_inventory)
+    def short_inventory():
+        """
+        Reads through bought.csv and creates a simple inventory list
+        of format: {product: count} and prints it in table form to the console.
+        If count is 0(zero), the row will be colored red.
+        """
+        with open(bought_file) as bought_r, open(product_list_csv) as lst:
+            reader_lst = csv.reader(lst)
+            flat_list = [product for sublist in list(reader_lst) for product in sublist]
+            simple_inventory = {flat_list: 0 for flat_list in flat_list}
+            reader_bought = csv.DictReader(bought_r)
 
+            for row in reader_bought:
+                for product, count in simple_inventory.items():
+                    if product == row["product_name"]:
+                        simple_inventory[product] += 1
+        short_table = Table(title="Short Inventory", show_lines=True)
+        short_table.add_column("Product")
+        short_table.add_column("Count", justify="right")
+        total_items = 0
+
+        for product, count in simple_inventory.items():
+            total_items += count
+            if count == 0:
+                short_table.add_row(product, str(count), style="red")
+            else:
+                short_table.add_row(product, str(count))
+
+        console.print(short_table)
+        print(
+            f"{Fore.YELLOW}There are a total of {total_items} items in stock{Fore.RESET}"
+        )
+        # writers/re-writes inventory.txt with inventory table
+        if args.print:
+            txt = console.export_text()
+            write_table_to_file(txt)
+
+    # print(simple_inventory)
+    def product_inventory():
+        count = 0
+        product = args.product
+        table_columns = ["buy_price", "buy_date", "expiration_date"]
+        product_table = Table(
+            title=f"{Fore.YELLOW}Product Inventory for {product.title()}{Fore.RESET} ",
+            show_lines=True,
+        )
+        # product_table.add_column()
+        with open(bought_file) as bought, open(product_list_csv) as product_list:
+            reader_product_list = csv.reader(product_list)
+            reader = csv.DictReader(bought)
+            flat_list = [
+                product for sublist in list(reader_product_list) for product in sublist
+            ]
+
+            for header in reader.fieldnames:
+                if header in table_columns:
+                    product_table.add_column(header)
+            for row in reader:
+                if row["product_name"] == product:
+                    count += 1
+                    product_table.add_row(
+                        row[table_columns[0]],
+                        row[table_columns[1]],
+                        row[table_columns[2]],
+                    )
+
+        if product not in flat_list:
+            raise ValueError(
+                f"""Can't find {product}. Check your spelling or if the product is in the available products list"""
+            )
+        console.print(product_table)
+        print(f"{Fore.YELLOW}Total items of {product} in stock: {count}{Fore.RESET} ")
+        if args.print:
+            txt = console.export_text()
+            write_table_to_file(txt)
+
+    def long_inventory():
+        long_table = Table(
+            title=f"{Fore.YELLOW}Total Inventory{Fore.RESET} ",
+            show_lines=False,
+        )
+        table_columns = ["product_name", "buy_price", "buy_date", "expiration_date"]
+        with open(bought_file) as bought:
+            reader = csv.DictReader(bought)
+
+            for header in reader.fieldnames:
+                if header in table_columns:
+                    long_table.add_column(header)
+            for row in reader:
+                long_table.add_row(
+                    row[table_columns[0]],
+                    row[table_columns[1]],
+                    row[table_columns[2]],
+                    row[table_columns[3]],
+                )
+        console.print(long_table)
+        if args.print:
+            txt = console.export_text()
+            write_table_to_file(txt)
+
+    def sold_inventory():
+        print("sold inventory")
+
+    # calling functions depending on args command given
     if args.short:
-        print("short inventory")
-
-    # if args.inventory == "product"
-    #     print("short inventory")
-    # if args.inventory == "all"
-    #     print("short inventory")
-    # if args.
+        short_inventory()
+    if args.product:
+        product_inventory()
     if args.long:
-        print("long invetory")
+        long_inventory()
+    if args.sold:
+        sold_inventory()

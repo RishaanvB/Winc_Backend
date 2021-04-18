@@ -1,7 +1,6 @@
 import colorama
 from colorama import Fore, Back, Style
 
-
 # parser_epilog = "epilogue superpy"
 parser_epilog = f"""
 {Fore.YELLOW}           |
@@ -86,4 +85,5 @@ Moet ik nog aan werken
 subparser_list = """subparser description for the list argument""" 
 subparser_report = """subparser description for the report argument""" 
 subparser_inventory = """subparser description for the inventory argument""" 
+
 

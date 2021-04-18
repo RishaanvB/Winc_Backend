@@ -9,9 +9,10 @@ from helpers import (
     create_log_dir,
     buy_product,
     sell_product,
-    product_list_lst,
     handle_list,
     handle_inventory,
+    read_productlist_csv,
+    
 )
 
 import colorama
@@ -78,7 +79,7 @@ def main():
 
     subparser_buy.add_argument(
         "product_name",
-        choices=product_list_lst,
+        choices=read_productlist_csv(),
         metavar="name [product]",
         help="set product name from list",
     )
@@ -108,7 +109,7 @@ def main():
 
     subparser_sell.add_argument(
         "product_name",
-        choices=product_list_lst,
+        choices=read_productlist_csv(),
         metavar="name [product]",
         help="set product name from list",
     )
@@ -152,6 +153,15 @@ def main():
     subparser_inventory.add_argument(
         "--long", "-l", help="displays short inventory", action="store_true"
     )
+    subparser_inventory.add_argument(
+        "--product",
+        "-p",
+        help="displays product inventory",
+    )
+    subparser_inventory.add_argument(
+        "--sold", help="displays sold products", action="store_true"
+    )
+    subparser_inventory.add_argument("--print", action="store_true", help="prints inventory to file")
     # add report group
     # add revenue group
     # add profit group
@@ -160,7 +170,7 @@ def main():
 
     if args.func:
         args.func(args)  # calls appropiate function for subparser args
-    if args.list:
+    if args.list:   # kan ik verwijderen, heb al list subcommand
         print(f"There are {len(product_list_lst)} available products for purchase:")
         [print("\t", i, p) for i, p in (enumerate(sorted(product_list_lst), start=1))]
     print(args)
