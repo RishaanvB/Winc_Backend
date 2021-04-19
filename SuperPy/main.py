@@ -5,14 +5,18 @@ from datetime import date
 from rich.console import Console
 
 import descriptions as d  # mss onduidelijk als d, maar waar ze worden gebruikt, maakt het duidelijk genoeg hoop ik
-from helpers import (
+from helper_func import (
     create_log_dir,
     buy_product,
     sell_product,
-    handle_list,
+    handle_product_list,
     handle_inventory,
     read_productlist_csv,
-    
+    handle_report,
+    range_checker,
+    handle_revenue,
+    handle_profit,
+    read_fake_date
 )
 
 import colorama
@@ -26,20 +30,13 @@ __human_name__ = "superpy"
 
 # Your code below this line.
 def main():
-    create_log_dir()
-    console = Console()
-    # moet een functie maken die de product list kan updaten
+    create_log_dir()  # creates and/or checks necessary folders
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter,
         description=d.parser,
         epilog=d.parser_epilog,
     )
     parser.set_defaults(func=None)
-    # show list of available products
-
-    parser.add_argument(  # deze kan ik verwijderen. Heb al list subparser command
-        "-ls", "--list", action="store_true", help="show list of products"
-    )
 
     subparsers = parser.add_subparsers(
         help=f"help message {Fore.RED}for{Fore.RESET} subparsers",  # wijzigen
@@ -69,11 +66,13 @@ def main():
         formatter_class=argparse.RawTextHelpFormatter,
         description=d.subparser_inventory,
     )
-    # function defaults for subparser arguments
-    subparser_buy.set_defaults(func=buy_product)
-    subparser_sell.set_defaults(func=sell_product)
-    subparser_list.set_defaults(func=handle_list)
-    subparser_inventory.set_defaults(func=handle_inventory)
+    subparser_report = subparsers.add_parser(
+        "report",
+        formatter_class=argparse.RawTextHelpFormatter,
+        description=d.subparser_report,
+        add_help=False,
+    )
+    subparsers_report = subparser_report.add_subparsers()
 
     # ==========Arguments for BUY subparser===========
 
@@ -98,9 +97,16 @@ def main():
     subparser_buy.add_argument(
         "-a",
         "--amount",
-        choices=range(1, 11),
         default=1,
-        type=int,
+        type=range_checker,
+        metavar="product amount",
+        help="set amount of product to be purchased (default: 1)",
+    )
+    subparser_buy.add_argument(
+        "-d",
+        "--date",
+        default=read_fake_date(),
+        # type=range_checker,   # kan ik een functie neerzetten die hem automatisch format
         metavar="product amount",
         help="set amount of product to be purchased (default: 1)",
     )
@@ -120,11 +126,10 @@ def main():
     subparser_sell.add_argument(
         "--amount",
         "-a",
-        type=int,
+        type=range_checker,
         default=1,
         metavar="product amount",
         help="set amount of product to be sold (default: 1)",
-        choices=range(1, 11),
     )
 
     # ==========Arguments for LIST subparser===========
@@ -146,12 +151,18 @@ def main():
     )
 
     # ==========Arguments for INVENTORY subparser===========
-
-    subparser_inventory.add_argument(
-        "--short", "-s", help="displays short inventory", action="store_true"
+    inventory_group = subparser_inventory.add_mutually_exclusive_group()
+    inventory_group.add_argument(
+        "--short",
+        "-s",
+        help="displays short inventory",
+        action="store_true",
     )
-    subparser_inventory.add_argument(
-        "--long", "-l", help="displays short inventory", action="store_true"
+    inventory_group.add_argument(
+        "--long", "-l", help="displays long inventory", action="store_true"
+    )
+    inventory_group.add_argument(
+        "--dumped", "-dump", "-d", help="displays sold products", action="store_true"
     )
     subparser_inventory.add_argument(
         "--product",
@@ -159,20 +170,32 @@ def main():
         help="displays product inventory",
     )
     subparser_inventory.add_argument(
-        "--sold", help="displays sold products", action="store_true"
+        "--print", action="store_true", help="prints inventory table to file"
     )
-    subparser_inventory.add_argument("--print", action="store_true", help="prints inventory to file")
-    # add report group
-    # add revenue group
-    # add profit group
-    args = parser.parse_args()
-    # print(args)
+    # ==========Arguments for REPORT subparser===========
+    
+    # all arguments will be passed to revenue/profit subparsers
+    report_group = subparser_report.add_mutually_exclusive_group()
+    report_group.add_argument("--today", "-t", action="store_true", help="displays report for today")
+    report_group.add_argument("--yesterday", "-y", action="store_true", help="displays report for yesterday")
+    report_group.add_argument("--date", help="sets date to display report")
 
-    if args.func:
-        args.func(args)  # calls appropiate function for subparser args
-    if args.list:   # kan ik verwijderen, heb al list subcommand
-        print(f"There are {len(product_list_lst)} available products for purchase:")
-        [print("\t", i, p) for i, p in (enumerate(sorted(product_list_lst), start=1))]
+    revenue = subparsers_report.add_parser("revenue", parents=[subparser_report])
+    profit = subparsers_report.add_parser("profit", parents=[subparser_report])
+
+    # function defaults for subparser arguments
+    subparser_buy.set_defaults(func=buy_product)
+    subparser_sell.set_defaults(func=sell_product)
+    subparser_list.set_defaults(func=handle_product_list)
+    subparser_inventory.set_defaults(func=handle_inventory)
+    subparser_report.set_defaults(func=handle_report)
+    revenue.set_defaults(func=handle_revenue)
+    profit.set_defaults(func=handle_profit)
+
+    args = parser.parse_args()
+    # if args.func:     # met errors even kijken of deze weer terug moet, weet niet meer waarom ik de if statement heb neergezet..
+    # args.func(args)  # calls appropiate function for subparser args
+    args.func(args)
     print(args)
 
 

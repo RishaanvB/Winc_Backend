@@ -86,4 +86,5 @@ subparser_list = """subparser description for the list argument"""
 subparser_report = """subparser description for the report argument""" 
 subparser_inventory = """subparser description for the inventory argument""" 
 
+subparser_report = """subparser description for the report argument""" 
 
