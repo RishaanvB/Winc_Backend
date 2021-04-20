@@ -75,16 +75,16 @@ parser = f"""
         and checking revenue and profit over certain period of time.
         """
 
-subparsers = """description for all subparsers buy/sell/report etc """ 
+subparsers = """description for all subparsers buy/sell/report etc """
 
 subparser_sell = """
 description for the sell subparser argument. 
 Moet ik nog aan werken 
 """
 
-subparser_list = """subparser description for the list argument""" 
-subparser_report = """subparser description for the report argument""" 
-subparser_inventory = """subparser description for the inventory argument""" 
+subparser_list = """subparser description for the list argument"""
+subparser_report = """subparser description for the report argument"""
+subparser_inventory = """subparser description for the inventory argument"""
 
-subparser_report = """subparser description for the report argument""" 
-
+subparser_report = """subparser description for the report argument"""
+subparser_time = """descriptions for the time argument"""

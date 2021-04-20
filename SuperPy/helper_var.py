@@ -5,7 +5,7 @@ import os
 log_dir = "superpy_logs"
 log_txt_file = "log_id_superpy.txt"
 
-
+report_file = "report.txt"
 products_file = "products_list.csv"
 csv_bought = "bought.csv"
 csv_sold = "sold.csv"

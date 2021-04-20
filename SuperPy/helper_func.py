@@ -6,13 +6,13 @@ import os
 from colorama import Fore, Back
 import sys
 import datetime as dt
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 from rich.console import Console
 from rich.table import Table
 from helper_var import (
     log_dir,
     log_txt_file,
-    products_file,
+    # products_file,
     csv_bought,
     csv_sold,
     bought_file,
@@ -22,6 +22,7 @@ from helper_var import (
     fieldnames_bought,
     fieldnames_sold,
     date_file,
+    report_file,
 )
 
 # is het verstandig om zoveel globals te hebben?
@@ -30,10 +31,10 @@ console = Console(record=True)
 
 
 def create_log_dir():
-    f"""
-    If it doesn't exists, creates a new folder {log_dir} with necessary files in the current working directory.
-    If folder already exist, checks if there is a {log_txt_file} file in the folder.
-    If {log_txt_file} file can't be found, program will terminate with error message.
+    """
+    If it doesn't exists, creates a new folder with necessary files in the current working directory.
+    If the folder already exist, checks if there is a specific .txt file in the folder.
+    If the .txt file can't be found, program will terminate with error message.
     """
 
     if log_dir in os.listdir():
@@ -106,8 +107,24 @@ def read_fake_date():
     return current_date
 
 
-def set_fake_date():
-    pass
+def set_fake_date(args):
+    """
+    reads current fake date from date.txt and updates it in days with the integer of
+    args.time attribute. If args.time is 1, sets the date.txt to 1 day in the future
+    Time will go back if a negative number is given.
+    Will always print the current and the date that has been set.
+    """
+    print("Previous date was-->", read_fake_date())
+    date_file_location = os.path.join(log_dir, date_file)
+    current_date = read_fake_date()
+    time_days = int(args.time)
+    advance_days = timedelta(days=time_days)
+    current_date = date.fromisoformat(current_date)
+    new_date = current_date + advance_days
+    new_date = date.isoformat(new_date)
+    with open(date_file_location, "w") as new_date_file:
+        new_date_file.write(new_date)
+    print("Current date is-->", read_fake_date())
 
 
 def range_checker(num):
@@ -115,7 +132,7 @@ def range_checker(num):
     converts num to int and if num not in range 0-10,
     ArgumentTypeError will be raised.
     Only use for this function is to return a replacement error for the builtin error message for the add_argument() method in argparse
-    for the choices kwarg.
+    for the kwarg choices.
     """
     num = int(num)
     if num not in list(range(1, 11)):
@@ -126,13 +143,8 @@ def range_checker(num):
 def buy_product(args):
     """
     uses args parameter to access product info given in subparser command
-    and appends row of arguments into file 'bought.csv'.
+    and appends row of values into file 'bought.csv'.
     """
-
-    # ik doe nu niks met id.. Kan mss weg.
-    # with open(bought_file) as csv_bought:
-    #     id = len(csv_bought.readlines())
-
     with open(bought_file, "a", newline="") as csv_bought:
         writer = csv.DictWriter(csv_bought, fieldnames=fieldnames_bought)
         for i in range(args.amount):
@@ -145,7 +157,7 @@ def buy_product(args):
                     "expiration_date": args.expirydate,
                 }
             )
-    print("product added")
+    print(f"product {args.product_name} added")
 
 
 def sell_product(args):
@@ -153,11 +165,11 @@ def sell_product(args):
     Uses args parameter to access product info given in subparser command
     and reads from 'bought.csv' if valid command is given.
     Writes product info to 'sold.csv' and 'updates' 'bought.csv' accordingly.
-    With 'updates', meaning it wil delete the row from bought.csv.
+    With 'updates', meaning it wil delete the row from bought.csv file
     """
 
     # reads from bought.csv if product/product amount exist.
-    # appends target product and non-target product to lists.
+    # appends target product and non-target product to clean_rows and dirt_rows respectively.
     dirty_rows = []
     clean_rows = []
     with open(bought_file, "r") as bought_r:
@@ -165,7 +177,7 @@ def sell_product(args):
         count = 0
         for row in reader:
             if row["product_name"] == args.product_name:
-                if count == args.amount:  # uses args.amount for amount to sell
+                if count == args.amount:
                     clean_rows.append(row)
                     continue
                 else:
@@ -174,7 +186,7 @@ def sell_product(args):
             if row["product_name"] != args.product_name:
                 clean_rows.append(row)
 
-        # raises exception if amount to sell > in stock
+        # raises error if amount to sell > in stock
         if len(dirty_rows) < args.amount:
             raise ValueError(
                 f"""Tried to sell {args.amount} items of {args.product_name}. There are only {len(dirty_rows)} left in stock."""
@@ -193,7 +205,6 @@ def sell_product(args):
 
             writer.writerow(
                 {
-                    # "id": row["id"],
                     "product_name": row["product_name"],
                     "buy_price": row["buy_price"],
                     "buy_date": row["buy_date"],
@@ -207,10 +218,14 @@ def sell_product(args):
 
 
 def handle_product_list(args):
-    """Takes in attribute for args, which are 'add' or 'remove'
-    and adds or removes the argument given from the products_list.csv
+    """
+    Used for updating products_list.csv with custom items.
+    List is already pre-occupied with items for quicker use of program.
+    Takes in attribute for args, which are 'add' or 'remove'
+    and adds or removes the item given from the products_list.csv.
     It will always print out a list of products available from products_list.csv.
     """
+
     with open(product_list_csv) as lst:
         reader = csv.reader(lst)
         flat_list = [product for sublist in list(reader) for product in sublist]
@@ -241,8 +256,22 @@ def handle_product_list(args):
     if args.remove:
         remove_product()
     if args:
-        print(f"Total unique products in stock: {len(flat_list)}")
+        print(f"Total unique products available to buy/sell: {len(flat_list)}")
         [print(product) for product in sorted(flat_list)]
+
+
+# ---------comments over de handle_inventory()
+"""
+ik zag pas nadat ik 99% klaar was dat je de inventory moest kunnen zien van bepaalde dagen.
+Dus heb daar geen rekening mee gehouden toen ik met de handle_inventory() begon.
+Heb later de mogelijkheid erin gezet om alleen de short_inventory() van 'gisteren' te kunnen zien.
+Hoop dat dat genoeg is.
+Ook was het, denk ik, niet echt handig om zoveel functies in een functie te nestelen, 
+maar ik vond het zelf handig om ze bij elkaar te houden.
+Heb er zelf niet zoveel last van gehad, maar ik denk dat als er bugs in zitten, dat die traceback
+waarschijnlijk steeds langer wordt en lastiger wordt om te ontcijferen.
+"""
+# comments over de handle_inventory()----------
 
 
 def handle_inventory(args):
@@ -269,11 +298,26 @@ def handle_inventory(args):
             flat_list = [product for sublist in list(reader_lst) for product in sublist]
             simple_inventory = {flat_list: 0 for flat_list in flat_list}
             reader_bought = csv.DictReader(bought_r)
+            current_fake_date = date.fromisoformat(read_fake_date())
 
             for row in reader_bought:
+                buy_date = date.fromisoformat(row["buy_date"])
                 for product, count in simple_inventory.items():
-                    if product == row["product_name"]:
+
+                    # if-block laat alleen inventory van gisteren zien
+                    if args.yesterday:
+                        buy_date = date.fromisoformat(row["buy_date"])
+                        buy_date_delta = buy_date - current_fake_date
+
+                        if product == row["product_name"] and buy_date_delta.days == -1:
+                            simple_inventory[product] += 1
+
+                    elif (
+                        product == row["product_name"] and buy_date <= current_fake_date
+                    ):
                         simple_inventory[product] += 1
+
+        # prints table to console
         short_table = Table(title="Short Inventory", show_lines=True)
         short_table.add_column("Product")
         short_table.add_column("Count", justify="right")
@@ -285,15 +329,15 @@ def handle_inventory(args):
                 short_table.add_row(product, str(count), style="red")
             else:
                 short_table.add_row(product, str(count))
-
         console.print(short_table)
+
         print(
             f"{Fore.YELLOW}There are a total of {total_items} items in stock{Fore.RESET}"
         )
+
         # writers/re-writes inventory.txt with inventory table
         if args.print:
             console.save_text(os.path.join(log_dir, inventory_txt))
-            # write_table_to_file(txt)
 
     def product_inventory(file_to_open=bought_file):
         """
@@ -304,14 +348,14 @@ def handle_inventory(args):
         """
         count = 0
         product = args.product
-
-        # product_table.add_column()
         with open(file_to_open) as csv_read, open(product_list_csv) as product_list:
             reader_product_list = csv.reader(product_list)
             reader = csv.DictReader(csv_read)
             flat_list = [
                 product for sublist in list(reader_product_list) for product in sublist
             ]
+            current_fake_date = date.fromisoformat(read_fake_date())
+            # prints table for current inventory for specified product
             if file_to_open == bought_file:
                 product_table = Table(
                     title=f"{Fore.YELLOW}Product Inventory for {product.title()}{Fore.RESET} ",
@@ -319,13 +363,11 @@ def handle_inventory(args):
                 )
                 table_columns = ["buy_price", "buy_date", "expiration_date"]
 
-                # for header in reader.fieldnames:
-                #     if header in table_columns:
-                #         product_table.add_column(header)
                 for header in table_columns:
                     product_table.add_column(header)
                 for row in reader:
-                    if row["product_name"] == product:
+                    buy_date = date.fromisoformat(row["buy_date"])
+                    if row["product_name"] == product and buy_date <= current_fake_date:
                         count += 1
                         product_table.add_row(
                             row[table_columns[0]],
@@ -333,35 +375,27 @@ def handle_inventory(args):
                             row[table_columns[2]],
                         )
 
+            # prints sold table for specified product
             if file_to_open == sold_file:
                 product_table = Table(
                     title=f"{Fore.YELLOW}Product {product.title()} Sold{Fore.RESET} ",
                     show_lines=True,
                 )
-                table_columns = [
-                    "id",
-                    "product_name",
-                    "product_amount",
-                    "buy_price",
-                    "sell_price",
-                    "buy_date",
-                    "sell_date",
-                    "expiration_date",
-                ]
-                for header in reader.fieldnames:
-                    product_table.add_column(header)
+
+                product_table.add_column("product name")
+                product_table.add_column("buy price")
+                product_table.add_column("sell price")
+                product_table.add_column("sell date")
+                product_table.add_column("expiration date")
                 for row in reader:
                     if row["product_name"] == product:
                         count += 1
                         product_table.add_row(
-                            row[table_columns[0]],
-                            row[table_columns[1]],
-                            row[table_columns[2]],
-                            row[table_columns[3]],
-                            row[table_columns[4]],
-                            row[table_columns[5]],
-                            row[table_columns[6]],
-                            row[table_columns[7]],
+                            row["product_name"],
+                            row["buy_price"],
+                            row["sell_price"],
+                            row["sell_date"],
+                            row["expiration_date"],
                         )
 
         if product not in flat_list:
@@ -391,6 +425,7 @@ def handle_inventory(args):
             show_lines=False,
         )
         table_columns = ["product_name", "buy_price", "buy_date", "expiration_date"]
+        current_fake_date = date.fromisoformat(read_fake_date())
         with open(bought_file) as bought:
             reader = csv.DictReader(bought)
 
@@ -398,12 +433,14 @@ def handle_inventory(args):
                 if header in table_columns:
                     long_table.add_column(header)
             for row in reader:
-                long_table.add_row(
-                    row[table_columns[0]],
-                    row[table_columns[1]],
-                    row[table_columns[2]],
-                    row[table_columns[3]],
-                )
+                buy_date = date.fromisoformat(row["buy_date"])
+                if buy_date <= current_fake_date:
+                    long_table.add_row(
+                        row[table_columns[0]],
+                        row[table_columns[1]],
+                        row[table_columns[2]],
+                        row[table_columns[3]],
+                    )
         console.print(long_table)
         if args.print:
             console.save_text(os.path.join(log_dir, inventory_txt))
@@ -413,7 +450,7 @@ def handle_inventory(args):
         Reads through sold.csv and creates a list of all items sold
         and prints it in table form to the console.
         """
-        dump_table = Table(
+        sold_table = Table(
             title=f"{Fore.YELLOW}Total Sold{Fore.RESET}", show_lines=False
         )
         table_columns = [
@@ -425,100 +462,216 @@ def handle_inventory(args):
             "sell_date",
             "expiration_date",
         ]
+        current_fake_date = date.fromisoformat(read_fake_date())
         with open(sold_file) as sold:
             reader = csv.DictReader(sold)
             for header in reader.fieldnames:
                 if header in table_columns:
-                    dump_table.add_column(header)
+                    sold_table.add_column(header)
             for row in reader:
-                dump_table.add_row(
-                    row[table_columns[0]],
-                    row[table_columns[1]],
-                    row[table_columns[2]],
-                    row[table_columns[3]],
-                    row[table_columns[4]],
-                    row[table_columns[5]],
-                    row[table_columns[6]],
-                )
-        console.print(dump_table)
+                sell_date = date.fromisoformat(row["sell_date"])
+                if sell_date <= current_fake_date:
+                    sold_table.add_row(
+                        row[table_columns[0]],
+                        row[table_columns[1]],
+                        row[table_columns[2]],
+                        row[table_columns[3]],
+                        row[table_columns[4]],
+                        row[table_columns[5]],
+                        row[table_columns[6]],
+                    )
+        console.print(sold_table)
         if args.print:
             console.save_text(os.path.join(log_dir, inventory_txt))
 
-    # calling functions depending on args command given
+    # calling nested functions depending on args command given
     if args.short:
         short_inventory()
-    if args.product and not args.dumped:
+    if args.product and not args.sold:
         product_inventory()
     if args.long:
         long_inventory()
-    if args.dumped and not args.product:
+    if args.sold and not args.product:
         sold_inventory()
-    if args.dumped and args.product:
+    if args.sold and args.product:
         product_inventory(sold_file)
 
 
-# -today, timedelta 0
-# -yesterday, timedelta 0
-# -date 12-28-10 timedelta = 0
-# -delta 2020-12 timedelta = 30
+def convert_to_timestr(time_str):
+    """
+    converts string into a datetime object if argument passed to function corresponds to
+    format 'string-num' where string is month in 3 characters and num is a 2 digit num.
+    example: jan-20 will be converted to datetime obj: datetime.date(2020, 1, 1)
+    Only use is as a typechecker in report parser to return datetime obj from passed  '--month' argument
+    ** needs to be updated every 100 years... :)**
+    """
+    month_str, year_int = time_str.split("/")
+    months = [
+        "jan",
+        "feb",
+        "mar",
+        "apr",
+        "may",
+        "jun",
+        "jul",
+        "aug",
+        "sep",
+        "oct",
+        "nov",
+        "dec",
+    ]
+    try:
+        for i, month in enumerate(months, start=1):
+            if month_str == month:
+                month_int = i
+        year_int = f"20{year_int}"  # is pas over 80 jaar een probleem.. :)
+        date_time = date(int(year_int), int(month_int), 1)
+        return date_time
+    except Exception:
+        print(
+            """something went wrong with your input. Check if input is of format 'aaa/bb', 
+        where 'aaa' is a three length string of the month and 'bb' is the year.
+        Acceptable examples:
+        jan/20
+        mar/22
+        jul/18
+        """
+        )
 
 
-def revenue(
-    args, price="sell_price", file=sold_file, delta_days=5, target_date=read_fake_date()
-):
-    # delta_days = 1
-    # print(delta.days, "print delta.days")
-    # print(args, "print in revenue")
+def get_total_price(args, price, file, type_report):
+
+    """
+    Reads through file(.csv) parameter and calculates the total
+    for all the rows in the file with the attribute price parameter.
+    Depending on the args attribute will calculate and return total price.
+    Also prints the product.  Functie doet een beetje te veel..
+    """
+
     total_price = 0
+    table = Table(
+        title=f"{Fore.YELLOW}Total {type_report}{Fore.RESET}", show_lines=False
+    )
     with open(file) as opened_file:
         reader = csv.DictReader(opened_file)
+        table.add_column("product_name")
+        table.add_column("sell_price")
+
         for row in reader:
-            sell_date = date.fromisoformat(row[price])
+
+            sell_date = date.fromisoformat(row["sell_date"])
             sell_price = float(row[price])
-            current_date = date.fromisoformat(read_fake_date())
-            # print(type(target_date))
-            format_target_date = date.fromisoformat(target_date)
-            # print(current_date.weekday())
-            # print(sell_date, sell_price, current_date)
-            diff = sell_date - current_date
-            # print(target_date, current_date, "same")
-            # print(type(current_date))
-            if diff.days <= delta_days and format_target_date == current_date:
-                # print(row["sell_price"], "sold today")
-                # print("yes")
-                total_price += sell_price
-        print(total_price, "total price")
-        return total_price
+            current_fake_date = date.fromisoformat(read_fake_date())
+
+            if args.today:
+                if current_fake_date == sell_date:
+                    total_price += sell_price
+                    table.add_row(
+                        row["product_name"],
+                        row["sell_price"],
+                    )
+            if args.yesterday:
+                sell_date_delta = sell_date - current_fake_date
+                if sell_date_delta.days == -1:
+                    total_price += sell_price
+                    table.add_row(
+                        row["product_name"],
+                        row["sell_price"],
+                    )
+            if args.day:
+                target_date_string = date.fromisoformat(args.day)
+                if target_date_string == sell_date:
+                    total_price += sell_price
+                    table.add_row(
+                        row["product_name"],
+                        row["sell_price"],
+                    )
+            if args.month:
+                sell_year = sell_date.year
+                target_year = args.month.year
+                sell_month = sell_date.month
+                target_month = args.month.month
+                if sell_year == target_year and sell_month == target_month:
+                    table.add_row(
+                        row["product_name"],
+                        row["sell_price"],
+                    )
+                    total_price += sell_price
+    if type_report == "revenue":
+        console.print(table)
+        if args.today:
+            print(f"The {type_report} for today is €{total_price}")
+        if args.yesterday:
+            print(f"The {type_report} for yesterday is €{total_price}")
+        if args.day:
+            print(f"The {type_report} for {args.day} is €{total_price}")
+        if args.month:
+            print(
+                f"The {type_report} for {args.month.strftime('%B')}, {args.month.strftime('%Y')} is €{total_price}"
+            )
+    if args.print:
+        console.save_text(os.path.join(log_dir, report_file))
+
+    return total_price
 
 
-def handle_report(args):
-    print("handling report")
-    revenue(args)
-    print("finished handling report")
-    # if row[""]
-    # door sold heen loopen
-    # check if sold date = date to look for
-    # check current !!fake!!date
-    # check sold price and sum
-    # check date!!!!!
+def get_revenue(args):
+    revenue = get_total_price(args, "sell_price", sold_file, "revenue")
+    return revenue
 
 
-def expenses():
-    pass
+def get_expenses(args):
+    expenses = get_total_price(args, "buy_price", sold_file, "expenses")
+    return expenses
 
 
-def profit():
-    total_profit = revenue() - expenses()
-    return total_profit
+def get_profit(args):
+    # niet get_revenue - get_expenses gebruikt, omdat er dan dubbel wordt geprint naar de console
+    total_profit = get_total_price(
+        args, "sell_price", sold_file, "profit"
+    ) - get_total_price(args, "buy_price", sold_file, "profit")
+
+    if args.today:
+        print(f"The profit for today is €{total_profit}")
+    if args.yesterday:
+        print(f"The profit for yesterday is €{total_profit}")
+    if args.day:
+        print(f"The profit for {args.day} is €{total_profit}")
+    if args.month:
+        print(
+            f"The profit for {args.month.strftime('%B')}, {args.month.strftime('%Y')} is €{total_profit}"
+        )
 
 
-# profit = revenue - expenses
+def display_expired(args):
+    """
+    prints a table of expired products to the console.
+    expired means in this case, if the expiration date is less than the current 'fake date'
+    from the date.txt file.
+    If args.print is True, exports the printed table to expired_items.txt
+    """
+    table = Table(title=f"{Fore.YELLOW}Expired Products{Fore.RESET}", show_lines=False)
 
+    with open(bought_file) as bought_csv:
 
-#    parser.add_argument("--foo",choices=range(10))
-def handle_revenue(args):
-    print("handling revenue")
+        reader = csv.DictReader(bought_csv)
+        current_date = date.fromisoformat(read_fake_date())
 
+        table.add_column("product name")
+        table.add_column("buy price")
+        table.add_column("buy date")
+        table.add_column("expiration date")
 
-def handle_profit(args):
-    print("handloing profit")
+        for row in reader:
+            exp_date = date.fromisoformat(row["expiration_date"])
+
+            if current_date > exp_date:
+                table.add_row(
+                    row["product_name"],
+                    row["buy_price"],
+                    row["buy_date"],
+                    row["expiration_date"],
+                )
+        console.print(table)
+        if args.print:
+            console.save_text(os.path.join(log_dir, "expired_items.txt"))
