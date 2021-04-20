@@ -3,7 +3,7 @@ import argparse
 from colorama import Fore
 
 
-import descriptions as d  # mss onduidelijk als d, maar waar ze worden gebruikt, maakt het duidelijk genoeg hoop ik
+import descriptions as d
 from helper_func import (
     create_log_dir,
     buy_product,
@@ -217,7 +217,6 @@ def main():
 
     if args.func:
         args.func(args)  # calls appropiate function for subparser args
-    # print(args)
 
 
 if __name__ == "__main__":

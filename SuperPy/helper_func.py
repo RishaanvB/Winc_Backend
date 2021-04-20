@@ -214,7 +214,7 @@ def sell_product(args):
                     "expiration_date": row["expiration_date"],
                 }
             )
-    print(f"product {args.product_name} sold {args.amount} time(s) for {args.price}")
+    print(f"product {args.product_name} sold {args.amount} time(s) for €{args.price}")
 
 
 def handle_product_list(args):
@@ -306,10 +306,11 @@ def handle_inventory(args):
 
                     # if-block laat alleen inventory van gisteren zien
                     if args.yesterday:
+                        one_day = timedelta(days=1)
+                        yesterday = date.fromisoformat(read_fake_date()) - one_day
                         buy_date = date.fromisoformat(row["buy_date"])
-                        buy_date_delta = buy_date - current_fake_date
 
-                        if product == row["product_name"] and buy_date_delta.days == -1:
+                        if product == row["product_name"] and buy_date < yesterday:
                             simple_inventory[product] += 1
 
                     elif (
