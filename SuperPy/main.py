@@ -1,23 +1,31 @@
 # Imports
 import argparse
-from colorama import Fore
-
-
 import descriptions as d
-from helper_func import (
-    create_log_dir,
+from core_func import (
+    # create_log_dir,
     buy_product,
     sell_product,
     handle_product_list,
     handle_inventory,
-    read_productlist_csv,
-    range_checker,
+    # read_productlist_csv,
+    # range_checker,
     get_revenue,
     get_profit,
+    # read_fake_date,
+    # set_fake_date,
+    # convert_to_timestr,
+    display_expired,
+    # date_input_checker,
+)
+from helper_func import (
+    create_log_dir,
+    
+    date_input_checker,
+    read_productlist_csv,
     read_fake_date,
     set_fake_date,
+    range_checker,
     convert_to_timestr,
-    display_expired,
 )
 
 
@@ -25,8 +33,9 @@ from helper_func import (
 __winc_id__ = "a2bc36ea784242e4989deb157d527ba0"
 __human_name__ = "superpy"
 
-
 # Your code below this line.
+
+
 def main():
     create_log_dir()  # creates and/or checks necessary folders
     parser = argparse.ArgumentParser(
@@ -37,7 +46,6 @@ def main():
     parser.set_defaults(func=None)
 
     subparsers = parser.add_subparsers(
-        help=f"help message {Fore.RED}for{Fore.RESET} subparsers",  # wijzigen
         dest="subparser_name",
         description=d.subparsers,
     )
@@ -67,7 +75,8 @@ def main():
         "report",
         formatter_class=argparse.RawTextHelpFormatter,
         description=d.subparser_report,
-        add_help=False,
+        # add_help=False,
+        conflict_handler="resolve",
     )
     subparser_time = subparsers.add_parser(
         "time",
@@ -93,6 +102,7 @@ def main():
         "--expirydate",
         metavar="expiration date",
         default="2100-01-01",
+        type=date_input_checker,
         help="set product expiration date (default: 2100-01-01)",
     )
     subparser_buy.add_argument(
@@ -107,6 +117,7 @@ def main():
         "-d",
         "--date",
         default=read_fake_date(),
+        type=date_input_checker,
         metavar="product buy date",
         help="set buy date. (default: 'today')",
     )
@@ -196,12 +207,28 @@ def main():
     subparser_report.add_argument(
         "--print", action="store_true", help="exports table to .txt file"
     )
-    subparser_report.add_argument("--expiration", "-exp", action="store_true")
-    revenue = subparsers_report.add_parser("revenue", parents=[subparser_report])
-    profit = subparsers_report.add_parser("profit", parents=[subparser_report])
+    # subparser_report.add_argument(
+    #     "--help", "-h", action="store_true"
+    # )
+
+    # subparser_report.add_argument("--expiration", "-exp", action="store_true")
+    revenue = subparsers_report.add_parser(
+        "revenue",
+        parents=[subparser_report],
+        conflict_handler="resolve",
+        description=d.subparser_revenue,
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+    profit = subparsers_report.add_parser(
+        "profit",
+        parents=[subparser_report],
+        conflict_handler="resolve",
+        description=d.subparser_profit,
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
 
     # ==========Arguments for ADVANCE TIME parser===========
-    subparser_time.add_argument("time", help="advance time in days", type=int)
+    subparser_time.add_argument("time", help="change time in days", type=int)
 
     # function defaults for subparser arguments
     subparser_buy.set_defaults(func=buy_product)
