@@ -80,8 +80,8 @@ The program will quit now. Bye!!!
 
         # creates product list file (can buy/sell product if in this list)
         """
-        reden voor deze was eigenlijk dat je niet zomaar elk product wat je wilt hebben kunt
-        'bestellen' als supermarkt van de 'leverancier'
+        Reden voor de functie was dat je als supermarkt afhankelijk bent van wat
+        voor producten de leverancier heeft.
         """
         with open(product_list_csv, "w", newline="") as p_lst:
             writer = csv.writer(p_lst)
@@ -95,6 +95,10 @@ The program will quit now. Bye!!!
 
 
 def date_input_checker(date_string):
+    """
+    simple checker to make sure input for
+    date-related arguments are of string 'yyyy-mm-dd'
+    """
     return date.fromisoformat(date_string)
 
 

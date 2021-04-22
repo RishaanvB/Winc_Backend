@@ -1,37 +1,30 @@
 from colorama import Fore, Back, Style
 
 parser_epilog = "epilogue superpy"
-# parser_epilog = f"""
-# {Fore.YELLOW}           |
-#       \    |   /
-#        \      /
-#          ,000,           .,
-#  (')-")_ 00000 ---   ;';'  ';'.
-# ('-  (. ')000'      ';.,;    ,;
-#  '-.(___)'     \       '.';.'
-#            |    \
-#            |{Fore.RESET}
-#  ____                                         ____
-# /\  _`\                                      /\  _`\
-# \ \,\L\_\    __  __   _____      __    _ __  \ \ \L\ \ __  __
-#  \/_\__ \   /\ \/\ \ /\ '__`\  /'__`\ /\`'__\ \ \ ,__//\ \/\ \
-#    /\ \L\ \ \ \ \_\ \\ \ \L\ \/\  __/ \ \ \/   \ \ \/ \ \ \_\ \
-#    \ `\____\ \ \____/ \ \ ,__/\ \____\ \ \_\    \ \_\  \/`____ \
-#     \/_____/  \/___/   \ \ \/  \/____/  \/_/     \/_/   `/___/> \
-#                         \ \_\                              /\___/
-#                          \/_/                              \/__/
+parser_epilog = f"""
+{Fore.YELLOW}           |
+      \    |   /
+       \      /
+         ,000,           .,
+ (')-")_ 00000 ---   ;';'  ';'.
+('-  (. ')000'      ';.,;    ,;
+ '-.(___)'     \       '.';.'
+           |    \ 
+           |{Fore.RESET}
+ ____                                         ____
+/\  _`\                                      /\  _`\ 
+\ \,\L\_\    __  __   _____      __    _ __  \ \ \L\ \ __  __
+ \/_\__ \   /\ \/\ \ /\ '__`\  /'__`\ /\`'__\ \ \ ,__//\ \/\ \ 
+   /\ \L\ \ \ \ \_\ \\ \ \L\ \/\  __/ \ \ \/   \ \ \/ \ \ \_\ \ 
+   \ `\____\ \ \____/ \ \ ,__/\ \____\ \ \_\    \ \_\  \/`____ \ 
+    \/_____/  \/___/   \ \ \/  \/____/  \/_/     \/_/   `/___/> \ 
+                        \ \_\                              /\___/
+                         \/_/                              \/__/
 
-# {Fore.BLUE}_.~"(_.~"(_.~"(_.~"(_.~"(_.~"(_.~"(_.~"(_.~"(_.~"(_.~"(_.~"(_.~"{Fore.RESET}
-#                                                             v1.00
-#     """
+{Fore.BLUE}_.~"(_.~"(_.~"(_.~"(_.~"(_.~"(_.~"(_.~"(_.~"(_.~"(_.~"(_.~"(_.~"{Fore.RESET}
+                                                            v1.00
+"""
 
-
-parser = """
-        Program for keeping track of inventory.
-        Possible usages are buying and selling of products,
-        advancing time,checking revenue and profit over certain period of time.
-        Also able to print out and export inventory information.
-        """
 
 subparsers = f"""
 Subcommands used for various situations
@@ -90,7 +83,16 @@ Optionals include:
   --remove     | item to be removed to the list
   """
 
-subparser_inventory = """subparser description for the inventory argument"""
+subparser_inventory = """Subcommand to display an inventory depending on the arguments used.
+The specific inventory will be printed to the console as table form.
+Arguments can not be used together, except for the combination:
+--short --yesterday.
+
+The --product argument needs a flag, which should be the individual product to be displayed.
+For example: '%(prog)s --product orange', will print out the current inventory for the orange product.
+The optional --print argument needs no flags and can be used with any other optional.
+It will export the printed table to an inventory.txt file.
+  """
 
 subparser_report = f"""Subcommand to get a report of various data. 
 When only '%(prog)s' is given, will display a table of expired products.
@@ -111,10 +113,10 @@ Displays the revenue for a specific time depending on the optional arguments giv
 When no optionals are given, prints out an empty table.
 
 Optional arguments include:
---today:        needs no arguments, displays revenue for today
---yesterday:    needs no arguments, displays revenue for yesterday
---day:          accepts date in format 'YYYY-MM-DD' and displays revenue for that day
---month:        accepts date in format 'MMM/YY' where 'MMM'
+--today:        needs no flags, displays revenue for today
+--yesterday:    needs no flags, displays revenue for yesterday
+--day:          needs a flag in format 'YYYY-MM-DD' and displays revenue for that day
+--month:        needs a flag in format 'MMM/YY' where 'MMM'
                 is the month's first three characters and 'YY'
                 are last 2 digits of the year. Where it will display revenue
                 for the month 'MMM' in year '20YY'

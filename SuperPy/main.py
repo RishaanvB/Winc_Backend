@@ -1,3 +1,10 @@
+"""
+This script can be used to keep track of various data within
+an inventory system of items. 
+Possible usages are buying and selling of items,
+advancing time,checking revenue and profit over certain period of time.
+Also able to print out and export various data.
+"""
 # Imports
 import argparse
 import descriptions as d
@@ -19,7 +26,6 @@ from core_func import (
 )
 from helper_func import (
     create_log_dir,
-    
     date_input_checker,
     read_productlist_csv,
     read_fake_date,
@@ -40,7 +46,7 @@ def main():
     create_log_dir()  # creates and/or checks necessary folders
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter,
-        description=d.parser,
+        description=__doc__,
         epilog=d.parser_epilog,
     )
     parser.set_defaults(func=None)
@@ -175,7 +181,7 @@ def main():
     inventory_group.add_argument(
         "--sold", "-sld", "-sl", help="displays sold products", action="store_true"
     )
-    subparser_inventory.add_argument(
+    inventory_group.add_argument(
         "--product",
         "-p",
         help="displays single product inventory",

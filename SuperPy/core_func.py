@@ -54,39 +54,39 @@ def sell_product(args):
     """
 
     # reads from bought.csv if product/product amount exist.
-    # appends target product and non-target product to clean_rows and dirt_rows respectively.
-    dirty_rows = []
-    clean_rows = []
+    # appends target product and non-target product to skip_row and sell_rows respectively.
+    sell_rows = []
+    skip_row = []
     with open(bought_file, "r") as bought_r:
         reader = csv.DictReader(bought_r)
         count = 0
         for row in reader:
             if row["product_name"] == args.product_name:
                 if count == args.amount:
-                    clean_rows.append(row)
+                    skip_row.append(row)
                     continue
                 else:
-                    dirty_rows.append(row)
+                    sell_rows.append(row)
                     count += 1
             if row["product_name"] != args.product_name:
-                clean_rows.append(row)
+                skip_row.append(row)
 
         # raises error if amount to sell > in stock
-        if len(dirty_rows) < args.amount:
+        if len(sell_rows) < args.amount:
             raise ValueError(
-                f"""Tried to sell {args.amount} items of {args.product_name}. There are only {len(dirty_rows)} left in stock."""
+                f"""Tried to sell {args.amount} items of {args.product_name}. There are only {len(sell_rows)} left in stock."""
             )
 
-    # re-writes clean rows to bought.csv
+    # re-writes skip_rows to bought.csv
     with open(bought_file, "w", newline="") as bought_w:
         writer = csv.DictWriter(bought_w, fieldnames=fieldnames_bought)
         writer.writeheader()
-        writer.writerows(clean_rows)
+        writer.writerows(skip_row)
 
-    # appends dirty rows to sold.csv
+    # appends to_sell_rows to sold.csv
     with open(sold_file, "a", newline="") as sold:
         writer = csv.DictWriter(sold, fieldnames=fieldnames_sold)
-        for row in dirty_rows:
+        for row in sell_rows:
 
             writer.writerow(
                 {
@@ -146,8 +146,9 @@ def handle_product_list(args):
 
 # ---------comments over de handle_inventory()
 """
-ik zag pas nadat ik 99% klaar was dat je de inventory moest kunnen zien van bepaalde dagen.
+ik zag pas nadat ik 99% klaar was dat je de inventory moest kunnen zien van 'bepaalde' dagen.(yesterday, etc)
 Dus heb daar geen rekening mee gehouden toen ik met de handle_inventory() begon.
+Heb dus toen alleen maar rekening gehouden met inventory 'vandaag'.
 Heb later de mogelijkheid erin gezet om alleen de short_inventory() van 'gisteren' te kunnen zien.
 Hoop dat dat genoeg is.
 Ook was het, denk ik, niet echt handig om zoveel functies in een functie te nestelen, 
@@ -180,7 +181,7 @@ def handle_inventory(args):
         with open(bought_file) as bought_r:
             reader_bought = csv.DictReader(bought_r)
             product_list = read_productlist_csv()
-            simple_inventory = {product_list: 0 for product_list in product_list}
+            simple_inventory = {product: 0 for product in product_list}
             current_fake_date = date.fromisoformat(read_fake_date())
 
             for row in reader_bought:
@@ -219,7 +220,7 @@ def handle_inventory(args):
             f"{Fore.YELLOW}There are a total of {total_items} items in stock{Fore.RESET}"
         )
 
-        # writers/re-writes inventory.txt with inventory table
+        # exports printed table to inventory.txt
         if args.print:
             console.save_text(os.path.join(log_dir, inventory_txt))
 
@@ -383,9 +384,9 @@ def get_total_price(args, price, file, type_report):
     Reads through file(.csv) parameter and calculates the total
     for all the rows in the file with the attribute price parameter.
     Depending on the args attribute will calculate and return total price.
-    Also prints the product.
+    Also prints the products.
     *****Functie doet een beetje te veel,
-    maar wist niet zo snel om dit sneller op te lossen*****
+    maar wist niet zo snel om dit beter op te lossen*****
     """
 
     total_price = 0
