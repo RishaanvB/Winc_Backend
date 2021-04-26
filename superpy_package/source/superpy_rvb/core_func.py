@@ -1,23 +1,28 @@
+# module imports
 import csv
 import os
+from colorama import Fore
 from datetime import date, timedelta
 from rich.console import Console
 from rich.table import Table
-from colorama import Fore
 
+# variable imports
 from superpy_rvb.helper_var import (
+    log_dir,
     bought_file,
-    fieldnames_bought,
-    fieldnames_sold,
     sold_file,
     product_list_csv,
-    log_dir,
     inventory_txt,
+    fieldnames_bought,
+    fieldnames_sold,
     report_file,
 )
 from superpy_rvb.helper_func import read_fake_date, read_productlist_csv
 
+
 console = Console(record=True)
+
+# functions mainly related to the functioning/requirements of program
 
 
 def buy_product(args):
@@ -189,11 +194,11 @@ def handle_inventory(args):
                         yesterday = date.fromisoformat(read_fake_date()) - one_day
                         buy_date = date.fromisoformat(row["buy_date"])
 
-                        if product == row["product_name"] and buy_date < yesterday:
+                        if product == row["product_name"] and buy_date <= yesterday:
                             simple_inventory[product] += 1
 
                     elif (
-                        product == row["product_name"] and buy_date <= current_fake_date
+                        product == row["product_name"] and buy_date < current_fake_date
                     ):
                         simple_inventory[product] += 1
 
@@ -231,6 +236,7 @@ def handle_inventory(args):
         with open(file_to_open) as csv_read:
             reader = csv.DictReader(csv_read)
             current_fake_date = date.fromisoformat(read_fake_date())
+
             # prints table for current inventory for specified product
             if file_to_open == bought_file:
                 product_table = Table(

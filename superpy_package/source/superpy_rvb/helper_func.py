@@ -1,20 +1,24 @@
-from colorama import Fore, Back
-import sys
+from datetime import date, timedelta
 import os
 import csv
 import argparse
+import sys
 import datetime as dt
-from datetime import date, timedelta
+from colorama import Fore, Back
+
 from superpy_rvb.helper_var import (
     log_dir,
     log_txt_file,
-    date_file,
     csv_bought,
+    fieldnames_bought,
     csv_sold,
     fieldnames_sold,
-    fieldnames_bought,
     product_list_csv,
+    date_file,
 )
+
+
+# Helper functions
 
 
 def create_log_dir():
@@ -30,23 +34,23 @@ def create_log_dir():
         if log_txt_file not in os.listdir(log_dir):
             raise FileExistsError(
                 f"""
-    {Back.RED}!!!WARNING!!!{Back.RESET}{Back.RED}!!!WARNING!!!{Back.RESET}{Back.RED}!!!WARNING!!!{Back.RESET}
+{Back.RED}!!!WARNING!!!{Back.RESET}{Back.RED}!!!WARNING!!!{Back.RESET}{Back.RED}!!!WARNING!!!{Back.RESET}
 
 
-    Directory '{log_dir}' already exist,
-    but could not find necessary {log_txt_file} file,
-    Either you already have an existing '{log_dir}' directory, 
-    or you may have deleted the necessary {log_txt_file} file!!!
-    You can try the following:
+Directory '{log_dir}' already exist,
+but could not find necessary {log_txt_file} file,
+Either you already have an existing '{log_dir}' directory, 
+or you may have deleted the necessary {log_txt_file} file!!!
+You can try the following:
 
-    {Fore.YELLOW}1. Remove '{log_dir}' folder in current directory.
-    2.Create a new {log_txt_file} file inside the {log_dir} folder. {Fore.RESET}
+{Fore.YELLOW}1. Remove '{log_dir}' folder in current directory.
+2.Create a new {log_txt_file} file inside the {log_dir} folder. {Fore.RESET}
 
-    The program will quit now. Bye!!!
+The program will quit now. Bye!!!
 
 
-    {Back.RED}!!!WARNING!!!{Back.RESET}{Back.RED}!!!WARNING!!!{Back.RESET}{Back.RED}!!!WARNING!!!{Back.RESET}
-    """
+{Back.RED}!!!WARNING!!!{Back.RESET}{Back.RED}!!!WARNING!!!{Back.RESET}{Back.RED}!!!WARNING!!!{Back.RESET}
+"""
             )
             sys.exit()
 
@@ -61,7 +65,7 @@ def create_log_dir():
         with open(os.path.join(log_dir, log_txt_file), "w") as file_log:
             file_log.write(
                 f"""created file for first time at {dt.datetime.now()}
-                WARNING!!! Do NOT remove this file."""
+            WARNING!!! Do NOT remove this file."""
             )
 
         # creates bought.csv file
@@ -76,9 +80,9 @@ def create_log_dir():
 
         # creates product list file (can buy/sell product if in this list)
         """
-            Reden voor de functie was dat je als supermarkt afhankelijk bent van wat
-            voor producten de leverancier heeft.
-            """
+        Reden voor de functie was dat je als supermarkt afhankelijk bent van wat
+        voor producten de leverancier heeft.
+        """
         with open(product_list_csv, "w", newline="") as p_lst:
             writer = csv.writer(p_lst)
             # volgende writerows om alvast producten te hebben om te kopen/verkopen,

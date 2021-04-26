@@ -1,6 +1,6 @@
 from colorama import Fore
 
-parser_epilog = "epilogue superpy"
+
 parser_epilog = f"""
 {Fore.YELLOW}           |
       \    |   /
@@ -121,7 +121,7 @@ Optional arguments include:
                 are last 2 digits of the year. Where it will display revenue
                 for the month 'MMM' in year '20YY'
                 For example:
-                '%(prog)s apr/20'
+                'apr/20' | 'may/19'
 --print         Will export the table printed out to the terminal as a 'report.txt' file
 
 Optional arguments can not be use together, except for --print argument.
@@ -142,7 +142,7 @@ Optional arguments include:
                 are last 2 digits of the year. Where it will display profit
                 for the month 'MMM' in year '20YY'
                 For example:
-                '%(prog)s apr/20'
+                'apr/20' | 'may/19'
 --print         Will export the table printed out to the terminal as a 'report.txt' file
 
 Optional arguments can not be use together, except for --print argument.

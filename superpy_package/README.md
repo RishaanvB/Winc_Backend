@@ -19,7 +19,7 @@ https://github.com/RishaanvB/Winc_Backend/tree/main/SuperPy
 Install with `pip` .
 
 ```
-pip install -i https://test.pypi.org/simple/ superpy-rvb
+pip install -i https://test.pypi.org/simple/ superpy-rvb==0.1.1
 ```
 
 Run the following code to test Superpy output on your terminal:

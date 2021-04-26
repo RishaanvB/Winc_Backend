@@ -7,16 +7,7 @@ Also able to print out and export various data.
 """
 # Imports
 import argparse
-from superpy_rvb import descriptions as d
-from superpy_rvb.helper_func import (
-    create_log_dir,
-    read_productlist_csv,
-    date_input_checker,
-    read_fake_date,
-    range_checker,
-    convert_to_timestr,
-    set_fake_date,
-)
+import superpy_rvb.descriptions as d
 from superpy_rvb.core_func import (
     buy_product,
     sell_product,
@@ -26,8 +17,16 @@ from superpy_rvb.core_func import (
     get_profit,
     display_expired,
 )
+from superpy_rvb.helper_func import (
+    create_log_dir,
+    date_input_checker,
+    read_productlist_csv,
+    read_fake_date,
+    set_fake_date,
+    range_checker,
+    convert_to_timestr,
+)
 
-# from superpy_rvb import core_func
 
 # Do not change these lines.
 __winc_id__ = "a2bc36ea784242e4989deb157d527ba0"
@@ -37,8 +36,7 @@ __human_name__ = "superpy"
 
 
 def main():
-
-    create_log_dir()  # creates and/or checks necessary folders/files
+    create_log_dir()  # creates and/or checks necessary folders
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter,
         description=__doc__,
@@ -76,7 +74,6 @@ def main():
         "report",
         formatter_class=argparse.RawTextHelpFormatter,
         description=d.subparser_report,
-        # add_help=False,
         conflict_handler="resolve",
     )
     subparser_time = subparsers.add_parser(
@@ -208,11 +205,7 @@ def main():
     subparser_report.add_argument(
         "--print", action="store_true", help="exports table to .txt file"
     )
-    # subparser_report.add_argument(
-    #     "--help", "-h", action="store_true"
-    # )
 
-    # subparser_report.add_argument("--expiration", "-exp", action="store_true")
     revenue = subparsers_report.add_parser(
         "revenue",
         parents=[subparser_report],

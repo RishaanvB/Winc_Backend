@@ -9,20 +9,13 @@ Also able to print out and export various data.
 import argparse
 import descriptions as d
 from core_func import (
-    # create_log_dir,
     buy_product,
     sell_product,
     handle_product_list,
     handle_inventory,
-    # read_productlist_csv,
-    # range_checker,
     get_revenue,
     get_profit,
-    # read_fake_date,
-    # set_fake_date,
-    # convert_to_timestr,
     display_expired,
-    # date_input_checker,
 )
 from helper_func import (
     create_log_dir,
