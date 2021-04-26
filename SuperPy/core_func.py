@@ -194,11 +194,11 @@ def handle_inventory(args):
                         yesterday = date.fromisoformat(read_fake_date()) - one_day
                         buy_date = date.fromisoformat(row["buy_date"])
 
-                        if product == row["product_name"] and buy_date < yesterday:
+                        if product == row["product_name"] and buy_date <= yesterday:
                             simple_inventory[product] += 1
 
                     elif (
-                        product == row["product_name"] and buy_date <= current_fake_date
+                        product == row["product_name"] and buy_date < current_fake_date
                     ):
                         simple_inventory[product] += 1
 
@@ -236,6 +236,7 @@ def handle_inventory(args):
         with open(file_to_open) as csv_read:
             reader = csv.DictReader(csv_read)
             current_fake_date = date.fromisoformat(read_fake_date())
+            
             # prints table for current inventory for specified product
             if file_to_open == bought_file:
                 product_table = Table(

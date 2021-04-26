@@ -81,7 +81,6 @@ def main():
         "report",
         formatter_class=argparse.RawTextHelpFormatter,
         description=d.subparser_report,
-        # add_help=False,
         conflict_handler="resolve",
     )
     subparser_time = subparsers.add_parser(
@@ -213,11 +212,7 @@ def main():
     subparser_report.add_argument(
         "--print", action="store_true", help="exports table to .txt file"
     )
-    # subparser_report.add_argument(
-    #     "--help", "-h", action="store_true"
-    # )
 
-    # subparser_report.add_argument("--expiration", "-exp", action="store_true")
     revenue = subparsers_report.add_parser(
         "revenue",
         parents=[subparser_report],

@@ -1,6 +1,6 @@
-from colorama import Fore, Back, Style
+from colorama import Fore
 
-parser_epilog = "epilogue superpy"
+
 parser_epilog = f"""
 {Fore.YELLOW}           |
       \    |   /
