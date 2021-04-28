@@ -19,7 +19,7 @@ https://github.com/RishaanvB/Winc_Backend/tree/main/SuperPy
 Install with `pip` .
 
 ```
-pip install -i https://test.pypi.org/simple/ superpy-rvb==0.1.1
+pip install -i https://test.pypi.org/simple/ superpy-rvb==0.1.2
 ```
 
 Run the following code to test Superpy output on your terminal:
@@ -38,30 +38,12 @@ There are several subcommands that you can use with Superpy. We will discuss all
 and for each subcommand there will be atleast one example to show how the command works.
 To see what is available you can use the `-h` flag after any subcommand to see the available options and what the subcommand does.
 
-## Buy
+## Buy  
 
 Handles the buying of products.
 
-## Sell
-
-Handles the selling of products.
-
-## List
-
-Handles the available products from the 'imaginary supplier' of the supermarket you.
-
-## Inventory
-
-Prints out table to the console depending on optional arguments.
-
-## Report
-
-Handles revenue, profit for certain time spans and is able to print out a table of expired products.
-
-### Click the following headings for details on the different subcommands:
-
 <details>
-<summary>Buy</summary>
+<summary>Click for more details</summary>
 
 ## Superpy Buy
 
@@ -99,8 +81,13 @@ superpy buy milk 5 -a 10 -d 200-04-20
 
 </details>
 
+
+## Sell
+
+Handles the selling of products.
+
 <details>
-<summary>Sell</summary>
+<summary>Click for more details</summary>
 
 ## Superpy Sell
 
@@ -118,8 +105,11 @@ superpy sell milk 3 -a 5
 
 </details>
 
+## List
+
+Handles the available products from the 'imaginary supplier' of the supermarket you.
 <details>
-<summary>List</summary>
+<summary>Click for more details</summary>
 
 ## SuperPy List
 
@@ -155,8 +145,11 @@ superpy list -r chocolate
 
 </details>
 
+## Inventory
+
+Prints out table to the console depending on optional arguments.
 <details>
-<summary>Inventory</summary>
+<summary>Click for more details</summary>
 
 ## Superpy Inventory
 
@@ -210,8 +203,13 @@ You can export the printed out table to a `.txt` file by adding the `--print` to
 
 </details>
 
+
+## Report
+
+Handles revenue, profit for certain time spans and is able to print out a table of expired products.
+
 <details>
-<summary>Report</summary>
+<summary>Click for more details</summary>
 
 ## Report
 
@@ -271,8 +269,12 @@ You can export the printed out table to a `.txt` file by adding the `--print` to
 
 </details>
 
+## Time
+
+Changes the 'internal' time
+
 <details>
-<summary>Time</summary>
+<summary>Click for more details</summary>
 
 ## Superpy Time
 
@@ -290,7 +292,16 @@ The following example sets the time forward 7 days:
 superpy time 7
 ```
 
-</details>  
+</details> 
+
+
+
+
+
+
+
+
+ 
   
 ### Note:    
   
