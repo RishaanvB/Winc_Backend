@@ -144,21 +144,6 @@ def handle_product_list(args):
         [print(product) for product in sorted(read_productlist_csv())]
 
 
-# ---------comments over de handle_inventory()
-"""
-ik zag pas nadat ik 99% klaar was dat je de inventory moest kunnen zien van 'bepaalde' dagen.(yesterday, etc)
-Dus heb daar geen rekening mee gehouden toen ik met de handle_inventory() begon.
-Heb dus toen alleen maar rekening gehouden met inventory 'vandaag'.
-Heb later de mogelijkheid erin gezet om alleen de short_inventory() van 'gisteren' te kunnen zien.
-Hoop dat dat genoeg is.
-Ook was het, denk ik, niet echt handig om zoveel functies in een functie te nestelen, 
-maar ik vond het zelf handig om ze bij elkaar te houden.
-Heb er zelf niet zoveel last van gehad, maar ik denk dat als er bugs in zitten, dat die traceback
-waarschijnlijk steeds langer wordt en lastiger wordt om te ontcijferen.
-"""
-# comments over de handle_inventory()----------
-
-
 def handle_inventory(args):
     """
     handles what kind of table and information will be displayed,
