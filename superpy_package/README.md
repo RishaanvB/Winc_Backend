@@ -14,12 +14,16 @@ Superpy has only been tested on Windows 10 on Python v3.9. If it does not work, 
 
 https://github.com/RishaanvB/Winc_Backend/tree/main/SuperPy
 
+## Requirements
+
+WIPWIPWIPWIPWIPWIPWIPWIPWIPWIPWIPWIPWIP
+
 ## Installing
 
 Install with `pip` .
 
 ```
-pip install -i https://test.pypi.org/simple/ superpy-rvb==0.1.2
+pip install -i https://test.pypi.org/simple/ superpy-rvb==0.1.10
 ```
 
 Run the following code to test Superpy output on your terminal:
@@ -38,7 +42,7 @@ There are several subcommands that you can use with Superpy. We will discuss all
 and for each subcommand there will be atleast one example to show how the command works.
 To see what is available you can use the `-h` flag after any subcommand to see the available options and what the subcommand does.
 
-## Buy  
+## Buy
 
 Handles the buying of products.
 
@@ -81,7 +85,6 @@ superpy buy milk 5 -a 10 -d 200-04-20
 
 </details>
 
-
 ## Sell
 
 Handles the selling of products.
@@ -108,6 +111,7 @@ superpy sell milk 3 -a 5
 ## List
 
 Handles the available products from the 'imaginary supplier' of the supermarket you.
+
 <details>
 <summary>Click for more details</summary>
 
@@ -148,6 +152,7 @@ superpy list -r chocolate
 ## Inventory
 
 Prints out table to the console depending on optional arguments.
+
 <details>
 <summary>Click for more details</summary>
 
@@ -202,7 +207,6 @@ Note: The `--yesterday` argument will not work in combination with any other arg
 You can export the printed out table to a `.txt` file by adding the `--print` to the command line. The result will be exported to a `inventory.txt` file, that can be found in the `superpy_logs` folder. It will not create new files for each report, but instead will overwrite it, if the `inventory.txt` already exists
 
 </details>
-
 
 ## Report
 
@@ -292,17 +296,13 @@ The following example sets the time forward 7 days:
 superpy time 7
 ```
 
-</details> 
+</details>
 
+### Version changes:
 
+Version 1.0.10:
+Fixing installing issues related to Rich module, also included Coloroma dependency to setup.py
 
+### Note:
 
-
-
-
-
- 
-  
-### Note:    
-  
 Most, if not all, arguments have a shorter version of the flags. These are not displayed here, but can be viewed when checking out the `--help` section of each subcommand.

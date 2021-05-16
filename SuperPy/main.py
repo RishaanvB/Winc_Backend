@@ -181,6 +181,9 @@ def main():
     subparser_inventory.add_argument(
         "--print", action="store_true", help="prints inventory table to file"
     )
+    subparser_inventory.add_argument(
+        "--export", "-x", action="store_true", help="exports inventory to .csv file"
+    )
 
     subparser_inventory.add_argument(
         "--yesterday", "-y", action="store_true", help="get yesterday inventory"
@@ -235,7 +238,7 @@ def main():
     profit.set_defaults(func=get_profit)
 
     args = parser.parse_args()
-
+    print(args)
     if args.func:
         args.func(args)  # calls appropiate function for subparser args
 

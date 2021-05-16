@@ -155,6 +155,7 @@ def handle_inventory(args):
     4) sold_inventory()     prints detailed sold products to terminal
 
     *If args.print is True, the printed out inventory table will also be exported to a .txt file.
+    *If args.report is True, the inventory will be written to a .csv file.
     """
 
     def short_inventory():
@@ -183,7 +184,7 @@ def handle_inventory(args):
                             simple_inventory[product] += 1
 
                     elif (
-                        product == row["product_name"] and buy_date < current_fake_date
+                        product == row["product_name"] and buy_date <= current_fake_date
                     ):
                         simple_inventory[product] += 1
 
@@ -351,6 +352,22 @@ def handle_inventory(args):
         if args.print:
             console.save_text(os.path.join(log_dir, inventory_txt))
 
+    def export_inventory():
+        """
+        Reads through csv and exports the inventory to an inventory_report.csv file
+        """
+        current_fake_date = date.fromisoformat(read_fake_date())
+
+        with open(bought_file) as input, open(
+            os.path.join(log_dir, "inventory_report.csv"), "w", newline=""
+        ) as output:
+            reader = csv.DictReader(input)
+            writer = csv.DictWriter(output, fieldnames=fieldnames_bought)
+            for row in reader:
+                buy_date = date.fromisoformat(row["buy_date"])
+                if buy_date <= current_fake_date:
+                    writer.writerow(row)
+
     # calling nested functions depending on args command given
     if args.short:
         short_inventory()
@@ -362,6 +379,8 @@ def handle_inventory(args):
         sold_inventory()
     if args.sold and args.product:
         product_inventory(sold_file)
+    if args.export:
+        export_inventory()
 
 
 def get_total_price(args, price, file, type_report):

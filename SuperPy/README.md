@@ -14,12 +14,26 @@ Superpy has only been tested on Windows 10 on Python v3.9. If it does not work, 
 
 https://github.com/RishaanvB/Winc_Backend/tree/main/SuperPy
 
-## Installing
+## Requirements
 
-Install with `pip` .
+Superpy uses both colorama and the rich library to display some tables and print out colored text in the terminal. Due to the way dependencies are searched for when installing packages from https://test.pypi.org/ it is required to install rich before installing the superpy package.
 
 ```
-pip install -i https://test.pypi.org/simple/ superpy-rvb==0.1.2
+pip install rich
+```
+
+## Installing
+
+If you have not installed rich, first install it with `pip`:
+
+```
+pip install rich
+```
+
+Then install Superpy with `pip` .
+
+```
+pip install -i https://test.pypi.org/simple/ superpy-rvb==0.2
 ```
 
 Run the following code to test Superpy output on your terminal:
@@ -38,7 +52,7 @@ There are several subcommands that you can use with Superpy. We will discuss all
 and for each subcommand there will be atleast one example to show how the command works.
 To see what is available you can use the `-h` flag after any subcommand to see the available options and what the subcommand does.
 
-## Buy  
+## Buy
 
 Handles the buying of products.
 
@@ -81,7 +95,6 @@ superpy buy milk 5 -a 10 -d 200-04-20
 
 </details>
 
-
 ## Sell
 
 Handles the selling of products.
@@ -108,6 +121,7 @@ superpy sell milk 3 -a 5
 ## List
 
 Handles the available products from the 'imaginary supplier' of the supermarket you.
+
 <details>
 <summary>Click for more details</summary>
 
@@ -148,6 +162,7 @@ superpy list -r chocolate
 ## Inventory
 
 Prints out table to the console depending on optional arguments.
+
 <details>
 <summary>Click for more details</summary>
 
@@ -199,10 +214,15 @@ Note: The `--yesterday` argument will not work in combination with any other arg
 
 ### Exporting inventory
 
-You can export the printed out table to a `.txt` file by adding the `--print` to the command line. The result will be exported to a `inventory.txt` file, that can be found in the `superpy_logs` folder. It will not create new files for each report, but instead will overwrite it, if the `inventory.txt` already exists
+## Exporting as .txt file
+
+You can export the printed out table to a `.txt` file by adding the `--print` to the command line. The result will be exported to a `inventory.txt` file, that can be found in the `superpy_logs` folder. It will not create new files for each report, but instead will overwrite it, if the `inventory.txt` already exists.
+
+## Exporting as .csv file
+
+You can export the current inventory to an external `.csv` file by adding the `--export` to the command line. This will export the current inventory(current internal time) as a `.csv` file named `inventory_report.csv` which can be found in the `superpy_logs` folder. It wil not create a new file for each exported report, but instead will overwrite it, if the `.csv` file already exists in the `superpy_logs` folder.
 
 </details>
-
 
 ## Report
 
@@ -292,17 +312,8 @@ The following example sets the time forward 7 days:
 superpy time 7
 ```
 
-</details> 
+</details>
 
+### Note:
 
-
-
-
-
-
-
- 
-  
-### Note:    
-  
 Most, if not all, arguments have a shorter version of the flags. These are not displayed here, but can be viewed when checking out the `--help` section of each subcommand.
