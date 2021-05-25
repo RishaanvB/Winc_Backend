@@ -5,7 +5,7 @@ with open("README.md") as readme:
 
 setuptools.setup(
     name="superpy_rvb",
-    version="0.1.11",
+    version="0.2.1",
     install_requires=["colorama==0.4.3"],
     keywords="winc superpy",
     package_dir={"": "source"},

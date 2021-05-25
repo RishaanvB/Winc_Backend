@@ -16,14 +16,24 @@ https://github.com/RishaanvB/Winc_Backend/tree/main/SuperPy
 
 ## Requirements
 
-WIPWIPWIPWIPWIPWIPWIPWIPWIPWIPWIPWIPWIP
+Superpy uses both colorama and the rich library to display some tables and print out colored text in the terminal. Due to the way dependencies are searched for when installing packages from https://test.pypi.org/ it is required to install rich before installing the superpy package.
+
+```
+pip install rich
+```
 
 ## Installing
 
-Install with `pip` .
+If you have not installed rich, first install it with `pip`:
 
 ```
-pip install -i https://test.pypi.org/simple/ superpy-rvb==0.1.10
+pip install rich
+```
+
+Then install Superpy with `pip` .
+
+```
+pip install -i https://test.pypi.org/simple/ superpy-rvb==0.2.1
 ```
 
 Run the following code to test Superpy output on your terminal:
@@ -204,7 +214,13 @@ Note: The `--yesterday` argument will not work in combination with any other arg
 
 ### Exporting inventory
 
-You can export the printed out table to a `.txt` file by adding the `--print` to the command line. The result will be exported to a `inventory.txt` file, that can be found in the `superpy_logs` folder. It will not create new files for each report, but instead will overwrite it, if the `inventory.txt` already exists
+## Exporting as .txt file
+
+You can export the printed out table to a `.txt` file by adding the `--print` to the command line. The result will be exported to a `inventory.txt` file, that can be found in the `superpy_logs` folder. It will not create new files for each report, but instead will overwrite it, if the `inventory.txt` already exists.
+
+## Exporting as .csv file
+
+You can export the current inventory to an external `.csv` file by adding the `--export` to the command line. This will export the current inventory(current internal time) as a `.csv` file named `inventory_report.csv` which can be found in the `superpy_logs` folder. It wil not create a new file for each exported report, but instead will overwrite it, if the `.csv` file already exists in the `superpy_logs` folder.
 
 </details>
 
@@ -297,11 +313,6 @@ superpy time 7
 ```
 
 </details>
-
-### Version changes:
-
-Version 1.0.10:
-Fixing installing issues related to Rich module, also included Coloroma dependency to setup.py
 
 ### Note:
 
