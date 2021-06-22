@@ -34,13 +34,18 @@ def add_product_to_catalog(user_id, product) -> None:
 
 def update_stock(product_id, new_quantity) -> None:
     product = Product.get_by_id(product_id)
-    product.quantity_in_stock = new_quantity
+    product.stock = new_quantity
     product.save()
 
 
-def purchase_product(product_id, buyer_id, quantity):
-    ...
+def purchase_product(product_id, buyer_id, quantity) -> None:
+    product = Product.get_by_id(product_id)
+    if product.stock < quantity:
+        raise ValueError("Amount not available in stock")
+    Transaction.create(buyer=buyer_id, product_bought=product_id, amount=quantity)
+    product.stock -= quantity
+    product.save()
 
 
-def remove_product(product_id):
+def remove_product(product_id) -> None:
     Product.delete().where(Product.id == product_id).execute()

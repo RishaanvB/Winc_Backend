@@ -1,13 +1,15 @@
 from peewee import (
     CharField,
+    Check,
     DecimalField,
     ForeignKeyField,
     IntegerField,
     Model,
     SqliteDatabase,
     TextField,
+    SQL,
 )
-from peewee import *
+
 
 db = SqliteDatabase("betsy.db")
 
@@ -33,7 +35,7 @@ class Product(BaseModel):
     name = CharField()
     # description = TextField()
     price_per_unit = DecimalField(decimal_places=2, auto_round=True, default=10.50)
-    quantity_in_stock = IntegerField(default=10)
+    stock = IntegerField(default=10)
     owner = ForeignKeyField(User, backref="products")
 
 
@@ -48,8 +50,14 @@ class ProductTags(BaseModel):
 
 class Transaction(BaseModel):
     buyer = ForeignKeyField(User, backref="transactions")
-    purchased_product = ForeignKeyField(Product, backref="transactions")
-    quantity_sold = IntegerField()
+    product_bought = ForeignKeyField(Product, backref="transactions")
+    amount = IntegerField()  # quantity bought ipv sold
+
+    # class Meta:
+    #     constraints = [SQL(" FOREIGN KEY(product_bought), CHECK(product(stock) > 0) ")]
 
 
 # initialize db
+
+db.connect()
+db.create_tables([User, Product, Transaction])
