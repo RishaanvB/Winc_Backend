@@ -1,18 +1,15 @@
 __winc_id__ = "d7b474e9b3a54d23bca54879a4f1855b"
 __human_name__ = "Betsy Webshop"
 
+
 from models import User, Product, Tag, ProductTags, Transaction
 
-"""
 
-
--Search for products based on a term. Searching for 'sweater' should yield all products that have the word 'sweater' in the name. This search should be case-insensitive
-
--Handle a purchase between a buyer and a seller for a given product"""
-
-
-def search(term):
-    ...
+def search(term) -> list[Product.name]:
+    query_by_name = Product.name.contains(term)
+    query_by_description = Product.description.contains(term)
+    query_all_products = Product.select().where(query_by_name | query_by_description)
+    return [product.name for product in query_all_products]
 
 
 def list_user_products(user_id) -> list[User.products]:
@@ -20,6 +17,7 @@ def list_user_products(user_id) -> list[User.products]:
     return [product.name for product in user_products]
 
 
+# add distinct
 def list_products_per_tag(tag_id) -> list[Tag.name]:
     products_with_tag = (
         Product.select().join(ProductTags).join(Tag).where(Tag.id == tag_id)
@@ -38,6 +36,7 @@ def update_stock(product_id, new_quantity) -> None:
     product.save()
 
 
+# moet zorgen dat je niet van jezelf kunt kopen...
 def purchase_product(product_id, buyer_id, quantity) -> None:
     product = Product.get_by_id(product_id)
     if product.stock < quantity:
