@@ -1,0 +1,91 @@
+<nav class="navbar navbar-expand-md navbar-light bg-light">
+  <div class="container px-lg-5">
+    <a class="navbar-brand" href="{{url_for('home') }}"
+      ><img
+        src="{{url_for('static', filename='assets/brand.svg')}}"
+        alt=""
+        width="60"
+        class="d-inline-block align-text-top"
+    /></a>
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+        <li class="nav-item"><a class="nav-link" href="#">About</a></li>
+        <li class="nav-item dropdown">
+          <a
+            class="nav-link dropdown-toggle"
+            id="navbarDropdown"
+            href="#"
+            role="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+            >Shop</a
+          >
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <li><a class="dropdown-item" href="#!">All Products</a></li>
+            <li><hr class="dropdown-divider" /></li>
+            <li><a class="dropdown-item" href="#!">Popular Items</a></li>
+            <li><a class="dropdown-item" href="#!">New Arrivals</a></li>
+          </ul>
+        </li>
+        <!-- search bar -->
+        <input class="mx-2 rounded" type="search" />
+      </ul>
+      <ul class="navbar-nav mb-2 mb-lg-0 ms-lg-4 mx-2">
+        {% if current_user.is_authenticated %}
+
+        <li class="nav-item dropdown">
+          <i
+            class="bi bi-person-circle mx-3"
+            id="navbarDropdown"
+            role="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+            style="font-size: 2.5rem"
+          ></i>
+
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <li>
+              <a class="dropdown-item" href="{{ url_for('account') }}"
+                >Edit Account</a
+              >
+            </li>
+            <li><hr class="dropdown-divider" /></li>
+            <li><a class="dropdown-item" href="#!">Popular Items</a></li>
+            <li>
+              <a class="dropdown-item" href="{{url_for('logout')}}">Logout</a>
+            </li>
+          </ul>
+        </li>
+        <form class="d-flex">
+          <i class="bi bi-basket-fill" style="font-size: 2.5rem"></i>
+        </form>
+
+        {% else %}
+
+        <li
+          class="nav-link fw-bolder"
+          data-bs-toggle="modal"
+          href="#loginModalToggle"
+          role="button"
+        >
+          Login
+        </li>
+
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
+{% if not current_user.is_authenticated %} {% include "modal.html" %} {% endif
+%}

@@ -28,23 +28,18 @@ kwargs.pop('class') %}
       <div class="form-group mt-4">
         {{ form.username.label(class="form-control-label") }}
         {{with_errors(form.username, class="form-control form-control-lg") }}
-        
       </div>
 
       <div class="form-group mt-4">
         {{ form.email.label(class="form-control-label") }}
         {{with_errors(form.email, class="form-control form-control-lg") }}
-        <div  class="form-text">
-          We might send you lots of spam.
-        </div>
+        <div class="form-text">We might send you lots of spam.</div>
       </div>
 
       <div class="form-group mt-4">
         {{ form.password.label(class="form-control-label") }}
         {{with_errors(form.password, class="form-control form-control-lg") }}
-        <div  class="form-text">
-          This should be supersecret!
-        </div>
+        <div class="form-text">This should be supersecret!</div>
       </div>
 
       <div class="form-group mt-4">
@@ -60,7 +55,8 @@ kwargs.pop('class') %}
   </form>
   <div class="border-top pt-3">
     <small class="text-muted"
-      >Already have an account? <a href="{{ url_for('login') }}" class="m2"> Sign in here</a>!</small
+      >Already have an account?
+      <a href="{{ url_for('login') }}" class="m2"> Sign in here</a>!</small
     >
   </div>
 </div>

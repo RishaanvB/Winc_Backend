@@ -22,8 +22,7 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
 login_manager.login_message = "You need to be logged in to view this page."
-
-
+login_manager.login_message_category = "warning"
 
 
 import routes

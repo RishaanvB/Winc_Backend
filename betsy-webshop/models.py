@@ -1,5 +1,7 @@
 # importing db for access to actual peewee database and db_wrapper to access Model
 from enum import unique
+
+from flask_login.mixins import UserMixin
 from app import db_wrapper, db
 from datetime import datetime
 
@@ -21,16 +23,13 @@ class BaseModel(db_wrapper.Model):
         database = db
 
 
-# add constraints to all models
-
-
-class User(BaseModel):
+class User(BaseModel, UserMixin):
     first_name = CharField(index=True, max_length=30, null=True)
     last_name = CharField(max_length=120, null=True)
     address = CharField(max_length=200, null=True)
     city = CharField(max_length=50, null=True)
     country = CharField(max_length=50, null=True)
-    cc_number = CharField(unique=True, max_length=20, null=True)  # uuid field??
+    cc_number = CharField(unique=True, max_length=20, null=True)
     username = CharField(index=True, max_length=30)  # add unique=True
     email = CharField(index=True, max_length=50, unique=True)
     password = CharField(max_length=20)

@@ -6,9 +6,10 @@
       name="viewport"
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
     />
-    <meta name="description" content="" />
-    <meta name="author" content="" />
-    <title>Shop Homepage - Start Bootstrap Template</title>
+    <meta name="description" content="webshop" />
+    <meta name="author" content="rvb" />
+
+    <title>Betsy's | {{ title }}</title>
     <!-- Favicon-->
     <link
       rel="icon"
@@ -49,98 +50,39 @@
     <script defer src="{{ url_for('static', filename='scripts.js') }}"></script>
   </head>
   <body>
-    <!-- Navigation-->
     {% if current_user.is_authenticated %}
-    <div class="container bg-dark">
-      <p class="text-light">Hallo {{ current_user.username }}!</p>
+    <div class="bg-dark">
+      <p class="container text-light text-center py-3 my-0">
+        Hallo, je bent ingelogd als {{ current_user.username }}!
+      </p>
     </div>
     {%endif %}
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <div class="container px-lg-5">
-        <a class="navbar-brand" href="{{url_for('home') }}"
-          ><img
-            src="{{url_for('static', filename='assets/brand.svg')}}"
-            alt=""
-            width="60"
-            class="d-inline-block align-text-top"
-        /></a>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarSupportedContent"
-          aria-controls="navbarSupportedContent"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
-            <li class="nav-item"><a class="nav-link" href="#">About</a></li>
-            <li class="nav-item dropdown">
-              <a
-                class="nav-link dropdown-toggle"
-                id="navbarDropdown"
-                href="#"
-                role="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-                >Shop</a
-              >
-              <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <li><a class="dropdown-item" href="#!">All Products</a></li>
-                <li><hr class="dropdown-divider" /></li>
-                <li><a class="dropdown-item" href="#!">Popular Items</a></li>
-                <li><a class="dropdown-item" href="#!">New Arrivals</a></li>
-              </ul>
-            </li>
-            <input class="mx-2 rounded" type="search" />
-          </ul>
-          <ul class="navbar-nav mb-2 mb-lg-0 ms-lg-4 mx-2">
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('login') }}">Login</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('register') }}">Register</a>
-            </li>
-          </ul>
-
-          <form class="d-flex">
-            <button class="btn btn-outline-dark" type="submit">
-              <i class="bi-cart-fill me-1"></i>
-              Cart
-              <span class="badge bg-dark text-white ms-1 rounded-pill">5</span>
-            </button>
-          </form>
-        </div>
-      </div>
-    </nav>
+    <!-- Navigation-->
+    {% include "navbar.html" %}
     <!-- Header-->
+    {% block header%}
     <header class="bg-dark py-5">
       <div class="container px-4 px-lg-5 my-5">
         <div class="text-center text-white">
           <h1 class="display-4 fw-bolder font">Shop in Style</h1>
-          <p class="lead fw-normal text-white-50 mb-0">
-            With this shop hompeage template
-          </p>
+          <p class="lead fw-normal text-white-50 mb-0">Some random text</p>
         </div>
       </div>
     </header>
-    {% with messages = get_flashed_messages(with_categories=true) %} {% if
-    messages %} {% for category, message in messages %}
+    {% endblock header %} {% with messages =
+    get_flashed_messages(with_categories=true) %} {% if messages %} {% for
+    category, message in messages %}
     <p class="alert alert-{{ category }}">{{ message }}</p>
     {% endfor %} {% endif %} {% endwith %}
     <!-- Section-->
-    {% block content%} {% endblock content %}
+    <!-- If-statement keeps modal open after failed login -->
+    {%if is_failed_login%}
+    <h1 id="checklogin" data-login="true" data-failure="true"></h1>
+    {% endif %} {%if is_failed_register%}
+    <h1 id="checkregister" data-register="true" data-failure="true"></h1>
+    <h1>Registration failed!!!</h1>
+    {% endif %} {% block content%} {% endblock content %}
     <!-- Footer-->
-    <footer class="py-5 bg-dark">
-      <div class="container">
-        <p class="m-0 text-center text-white">
-          Copyright &copy; Betsy's Webshop 2021 design from
-          https://startbootstrap.com/template/shop-homepage
-        </p>
-      </div>
-    </footer>
+    {% include "footer.html" %}
   </body>
 </html>

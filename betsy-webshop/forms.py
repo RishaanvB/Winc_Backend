@@ -1,4 +1,5 @@
 from flask_wtf import FlaskForm
+from flask_login import current_user
 from wtforms import (
     StringField,
     PasswordField,
@@ -32,10 +33,11 @@ class RegistrationForm(FlaskForm):
     )
     password_confirm = PasswordField("Confirm Password")
     submit = SubmitField("Sign Up")
+    # deze validations werken niet meer in de login modal
 
     def validate_username(self, username):
-        username = User.get_or_none(User.username == username.data)
-        if username:
+        user = User.get_or_none(User.username == username.data)
+        if user:
             raise ValidationError("Username is taken. Please choose another username")
 
     def validate_email(self, email):
@@ -50,3 +52,45 @@ class LoginForm(FlaskForm):
     )
     password = PasswordField("Your Password", validators=[InputRequired()])
     login = SubmitField("Login!")
+
+
+class UpdateAccountForm(FlaskForm):
+    # first_name = StringField(
+    #     "Name", validators=[InputRequired(), Length(min=2, max=30)]
+    # )
+    # last_name = StringField("Surname", validators=[InputRequired(), Length(min=2, max=120)])
+    # address = StringField("Address", validators=[InputRequired(), Length(min=8, max=200)])
+    # city = StringField("City", validators=[InputRequired(), Length(min=2, max=50)])
+    # country = StringField("Country", validators=[InputRequired(), Length(min=2, max=50)])
+    cc_number = StringField(
+        "Credit Card Number", validators=[InputRequired(), Length(min=2, max=50)]
+    )
+    username = StringField(
+        "Username",
+        validators=[InputRequired(), Length(min=5, max=25)],
+    )
+    email = StringField("Email", validators=[InputRequired(), Length(max=50), Email()])
+    # password = PasswordField("Password", validators=[InputRequired()])
+
+    # image_file = FileField(
+    #     "Change Profile Picture", validators=[FileAllowed(["jpg", "png", "jpeg"])]
+    # )
+    update = SubmitField("Update")
+
+    def validate_username(self, username):
+        if username.data != current_user.username:
+
+            user = User.get_or_none(User.username == username.data)
+            if user:
+                raise ValidationError(
+                    f"Username: {username.data} is taken. Please choose another username"
+                )
+
+    def validate_email(self, email):
+        if email.data != current_user.email:
+
+            user_email = User.get_or_none(User.email == email.data)
+            if user_email:
+                raise ValidationError(
+                    f"A user with email: {email.data} already exists."
+                )

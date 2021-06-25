@@ -2,7 +2,7 @@ __winc_id__ = "d7b474e9b3a54d23bca54879a4f1855b"
 __human_name__ = "Betsy Webshop"
 
 
-from models import User, Product, Tag, ProductTags, Transaction
+from models import User, Product, Tag, ProductTag, Transaction
 
 
 def search(term) -> list[Product.name]:
@@ -20,7 +20,7 @@ def list_user_products(user_id) -> list[User.products]:
 # add distinct
 def list_products_per_tag(tag_id) -> list[Tag.name]:
     products_with_tag = (
-        Product.select().join(ProductTags).join(Tag).where(Tag.id == tag_id)
+        Product.select().join(ProductTag).join(Tag).where(Tag.id == tag_id)
     )
     return [product.name for product in products_with_tag]
 
