@@ -116,14 +116,21 @@ def logout():
 @login_required
 def account():
     form = UpdateAccountForm()
+    banner_info = f"Hey {current_user.username}. This is your account."
     if form.validate_on_submit():
-        cc_number = form.cc_number.data
-        username = form.username.data
-        email = form.email.data
-        user_query = User.update(
-            cc_number=cc_number, username=username, email=email
-        ).where(User.id == current_user.id)
-        user_query.execute()
+        user = User.get_by_id(current_user.id)
+
+        user.first_name = form.first_name.data
+        user.last_name = form.last_name.data
+        user.address = form.address.data
+        user.city = form.city.data
+        user.country = form.country.data
+        user.cc_number = form.cc_number.data
+        user.username = form.username.data
+        user.email = form.email.data
+        user.save()
         flash("Your account has been updated!", "success")
         return redirect(url_for("account"))
-    return render_template("account.html", title="Account", update_form=form)
+    return render_template(
+        "account.html", title="Account", update_form=form, banner_info=banner_info
+    )

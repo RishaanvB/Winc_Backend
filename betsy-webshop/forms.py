@@ -6,8 +6,9 @@ from wtforms import (
     SubmitField,
     ValidationError,
     BooleanField,
+    SelectField,
 )
-from wtforms.validators import InputRequired, Length, Email, EqualTo
+from wtforms.validators import InputRequired, Length, Email, EqualTo, DataRequired
 
 from models import User
 
@@ -33,7 +34,6 @@ class RegistrationForm(FlaskForm):
     )
     password_confirm = PasswordField("Confirm Password")
     submit = SubmitField("Sign Up")
-    # deze validations werken niet meer in de login modal
 
     def validate_username(self, username):
         user = User.get_or_none(User.username == username.data)
@@ -55,13 +55,19 @@ class LoginForm(FlaskForm):
 
 
 class UpdateAccountForm(FlaskForm):
-    # first_name = StringField(
-    #     "Name", validators=[InputRequired(), Length(min=2, max=30)]
-    # )
-    # last_name = StringField("Surname", validators=[InputRequired(), Length(min=2, max=120)])
-    # address = StringField("Address", validators=[InputRequired(), Length(min=8, max=200)])
-    # city = StringField("City", validators=[InputRequired(), Length(min=2, max=50)])
-    # country = StringField("Country", validators=[InputRequired(), Length(min=2, max=50)])
+    first_name = StringField("Name", validators=[DataRequired(), Length(min=2, max=30)])
+    last_name = StringField(
+        "Surname", validators=[InputRequired(), Length(min=2, max=120)]
+    )
+    address = StringField(
+        "Address", validators=[InputRequired(), Length(min=8, max=200)]
+    )
+    city = StringField("City", validators=[InputRequired(), Length(min=2, max=50)])
+    country = SelectField(
+        "Country",
+        choices=["...", "Netherlands", "Belgium", "Germany", "France", "Other"],
+        validators=[InputRequired()],
+    )
     cc_number = StringField(
         "Credit Card Number", validators=[InputRequired(), Length(min=2, max=50)]
     )

@@ -1,1 +1,7 @@
+.login-btn:hover .bi.bi-person-circle {
+  transform: scale(1.3);
+}
 
+.login-icon.bi.bi-person-circle {
+  transition: .1s transform ease-in;
+}

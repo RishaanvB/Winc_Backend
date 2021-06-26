@@ -51,7 +51,7 @@
             role="button"
             data-bs-toggle="dropdown"
             aria-expanded="false"
-            style="font-size: 2.5rem"
+            style="font-size: 2rem"
           ></i>
 
           <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
@@ -68,18 +68,22 @@
           </ul>
         </li>
         <form class="d-flex">
-          <i class="bi bi-basket-fill" style="font-size: 2.5rem"></i>
+          <i class="bi bi-basket-fill" style="font-size: 2rem"></i>
         </form>
 
         {% else %}
 
         <li
-          class="nav-link fw-bolder"
+          class="nav-link fw-bolder d-flex align-items-center login-btn"
           data-bs-toggle="modal"
           href="#loginModalToggle"
           role="button"
         >
-          Login
+          <i
+            class="bi bi-person-circle mx-3 login-icon"
+            style="font-size: 2rem"
+          ></i>
+          <a class="nav-link" role="button">Login</a>
         </li>
 
         {% endif %}
