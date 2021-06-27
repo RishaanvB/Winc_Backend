@@ -15,7 +15,7 @@ from wtforms import (
 )
 from wtforms.validators import InputRequired, Length, Email, EqualTo, DataRequired
 
-from models import User
+from models import User, Tag
 from main import list_user_products
 
 
@@ -116,7 +116,6 @@ class UpdateAccountForm(FlaskForm):
 
 
 class AddProduct(FlaskForm):
-
     name = StringField("Name", validators=[InputRequired(), Length(max=50)])
     description = TextAreaField("Description", validators=[Length(max=200)])
     price_per_unit = DecimalField("Price", places=2, validators=[InputRequired()])
@@ -125,10 +124,8 @@ class AddProduct(FlaskForm):
         choices=[num for num in range(1, 11)],
         validators=[InputRequired()],
     )
-    tags = SelectField(
-        "Add a tag",
-        choices=["tag1", "tag2", "tag3"],
-    )
+   
+    tags = StringField("Create Your Tag")
     add_product = SubmitField("Add")
 
     def validate_name(self, name):

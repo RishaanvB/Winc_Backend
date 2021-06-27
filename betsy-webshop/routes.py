@@ -14,7 +14,7 @@ from flask_login import (
     login_required,
     logout_user,
 )
-from main import add_product_to_catalog
+from main import list_products_per_tag, get_words_in_string, get_tags_per_product
 
 
 @login_manager.user_loader
@@ -146,24 +146,38 @@ def account():
 @app.route("/products", methods=["GET", "POST"])
 @login_required
 def add_product():
-    products = [product for product in current_user.products]
+    products = [
+        product for product in current_user.products
+    ]  # test purposes !!!!DELETE!!!
+
     banner_info = "Add a product to your existing catalog!"
     product_form = AddProduct()
+
     if product_form.validate_on_submit():
-        name = product_form.name.data
-        description = product_form.description.data
-        price_per_unit = product_form.price_per_unit.data
-        stock = int(product_form.amount_to_add.data)
-        owner = current_user.id
-        Product.create(
-            name=name, price_per_unit=price_per_unit, stock=stock, owner=owner, description=description
+        tags_list = get_words_in_string(product_form.tags.data)
+        new_product = Product.create(
+            name=product_form.name.data,
+            price_per_unit=product_form.price_per_unit.data,
+            stock=int(product_form.amount_to_add.data),
+            owner=current_user.id,
+            description=product_form.description.data,
         )
+
+        for new_tag in tags_list:
+            tag_to_add = Tag.get_or_create(name=new_tag)
+            ProductTag.create(
+                product=Product.get_by_id(new_product.id),
+                tag=Tag.get_by_id(tag_to_add[0].id),
+            )
+
         flash("New product has been added to catalog!", "success")
         return redirect(url_for("add_product"))
+
     return render_template(
         "add_product.html",
         product_form=product_form,
         title="Product",
         banner_info=banner_info,
-        products=products
+        products=products,
+        get_tags=get_tags_per_product
     )

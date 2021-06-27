@@ -18,7 +18,7 @@ def list_user_products(user_id) -> list[User.products]:
 
 
 # add distinct
-def list_products_per_tag(tag_id) -> list[Tag.name]:
+def list_products_per_tag(tag_id) -> list[Product.name]:
     products_with_tag = (
         Product.select().join(ProductTag).join(Tag).where(Tag.id == tag_id)
     )
@@ -48,3 +48,23 @@ def purchase_product(product_id, buyer_id, quantity) -> None:
 
 def remove_product(product_id) -> None:
     Product.delete().where(Product.id == product_id).execute()
+
+
+# non assignment functions
+
+
+def get_words_in_string(string) -> list:
+    """
+    Takes in string of words, removes all whitespace, non-alpha characters and
+    words containing non-alpha characters.
+    Returns the words in all lowerscase as list
+    """
+    words_list = " ".join(string.split()).split()
+    return [word.lower() for word in words_list if word.isalpha()]
+
+
+def get_tags_per_product(product_id):
+    tags_per_product = (
+        Tag.select().join(ProductTag).join(Product).where(Product.id == product_id)
+    )
+    return [tag.name for tag in tags_per_product]

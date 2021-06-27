@@ -60,7 +60,7 @@ class Tag(BaseModel):
 
 
 # moet zorgen dat je niet dezelfde producttags kunt maken. add distinct in query
-# rename singular?--> ProductTag
+# rename singular?--> ProductTag hoeft niet, gewoon vantevoren tags erin gooien.
 class ProductTag(BaseModel):
     product = ForeignKeyField(Product, index=True, backref="tags")
     tag = ForeignKeyField(Tag, index=True, backref="products")
