@@ -4,7 +4,7 @@ from app import app, db
 from app import login_manager
 
 from models import User, Product, Tag, ProductTag, Transaction
-from forms import RegistrationForm, LoginForm, UpdateAccountForm
+from forms import RegistrationForm, LoginForm, UpdateAccountForm, AddProduct
 
 from flask import render_template, url_for, redirect, flash, request, abort
 from flask_bcrypt import check_password_hash, generate_password_hash
@@ -14,6 +14,7 @@ from flask_login import (
     login_required,
     logout_user,
 )
+from main import add_product_to_catalog
 
 
 @login_manager.user_loader
@@ -115,9 +116,11 @@ def logout():
 @app.route("/account", methods=["GET", "POST"])
 @login_required
 def account():
-    form = UpdateAccountForm()
+    form = UpdateAccountForm(country=current_user.country)
     banner_info = f"Hey {current_user.username}. This is your account."
+
     if form.validate_on_submit():
+
         user = User.get_by_id(current_user.id)
 
         user.first_name = form.first_name.data
@@ -131,6 +134,36 @@ def account():
         user.save()
         flash("Your account has been updated!", "success")
         return redirect(url_for("account"))
+
     return render_template(
-        "account.html", title="Account", update_form=form, banner_info=banner_info
+        "account.html",
+        title="Account",
+        update_form=form,
+        banner_info=banner_info,
+    )
+
+
+@app.route("/products", methods=["GET", "POST"])
+@login_required
+def add_product():
+    products = [product for product in current_user.products]
+    banner_info = "Add a product to your existing catalog!"
+    product_form = AddProduct()
+    if product_form.validate_on_submit():
+        name = product_form.name.data
+        description = product_form.description.data
+        price_per_unit = product_form.price_per_unit.data
+        stock = int(product_form.amount_to_add.data)
+        owner = current_user.id
+        Product.create(
+            name=name, price_per_unit=price_per_unit, stock=stock, owner=owner, description=description
+        )
+        flash("New product has been added to catalog!", "success")
+        return redirect(url_for("add_product"))
+    return render_template(
+        "add_product.html",
+        product_form=product_form,
+        title="Product",
+        banner_info=banner_info,
+        products=products
     )

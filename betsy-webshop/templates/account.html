@@ -13,11 +13,11 @@ css_class = 'form-control form-control-lg is-invalid ' + kwargs.pop('class', '')
 
 <!-- macro for seperate input groups -->
 {% macro formgroup(name="", input="", col=12, value="", placeholder="",
-class="form-control border border-2 border-dark") %}
+class="form-control border border-2 border-secondary") %}
 <div class="col-lg-{{col}} form-group">
   <div class="input-group mb-3">
     <span
-      class="input-group-text bg-dark text-light border border-2 border-dark"
+      class="input-group-text bg-secondary text-light border border-2 border-secondary"
       >{{name}}
     </span>
     {{with_errors(input, class=class, value=value, placeholder=placeholder) }}
@@ -25,16 +25,18 @@ class="form-control border border-2 border-dark") %}
 </div>
 {% endmacro %}
 
+<!-- test code !!!delete!!!! -->
+<div class="container">{{current_user.username, current_user.first_name}}</div>
 
-<div class="container">
-{{current_user.username, current_user.first_name}}
+<!-- Account Navigation -->
+{% include "account_nav.html" %}
 
-</div>
-<div class="container m-5 mx-auto">
+<h1>{{current_user.country}}</h1>
+<h1>{{country}}</h1>
+<div class="container p-4 m-5 mx-auto shadow w-50">
   <form action="" method="POST" enctype="multipart/form-data" class="row g-3">
     {{ update_form.hidden_tag() }}
     <legend class="border-bottom mb-4 fw-bolder">Account Info</legend>
-
 
     <!-- username -->
     {{formgroup(input=update_form.username, name="Username", col=12,
@@ -50,12 +52,11 @@ class="form-control border border-2 border-dark") %}
     {{formgroup(input=update_form.address, name="Address", col=12,
     value=current_user.address, placeholder="Where do you live?")}}
     <!-- city -->
-    {{formgroup(input=update_form.city, name="City", col=4,
+    {{formgroup(input=update_form.city, name="City", col=3,
     value=current_user.city, placeholder="Where do you live?")}}
     <!-- country -->
-    {{formgroup(input=update_form.country, name="Country", col=2,
-    value=current_user.country, placeholder="Not much choice, is there?",
-    class="form-control form-select border border-2 border-dark")}}
+    {{formgroup(input=update_form.country, name="Country", col=3,
+    class="form-control form-select border border-2 border-secondary")}}
     <!-- email -->
     {{formgroup(input=update_form.email, name="Email", col=8,
     value=current_user.email, placeholder="How can we contact you?")}}
@@ -63,7 +64,7 @@ class="form-control border border-2 border-dark") %}
     {{formgroup(input=update_form.cc_number, name="CreditCard #", col=4,
     value=current_user.cc_number, placeholder="xxxx-xx-xxx-xx")}}
 
-    <div class="form-group mt-4">
+    <div class="form-group mt-4" role="button">
       {{ update_form.update(class="btn btn-warning text-dark fw-bolder") }}
     </div>
   </form>

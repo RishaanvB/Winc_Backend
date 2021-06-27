@@ -1,5 +1,4 @@
 # importing db for access to actual peewee database and db_wrapper to access Model
-from enum import unique
 
 from flask_login.mixins import UserMixin
 from app import db_wrapper, db
@@ -29,7 +28,9 @@ class User(BaseModel, UserMixin):
     address = CharField(max_length=200, null=True)
     city = CharField(max_length=50, null=True)
     country = CharField(max_length=50, null=True)
-    cc_number = CharField(unique=True, max_length=20, null=True)
+    cc_number = CharField(
+        unique=True, max_length=20, null=True
+    )  # moet integerfield zijn
     username = CharField(index=True, max_length=30)  # add unique=True
     email = CharField(index=True, max_length=50, unique=True)
     password = CharField(max_length=20)

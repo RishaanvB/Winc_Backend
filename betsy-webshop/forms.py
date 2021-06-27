@@ -1,3 +1,4 @@
+from decimal import Decimal
 from flask_wtf import FlaskForm
 from flask_login import current_user
 from wtforms import (
@@ -7,10 +8,15 @@ from wtforms import (
     ValidationError,
     BooleanField,
     SelectField,
+    DecimalField,
+    TextAreaField,
+    IntegerField,
+    SelectMultipleField,
 )
 from wtforms.validators import InputRequired, Length, Email, EqualTo, DataRequired
 
 from models import User
+from main import list_user_products
 
 
 class RegistrationForm(FlaskForm):
@@ -68,6 +74,7 @@ class UpdateAccountForm(FlaskForm):
         choices=["...", "Netherlands", "Belgium", "Germany", "France", "Other"],
         validators=[InputRequired()],
     )
+    # aanpassen naar integerfield cc_number ook in models.py
     cc_number = StringField(
         "Credit Card Number", validators=[InputRequired(), Length(min=2, max=50)]
     )
@@ -100,3 +107,38 @@ class UpdateAccountForm(FlaskForm):
                 raise ValidationError(
                     f"A user with email: {email.data} already exists."
                 )
+
+    # def validate_cc_number(self, cc_number):
+    #     if not cc_number.isdigit():
+    #         raise ValidationError(
+    #             "Please fill in your creditcard number with numbers only. Skip any non-numbers, like '-'"
+    #         )
+
+
+class AddProduct(FlaskForm):
+
+    name = StringField("Name", validators=[InputRequired(), Length(max=50)])
+    description = TextAreaField("Description", validators=[Length(max=200)])
+    price_per_unit = DecimalField("Price", places=2, validators=[InputRequired()])
+    amount_to_add = SelectField(
+        "Amount to add",
+        choices=[num for num in range(1, 11)],
+        validators=[InputRequired()],
+    )
+    tags = SelectField(
+        "Add a tag",
+        choices=["tag1", "tag2", "tag3"],
+    )
+    add_product = SubmitField("Add")
+
+    def validate_name(self, name):
+        current_user_products_list = list_user_products(current_user.id)
+        if name in current_user_products_list:
+            raise ValidationError("You already own this product.")
+
+    def validate_price_per_unit(self, price_per_unit):
+        if price_per_unit.data is not None and price_per_unit.data < 0:
+            raise ValidationError(
+                "You want them to pay YOU?? Can't have negative numbers. "
+            )
+        
