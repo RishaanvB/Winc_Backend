@@ -124,7 +124,7 @@ class AddProduct(FlaskForm):
         choices=[num for num in range(1, 11)],
         validators=[InputRequired()],
     )
-   
+
     tags = StringField("Create Your Tag")
     add_product = SubmitField("Add")
 
@@ -138,4 +138,8 @@ class AddProduct(FlaskForm):
             raise ValidationError(
                 "You want them to pay YOU?? Can't have negative numbers. "
             )
-        
+
+
+class SearchForm(FlaskForm):
+    search = StringField()
+    submit = SubmitField()

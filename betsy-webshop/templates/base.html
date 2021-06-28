@@ -46,8 +46,17 @@
       integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
       crossorigin="anonymous"
     ></script>
-    <!-- Core theme JS-->
+    <!-- Own Javascript -->
+    {% if current_user.is_authenticated %}
     <script defer src="{{ url_for('static', filename='scripts.js') }}"></script>
+    {% else %}
+
+    <script
+      defer
+      src="{{ url_for('static', filename='loginmodal.js') }}"
+    ></script>
+
+    {% endif %}
   </head>
   <body>
     {% if current_user.is_authenticated %}
@@ -74,9 +83,12 @@
         </div>
       </div>
     </header>
-    {% endblock header %} {% with messages =
-    get_flashed_messages(with_categories=true) %} {% if messages %} {% for
-    category, message in messages %}
+    {% endblock header %}
+
+    <h1 class="text-center">Hallo</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %} {% if
+    messages %} {% for category, message in messages %}
     <p class="alert alert-{{ category }} text-center">{{ message }}</p>
     {% endfor %} {% endif %} {% endwith %}
     <!-- Section-->

@@ -1,0 +1,66 @@
+<form
+          action="{{url_for('search')}}"
+          method="POST"
+          class="container ms-4"
+        >
+          {{ search_form.hidden_tag() }}
+          <div class="input-group row">
+            <span
+              class="
+                input-group-text
+                bg-dark
+                col-1
+                border border-2 border-dark border-end-0
+              "
+              style="max-width: 40px"
+              ><i class="bi bi-search" style="color: white"></i
+            ></span>
+
+            <input
+              class="
+                position-relative
+                form-control
+                col-8
+                rounded-0
+                btn-dark
+                bg-light
+                text-dark
+                border-2 border-start-0
+              "
+              type="search"
+              placeholder="Search"
+              aria-label="Search"
+            />
+            {{search_form.submit(class="position-relative form-control col-1
+            rounded-0 btn-dark bg-light text-dark border-2 border-start-0",
+            style="width:10px;" )}}
+            <select
+              class="
+                form-select
+                btn-dark
+                bg-light
+                text-dark
+                border-dark border border-2 border-end-0
+              "
+              id="inputGroupSelect01"
+              style="max-width: 167px"
+            >
+              <option selected>Choose...</option>
+              <option value="1">One</option>
+              <option value="2">Two</option>
+              <option value="3">Three</option>
+            </select>
+            <label
+              class="
+                input-group-text
+                col-2
+                bg-warning
+                text-dark
+                border-dark border border-2 border-start-0
+              "
+              style="max-width: 100px"
+              for="inputGroupSelect01"
+              >Category</label
+            >
+          </div>
+        </form>

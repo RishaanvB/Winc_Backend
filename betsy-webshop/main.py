@@ -5,11 +5,11 @@ __human_name__ = "Betsy Webshop"
 from models import User, Product, Tag, ProductTag, Transaction
 
 
-def search(term) -> list[Product.name]:
+def get_products_by_name(term) -> list[Product]:
     query_by_name = Product.name.contains(term)
     query_by_description = Product.description.contains(term)
     query_all_products = Product.select().where(query_by_name | query_by_description)
-    return [product.name for product in query_all_products]
+    return query_all_products
 
 
 def list_user_products(user_id) -> list[User.products]:
@@ -55,12 +55,13 @@ def remove_product(product_id) -> None:
 
 def get_words_in_string(string) -> list:
     """
-    Takes in string of words, removes all whitespace, non-alpha characters and
+    Takes in string of words, removes all duplicates, whitespace, non-alpha characters and
     words containing non-alpha characters.
     Returns the words in all lowerscase as list
     """
     words_list = " ".join(string.split()).split()
-    return [word.lower() for word in words_list if word.isalpha()]
+    # add in removes duplicates
+    return list(set([word.lower() for word in words_list if word.isalpha()]))
 
 
 def get_tags_per_product(product_id):

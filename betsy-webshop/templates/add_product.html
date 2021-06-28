@@ -12,8 +12,9 @@ css_class = 'form-control form-control-lg is-invalid ' + kwargs.pop('class', '')
 {% else %} {{ field(**kwargs) }} {% endif %} {% endmacro %}
 
 <!-- macro for seperate input groups -->
-{%- macro formgroup(name="", input="", col=6, value="", placeholder="",
-class="form-control border border-2 border-secondary") -%}
+{%- macro formgroup(name="", input="", col=6, value="",
+placeholder="",id="",onkeyup='', class="form-control border border-2
+border-secondary") -%}
 <div class="col-lg-{{col}} form-group">
   <div class="input-group mb-3">
     <span
@@ -25,7 +26,8 @@ class="form-control border border-2 border-secondary") -%}
       "
       >{{name}}
     </span>
-    {{with_errors(input, class=class, value=value, placeholder=placeholder) }}
+    {{with_errors(input, class=class, value=value, placeholder=placeholder,
+    id=id) }}
   </div>
 </div>
 {%- endmacro -%} {% include "account_nav.html" %}
@@ -52,8 +54,9 @@ class="form-control border border-2 border-secondary") -%}
     {{formgroup(input=product_form.amount_to_add, name="Quantity", col=6,
     class="form-control form-select border border-2 border-secondary")}}
     <!-- tags -->
-    {{formgroup(input=product_form.tags, name="Category", col=6)}}
-
+    {{formgroup(input=product_form.tags, name="Category", col=6,
+    placeholder="Seperate Categories By Spaces")}}
+    <!-- add_product -->
     <div class="form-group mt-4" role="button">
       {{ product_form.add_product(class="btn btn-warning text-dark fw-bolder")
       }}

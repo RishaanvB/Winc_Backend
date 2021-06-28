@@ -1,10 +1,12 @@
+from flask.helpers import send_file
+from wtforms.validators import ValidationError
 from utils import is_safe_url
 
 from app import app, db
 from app import login_manager
 
 from models import User, Product, Tag, ProductTag, Transaction
-from forms import RegistrationForm, LoginForm, UpdateAccountForm, AddProduct
+from forms import RegistrationForm, LoginForm, UpdateAccountForm, AddProduct, SearchForm
 
 from flask import render_template, url_for, redirect, flash, request, abort
 from flask_bcrypt import check_password_hash, generate_password_hash
@@ -14,7 +16,12 @@ from flask_login import (
     login_required,
     logout_user,
 )
-from main import list_products_per_tag, get_words_in_string, get_tags_per_product
+from main import (
+    list_products_per_tag,
+    get_words_in_string,
+    get_tags_per_product,
+    get_products_by_name,
+)
 
 
 @login_manager.user_loader
@@ -26,14 +33,19 @@ def load_user(user_id):
 @app.route("/home", methods=["GET", "POST"])
 def home():
     users = User.select()
+    products = Product.select().order_by(Product.id.desc())
     login_form = LoginForm()
     register_form = RegistrationForm()
+    search_form = SearchForm()
+
     return render_template(
         "index.html",
         title="Home",
         users=users,
+        products=products,
         login_form=login_form,
         register_form=register_form,
+        search_form=search_form,
     )
 
 
@@ -120,7 +132,6 @@ def account():
     banner_info = f"Hey {current_user.username}. This is your account."
 
     if form.validate_on_submit():
-
         user = User.get_by_id(current_user.id)
 
         user.first_name = form.first_name.data
@@ -143,12 +154,12 @@ def account():
     )
 
 
-@app.route("/products", methods=["GET", "POST"])
+@app.route("/account/add_product", methods=["GET", "POST"])
 @login_required
 def add_product():
-    products = [
-        product for product in current_user.products
-    ]  # test purposes !!!!DELETE!!!
+    # test purposes !!!!DELETE!!!
+    products = [product for product in current_user.products]
+    # test purposes !!!!DELETE!!!
 
     banner_info = "Add a product to your existing catalog!"
     product_form = AddProduct()
@@ -179,5 +190,35 @@ def add_product():
         title="Product",
         banner_info=banner_info,
         products=products,
-        get_tags=get_tags_per_product
+        get_tags=get_tags_per_product,
     )
+
+
+@app.route("/search_results/<search_term>", methods=["GET", "POST"])
+def search_results(search_term):
+    register_form = RegistrationForm()
+    login_form = LoginForm()
+    search_form = SearchForm()
+    products = get_products_by_name(search_term)
+
+    return render_template(
+        "search_results.html",
+        products=products,
+        login_form=login_form,
+        register_form=register_form,
+        search_form=search_form,
+        search_term=search_term,
+    )
+
+
+@app.route("/search_results", methods=["GET", "POST"])
+def search():
+    # register_form = RegistrationForm()
+    # login_form = LoginForm()
+    # users = User.select()
+    search_form = SearchForm()
+    if request.method == "POST" and search_form.validate_on_submit():
+        return redirect(
+            (url_for("search_results", search_term=search_form.search.data))
+        )  # or what you want
+    return redirect(url_for("search_results", search_term=search_form.search.data))
