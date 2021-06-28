@@ -5,3 +5,12 @@
 .login-icon.bi.bi-person-circle {
   transition: 0.4s transform ease-in;
 }
+
+#SearchBarInput {
+  width: 35px;
+  height: 35px;
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  opacity: 0;
+}

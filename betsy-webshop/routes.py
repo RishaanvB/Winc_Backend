@@ -54,6 +54,8 @@ def register():
     users = User.select()
     login_form = LoginForm()
     register_form = RegistrationForm()
+    search_form = SearchForm()
+
     if register_form.validate_on_submit():
         password = register_form.password.data
         hashed_pw = generate_password_hash(password)
@@ -77,6 +79,7 @@ def register():
         "index.html",
         login_form=login_form,
         register_form=register_form,
+        search_form=search_form,
         users=users,
         is_failed_register=True,
         is_failed_login=False,
@@ -88,6 +91,7 @@ def login():
     users = User.select()
     login_form = LoginForm()
     register_form = RegistrationForm()
+    search_form = SearchForm()
     if login_form.validate_on_submit():
         user = User.get_or_none(User.email == login_form.email.data)
         if user and check_password_hash(user.password, login_form.password.data):
@@ -111,6 +115,7 @@ def login():
         "index.html",
         login_form=login_form,
         register_form=register_form,
+        search_form=search_form,
         users=users,
         is_failed_login=True,
         is_failed_register=False,
@@ -129,6 +134,7 @@ def logout():
 @login_required
 def account():
     form = UpdateAccountForm(country=current_user.country)
+    search_form = SearchForm()
     banner_info = f"Hey {current_user.username}. This is your account."
 
     if form.validate_on_submit():
@@ -150,6 +156,7 @@ def account():
         "account.html",
         title="Account",
         update_form=form,
+        search_form=search_form,
         banner_info=banner_info,
     )
 
@@ -163,6 +170,7 @@ def add_product():
 
     banner_info = "Add a product to your existing catalog!"
     product_form = AddProduct()
+    search_form = SearchForm()
 
     if product_form.validate_on_submit():
         tags_list = get_words_in_string(product_form.tags.data)
@@ -191,6 +199,7 @@ def add_product():
         banner_info=banner_info,
         products=products,
         get_tags=get_tags_per_product,
+        search_form=search_form,
     )
 
 

@@ -141,5 +141,5 @@ class AddProduct(FlaskForm):
 
 
 class SearchForm(FlaskForm):
-    search = StringField()
-    submit = SubmitField()
+    search = StringField(validators=[InputRequired()])
+    submit = SubmitField("")

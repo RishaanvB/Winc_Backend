@@ -12,6 +12,11 @@
     >
       {% for product in products %}
       <div class="col mb-5">
+        <h1>Tags: {{product}}</h1>
+        {% for PT in product.tags %}
+        <!-- tagnames -->
+        {{PT.tag.name}} {% endfor %}
+
         <div class="card h-100">
           <!-- Product image-->
           <img
@@ -31,7 +36,9 @@
           <!-- Product actions-->
           <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
             <div class="text-center">
-              <a class="btn btn-outline-dark mt-auto" href="#">Sold by: {{product.owner.username}}</a>
+              <a class="btn btn-outline-dark mt-auto" href="#"
+                >Sold by: {{product.owner.username}}</a
+              >
             </div>
           </div>
         </div>

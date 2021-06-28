@@ -38,10 +38,7 @@
           </ul>
         </li>
         <!-- search bar -->
-        <form class="d-flex" action="{{url_for('search')}}" method="POST">
-          {{search_form.search(class="form-control me-2")}}          
-          {{search_form.submit(class="btn btn-outline-success")}}
-        </form>
+        {% include "searchbar.html" %}
       </ul>
       <ul class="navbar-nav mb-2 mb-lg-0 ms-lg-4 mx-2">
         {% if current_user.is_authenticated %}

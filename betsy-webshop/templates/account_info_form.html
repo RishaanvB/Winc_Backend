@@ -1,0 +1,36 @@
+<div class="container p-4 m-5 mx-auto shadow w-25">
+    <form action="" method="POST" enctype="multipart/form-data" class="row g-3">
+      {{ update_form.hidden_tag() }}
+      <legend class="border-bottom mb-4 fw-bolder">Account Info</legend>
+  
+      <!-- username -->
+      {{formgroup(input=update_form.username, name="Username",
+      value=current_user.username, placeholder="Your username goes here!")}}
+      <!-- firstname -->
+      {{formgroup(input=update_form.first_name, name="Name", col=6,
+      value=current_user.first_name, placeholder="Name!")}}
+  
+      <!-- lastname -->
+      {{formgroup(input=update_form.last_name, name="Surname", col=6,
+      value=current_user.last_name, placeholder="Name!")}}
+      <!-- address -->
+      {{formgroup(input=update_form.address, name="Address", col=12,
+      value=current_user.address, placeholder="Where do you live?")}}
+      <!-- city -->
+      {{formgroup(input=update_form.city, name="City", col=6,
+      value=current_user.city, placeholder="Where do you live?")}}
+      <!-- country -->
+      {{formgroup(input=update_form.country, name="Country", col=6,
+      class="form-control form-select border border-2 border-secondary")}}
+      <!-- email -->
+      {{formgroup(input=update_form.email, name="Email",
+      value=current_user.email, placeholder="How can we contact you?")}}
+      <!-- creditcard number -->
+      {{formgroup(input=update_form.cc_number, name="CreditCard #",
+      value=current_user.cc_number, placeholder="xxxx-xx-xxx-xx")}}
+  
+      <div class="form-group mt-4" role="button">
+        {{ update_form.update(class="btn btn-warning text-dark fw-bolder") }}
+      </div>
+    </form>
+  </div>
