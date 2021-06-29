@@ -74,3 +74,7 @@ def get_tags_per_product(product_id):
         Tag.select().join(ProductTag).join(Product).where(Product.id == product_id)
     )
     return [tag.name for tag in tags_per_product]
+
+
+def delete_user(user_id):
+    User.delete().where(User.id == user_id).execute()

@@ -30,6 +30,7 @@ from main import (
     get_products_by_name,
     list_user_products,
     remove_product,
+    delete_user,
 )
 
 
@@ -74,15 +75,16 @@ def register():
             password=hashed_pw,
         )
         flash(
-            f"Welcome {register_form.username.data}! Your account has been created!",
+            "Your account has been created! Please login update your profile!",
             "success",
         )
+        return redirect(url_for("home"))
 
-    else:
-        flash(
-            "Registration failed!!! Check if your input was correct.",
-            "danger",
-        )
+    flash(
+        "Registration failed!!! Check if your input was correct.",
+        "danger",
+    )
+
     # is_failed_login makes sure modal reopens after failed register
     return render_template(
         "index.html",
@@ -179,7 +181,9 @@ def update_account():
         user.save()
         flash("Your account has been updated!", "success")
         return redirect(url_for("account"))
-    return redirect(url_for("account"))
+    else:
+        flash("Something went wrong. Username of email already exist.")
+        return redirect(url_for("account"))
 
 
 @app.route("/account/add_product", methods=["GET", "POST"])
@@ -245,7 +249,7 @@ def search():
     if search_form.validate_on_submit():
         return redirect(
             (url_for("search_results", search_term=search_form.search.data))
-        )  # or what you want
+        )
     return redirect(url_for("search_results", search_term=search_form.search.data))
 
 
@@ -253,5 +257,15 @@ def search():
 @login_required
 def delete_product(product_id):
     remove_product(product_id)
-    flash(f"Your product has been deleted!", "success")
+    flash("Your product has been deleted!", "success")
     return redirect(url_for("account"))
+
+
+@app.route("/account/delete/<int:user_id>", methods=["GET", "DELETE"])
+@login_required
+def delete_user_account(user_id):
+    delete_user_id = user_id
+    logout()
+    delete_user(delete_user_id)
+    flash("Your account has been deleted!", "success")
+    return redirect(url_for("home"))
