@@ -115,9 +115,11 @@ class UpdateAccountForm(FlaskForm):
     #         )
 
 
-class AddProduct(FlaskForm):
+class AddProductForm(FlaskForm):
     name = StringField("Name", validators=[InputRequired(), Length(max=50)])
-    description = TextAreaField("Description", validators=[Length(max=200)])
+    description = TextAreaField(
+        "Description", validators=[Length(max=20), InputRequired()]
+    )
     price_per_unit = DecimalField("Price", places=2, validators=[InputRequired()])
     amount_to_add = SelectField(
         "Amount to add",
@@ -125,7 +127,7 @@ class AddProduct(FlaskForm):
         validators=[InputRequired()],
     )
 
-    tags = StringField("Create Your Tag")
+    tags = StringField("Create Your Tag", validators=[InputRequired()])
     add_product = SubmitField("Add")
 
     def validate_name(self, name):

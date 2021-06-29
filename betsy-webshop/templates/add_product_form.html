@@ -1,0 +1,49 @@
+<!-- macro for seperate input groups -->
+{%- macro formgroup(name="", input="", col=12, value="", placeholder="",id="",
+class="form-control border border-2 border-secondary") -%}
+<div class="col-lg-{{col}} form-group">
+  <div class="input-group input-group-sm">
+    <span
+      class="
+        input-group-text
+        bg-secondary
+        text-light
+        border border-2 border-secondary
+      "
+      >{{name}}
+    </span>
+    {{with_errors(input, class=class, value=value, placeholder=placeholder,
+    id=id) }}
+  </div>
+</div>
+{%- endmacro -%}
+<!-- endmacro -->
+<div class="container p-0 py-4 mx-auto">
+  <form action="{{url_for('add_product')}}" method="POST" class="row g-3">
+    {{ add_product_form.hidden_tag() }}
+    <div class="d-flex">
+      <legend class="mb-2 fw-bolder">Add Product</legend>
+    </div>
+
+    <!-- productname -->
+    {{formgroup(input=add_product_form.name, name="Product Name",
+    placeholder="Name")}}
+    <!-- price_per_unit -->
+    {{formgroup(input=add_product_form.price_per_unit, name="€",
+    placeholder="10.00")}}
+    <!-- amount_to_add -->
+    {{formgroup(input=add_product_form.amount_to_add, name="Quantity",
+    class="form-control form-select border border-2 border-secondary")}}
+    <!-- tags -->
+    {{formgroup(input=add_product_form.tags, name="Category",
+    placeholder="Seperate Categories By Spaces")}}
+    <!-- description -->
+    {{formgroup(input=add_product_form.description, name="Description",
+    placeholder="Whatcha selling?")}}
+    <!-- add_product -->
+    <span class="form-group" role="button">
+      {{ add_product_form.add_product(class="btn btn-dark text-warning
+      fw-bolder") }}
+    </span>
+  </form>
+</div>

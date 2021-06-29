@@ -14,7 +14,7 @@ def get_products_by_name(term) -> list[Product]:
 
 def list_user_products(user_id) -> list[User.products]:
     user_products = Product.select().join(User).where(Product.owner == user_id)
-    return [product.name.lower() for product in user_products]
+    return [product for product in user_products]
 
 
 # add distinct
