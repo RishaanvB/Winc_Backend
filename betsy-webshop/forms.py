@@ -74,10 +74,7 @@ class UpdateAccountForm(FlaskForm):
         choices=["...", "Netherlands", "Belgium", "Germany", "France", "Other"],
         validators=[InputRequired()],
     )
-    # aanpassen naar integerfield cc_number ook in models.py
-    cc_number = StringField(
-        "Credit Card Number", validators=[InputRequired(), Length(min=2, max=50)]
-    )
+    cc_number = IntegerField("Credit Card Number", validators=[InputRequired()])
     username = StringField(
         "Username",
         validators=[InputRequired(), Length(min=5, max=25)],
@@ -117,9 +114,7 @@ class UpdateAccountForm(FlaskForm):
 
 class AddProductForm(FlaskForm):
     name = StringField("Name", validators=[InputRequired(), Length(max=50)])
-    description = TextAreaField(
-        "Description", validators=[Length(max=20), InputRequired()]
-    )
+    description = TextAreaField("Description", validators=[Length(max=20)])
     price_per_unit = DecimalField("Price", places=2, validators=[InputRequired()])
     amount_to_add = SelectField(
         "Amount to add",
@@ -129,17 +124,6 @@ class AddProductForm(FlaskForm):
 
     tags = StringField("Create Your Tag", validators=[InputRequired()])
     add_product = SubmitField("Add")
-
-    def validate_name(self, name):
-        current_user_products_list = list_user_products(current_user.id)
-        if name in current_user_products_list:
-            raise ValidationError("You already own this product.")
-
-    def validate_price_per_unit(self, price_per_unit):
-        if price_per_unit.data is not None and price_per_unit.data < 0:
-            raise ValidationError(
-                "You want them to pay YOU?? Can't have negative numbers. "
-            )
 
 
 class SearchForm(FlaskForm):

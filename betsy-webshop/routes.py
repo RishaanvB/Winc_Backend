@@ -1,6 +1,7 @@
 from flask.helpers import send_file
+from werkzeug import exceptions
 from wtforms.validators import ValidationError
-from utils import is_safe_url
+from utils import is_safe_url, validate_owner_owns_product
 
 from app import app, db
 from app import login_manager
@@ -28,6 +29,7 @@ from main import (
     get_tags_per_product,
     get_products_by_name,
     list_user_products,
+    remove_product,
 )
 
 
@@ -141,6 +143,7 @@ def logout():
 @login_required
 def account():
     products = list_user_products(current_user.id)
+
     update_account_form = UpdateAccountForm(country=current_user.country)
     add_product_form = AddProductForm()
     search_form = SearchForm()
@@ -183,29 +186,40 @@ def update_account():
 @login_required
 def add_product():
     add_product_form = AddProductForm()
+    name = add_product_form.name.data.lower()
+    price_per_unit = add_product_form.price_per_unit.data
+    stock = int(add_product_form.amount_to_add.data)
+    owner = current_user.id
+    description = add_product_form.description.data
+    tags_list = get_words_in_string(add_product_form.tags.data)
 
-    if add_product_form.validate_on_submit():
-        tags_list = get_words_in_string(add_product_form.tags.data)
-        new_product = Product.create(
-            name=add_product_form.name.data,
-            price_per_unit=add_product_form.price_per_unit.data,
-            stock=int(add_product_form.amount_to_add.data),
-            owner=current_user.id,
-            description=add_product_form.description.data,
-        )
-
-        for new_tag in tags_list:
-            tag_to_add = Tag.get_or_create(name=new_tag)
-            ProductTag.create(
-                product=Product.get_by_id(new_product.id),
-                tag=Tag.get_by_id(tag_to_add[0].id),
-            )
-        flash(
-            f"Your {add_product_form.name.data} has been added to the catalog!",
-            "success",
-        )
+    if validate_owner_owns_product(name, owner):
+        flash(f"You already own the product: {name}", "danger")
         return redirect(url_for("account"))
-    return redirect(url_for("account"))
+    else:
+        if add_product_form.validate_on_submit():
+
+            new_product = Product.create(
+                name=name,
+                price_per_unit=price_per_unit,
+                stock=stock,
+                owner=owner,
+                description=description,
+            )
+
+            for new_tag in tags_list:
+                tag_to_add = Tag.get_or_create(name=new_tag)
+                ProductTag.create(
+                    product=Product.get_by_id(new_product.id),
+                    tag=Tag.get_by_id(tag_to_add[0].id),
+                )
+            flash(
+                f"Your {add_product_form.name.data} has been added to the catalog!",
+                "success",
+            )
+            return redirect(url_for("account"))
+        flash("Something went wrong, check your inputs.", "danger")
+        return redirect(url_for("account"))
 
 
 @app.route("/search_results/<search_term>", methods=["GET", "POST"])
@@ -233,3 +247,11 @@ def search():
             (url_for("search_results", search_term=search_form.search.data))
         )  # or what you want
     return redirect(url_for("search_results", search_term=search_form.search.data))
+
+
+@app.route("/product/<int:product_id>/delete", methods=["GET", "DELETE"])
+@login_required
+def delete_product(product_id):
+    remove_product(product_id)
+    flash(f"Your product has been deleted!", "success")
+    return redirect(url_for("account"))

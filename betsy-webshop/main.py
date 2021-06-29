@@ -12,9 +12,14 @@ def get_products_by_name(term) -> list[Product]:
     return query_all_products
 
 
-def list_user_products(user_id) -> list[User.products]:
-    user_products = Product.select().join(User).where(Product.owner == user_id)
-    return [product for product in user_products]
+def list_user_products(user_id) -> list[Product]:
+    user_products = (
+        Product.select()
+        .join(User)
+        .where(Product.owner == user_id)
+        .order_by(Product.date_posted.desc())
+    )
+    return user_products
 
 
 # add distinct

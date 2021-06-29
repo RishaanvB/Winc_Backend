@@ -1,5 +1,6 @@
 # importing db for access to actual peewee database and db_wrapper to access Model
 
+from enum import unique
 from flask_login.mixins import UserMixin
 from app import db_wrapper, db
 from datetime import datetime
@@ -13,7 +14,7 @@ from peewee import (
     Model,
     SqliteDatabase,
     TextField,
-    DateField,
+    DateTimeField,
 )
 
 
@@ -28,10 +29,8 @@ class User(BaseModel, UserMixin):
     address = CharField(max_length=200, null=True)
     city = CharField(max_length=50, null=True)
     country = CharField(max_length=50, null=True)
-    cc_number = CharField(
-        unique=True, max_length=20, null=True
-    )  # moet integerfield zijn
-    username = CharField(index=True, max_length=30)  # add unique=True
+    cc_number = IntegerField(unique=True, null=True)
+    username = CharField(index=True, max_length=30, unique=True)
     email = CharField(index=True, max_length=50, unique=True)
     password = CharField(max_length=20)
 
@@ -43,13 +42,13 @@ class Product(BaseModel):
         constraints=[Check("price_per_unit >= 0")],
         decimal_places=2,
         auto_round=True,
-        null=True,  # null=True, als je gratis iets aanbiedt.
+        null=True,
         default=0,
         max_digits=10,
     )
     stock = IntegerField(default=1)
     owner = ForeignKeyField(User, backref="products")
-    date_posted = DateField(formats="%Y-%m-%d", default=datetime.utcnow())
+    date_posted = DateTimeField(formats="%Y-%m-%d", default=datetime.utcnow())
 
 
 Product.add_index(Product.name, Product.description)
@@ -69,8 +68,10 @@ class ProductTag(BaseModel):
 class Transaction(BaseModel):
     buyer = ForeignKeyField(User, backref="transactions", index=True)
     product_bought = ForeignKeyField(Product, index=True)
-    amount = IntegerField()  # quantity bought ipv sold
-    transaction_date = DateField(formats="%Y-%m-%d %H:%M", default=datetime.utcnow())
+    amount_bought = IntegerField()
+    transaction_date = DateTimeField(
+        formats="%Y-%m-%d %H:%M", default=datetime.utcnow()
+    )
 
 
 # db.connect()

@@ -1,6 +1,7 @@
 <!-- macro for seperate input groups -->
-{% macro formgroup(name="", input="", col=12, value="", placeholder="",
-class="form-control border border-2 border-secondary") %}
+{% macro formgroup(name="", input="", col=10, value="",
+placeholder="placeholder", class="form-control border border-2
+border-secondary") %}
 <div class="form-group col-md-{{col}}">
   <div class="input-group input-group-sm">
     <span
@@ -14,6 +15,7 @@ class="form-control border border-2 border-secondary") %}
     </span>
     {{with_errors(input, class=class, value=value, placeholder=placeholder) }}
   </div>
+  <div class="form-text">{{placeholder}}</div>
 </div>
 {% endmacro %}
 
