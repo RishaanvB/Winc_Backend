@@ -12,7 +12,7 @@ class="form-control border border-2 border-secondary") %}
       "
       >{{name}}
     </span>
-    {{with_errors(input, class=class, value=value, textinfo=textinfo) }}
+    {{with_errors(input, class=class, value=value) }}
   </div>
   <div class="form-text">{{textinfo}}</div>
 </div>
@@ -37,6 +37,7 @@ class="form-control border border-2 border-secondary") %}
     <!-- username -->
     {{account_form_group(input=update_account_form.username, name="Username",
     value=current_user.username)}}
+
     <!-- firstname -->
     {{account_form_group(input=update_account_form.first_name, name="Name",
     value=current_user.first_name)}}

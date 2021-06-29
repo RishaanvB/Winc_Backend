@@ -51,6 +51,9 @@ class RegistrationForm(FlaskForm):
         if email:
             raise ValidationError("A user with this email already exists.")
 
+    def validate_password(self, user, password):
+        pass
+
 
 class LoginForm(FlaskForm):
     email = StringField(
@@ -58,6 +61,11 @@ class LoginForm(FlaskForm):
     )
     password = PasswordField("Your Password", validators=[InputRequired()])
     login = SubmitField("Login!")
+
+    def validate_email(self, email):
+        emails = User.get_or_none(User.email == email.data)
+        if not emails:
+            raise ValidationError("this email does not exist, validate from forms")
 
 
 class UpdateAccountForm(FlaskForm):
@@ -114,7 +122,7 @@ class UpdateAccountForm(FlaskForm):
 
 class AddProductForm(FlaskForm):
     name = StringField("Name", validators=[InputRequired(), Length(max=50)])
-    description = TextAreaField("Description", validators=[Length(max=20)])
+    description = TextAreaField("Description", validators=[Length(max=50)])
     price_per_unit = DecimalField("Price", places=2, validators=[InputRequired()])
     amount_to_add = SelectField(
         "Amount to add",

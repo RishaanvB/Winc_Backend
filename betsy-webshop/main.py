@@ -17,7 +17,7 @@ def list_user_products(user_id) -> list[Product]:
         Product.select()
         .join(User)
         .where(Product.owner == user_id)
-        .order_by(Product.date_posted.desc())
+        .order_by(Product.id.desc())
     )
     return user_products
 
@@ -74,6 +74,11 @@ def get_tags_per_product(product_id):
         Tag.select().join(ProductTag).join(Product).where(Product.id == product_id)
     )
     return [tag.name for tag in tags_per_product]
+
+
+def get_alpha_tag_names() -> list[Tag.name]:
+    tags = Tag.select().order_by(Tag.name)
+    return [tag.name for tag in tags]
 
 
 def delete_user(user_id):

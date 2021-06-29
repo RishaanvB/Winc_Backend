@@ -2,7 +2,7 @@ from flask.helpers import send_file
 from werkzeug import exceptions
 from wtforms.validators import ValidationError
 from utils import is_safe_url, validate_owner_owns_product
-
+from datetime import datetime
 from app import app, db
 from app import login_manager
 
@@ -31,7 +31,25 @@ from main import (
     list_user_products,
     remove_product,
     delete_user,
+    get_alpha_tag_names,
 )
+
+
+@app.context_processor
+def string_to_date_to_string():
+    """
+    Converts stringtime to datetime object, back to a stringtime.
+    Workaround, since Sqlite stores datetimes as strings.
+    """
+
+    def format_string(date_str):
+        format = "%Y-%m-%d %H:%M:%S.%f"
+        dt_object = datetime.strptime(date_str, format)
+        format = "%Y, %B %w, %H%Mh"
+        dt_string = dt_object.strftime(format)
+        return dt_string
+
+    return dict(format_string=format_string)
 
 
 @login_manager.user_loader
@@ -56,12 +74,14 @@ def home():
         login_form=login_form,
         register_form=register_form,
         search_form=search_form,
+        tags=get_alpha_tag_names(),
     )
 
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
     users = User.select()
+    products = Product.select()
     login_form = LoginForm()
     register_form = RegistrationForm()
     search_form = SearchForm()
@@ -84,27 +104,31 @@ def register():
         "Registration failed!!! Check if your input was correct.",
         "danger",
     )
-
-    # is_failed_login makes sure modal reopens after failed register
     return render_template(
         "index.html",
         login_form=login_form,
         register_form=register_form,
         search_form=search_form,
         users=users,
+        products=products,
+        tags=get_alpha_tag_names(),
         is_failed_register=True,
-        is_failed_login=False,
+        is_failed_login=False,  # is_failed_register makes sure modal reopens after failed register
     )
 
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
     users = User.select()
+    products = Product.select().order_by(Product.id.desc())
+
     login_form = LoginForm()
     register_form = RegistrationForm()
     search_form = SearchForm()
+
     if login_form.validate_on_submit():
         user = User.get_or_none(User.email == login_form.email.data)
+
         if user and check_password_hash(user.password, login_form.password.data):
             login_user(user)
             next_page = request.args.get("next")
@@ -115,20 +139,32 @@ def login():
 
         if user and not check_password_hash(user.password, login_form.password.data):
             flash("Your password is not correct. Pleas try again.", "danger")
-
-        else:
-            flash(
-                "Login failed, your email is not known to us. Please check your spelling.",
-                "danger",
+            return render_template(
+                "index.html",
+                login_form=login_form,
+                register_form=register_form,
+                search_form=search_form,
+                products=products,
+                users=users,
+                tags=get_alpha_tag_names(),
+                is_failed_login=True,
+                is_failed_register=False,
             )
-    # is_failed_login makes sure modal reopens after failed login
+
+    # flash(
+    #     "Email address not known. Please try another one.",
+    #     "danger",
+    # )
+
     return render_template(
         "index.html",
         login_form=login_form,
         register_form=register_form,
         search_form=search_form,
         users=users,
-        is_failed_login=True,
+        products=products,
+        tags=get_alpha_tag_names(),
+        is_failed_login=True,  # is_failed_login makes sure modal reopens after failed login
         is_failed_register=False,
     )
 
@@ -159,6 +195,7 @@ def account():
         search_form=search_form,
         banner_info=banner_info,
         products=products,
+        tags=get_alpha_tag_names(),
     )
 
 
@@ -182,7 +219,7 @@ def update_account():
         flash("Your account has been updated!", "success")
         return redirect(url_for("account"))
     else:
-        flash("Something went wrong. Username of email already exist.")
+        flash("Something went wrong with your inputs. Please try again", "warning")
         return redirect(url_for("account"))
 
 
@@ -191,7 +228,7 @@ def update_account():
 def add_product():
     add_product_form = AddProductForm()
     name = add_product_form.name.data.lower()
-    price_per_unit = add_product_form.price_per_unit.data
+    price_per_unit = format(add_product_form.price_per_unit.data, ".2f")
     stock = int(add_product_form.amount_to_add.data)
     owner = current_user.id
     description = add_product_form.description.data
@@ -222,8 +259,8 @@ def add_product():
                 "success",
             )
             return redirect(url_for("account"))
-        flash("Something went wrong, check your inputs.", "danger")
-        return redirect(url_for("account"))
+    flash("Something went wrong, check your inputs.", "danger")
+    return redirect(url_for("account"))
 
 
 @app.route("/search_results/<search_term>", methods=["GET", "POST"])
@@ -236,6 +273,7 @@ def search_results(search_term):
     return render_template(
         "search_results.html",
         products=products,
+        tags=get_alpha_tag_names(),
         login_form=login_form,
         register_form=register_form,
         search_form=search_form,

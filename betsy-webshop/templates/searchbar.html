@@ -30,10 +30,10 @@
       id="inputGroupSelect01"
       style="max-width: 167px"
     >
-      <option selected>Choose...</option>
-      <option value="1">One</option>
-      <option value="2">Two</option>
-      <option value="3">Three</option>
+    <option selected>Choose...</option>
+    {% for tag in tags %}
+      <option value="{{tag.name}}">{{tag}}</option>
+      {% endfor %}
     </select>
     <label
       class="

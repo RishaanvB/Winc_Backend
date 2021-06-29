@@ -48,7 +48,7 @@ class Product(BaseModel):
     )
     stock = IntegerField(default=1)
     owner = ForeignKeyField(User, backref="products")
-    date_posted = DateTimeField(formats="%Y-%m-%d", default=datetime.utcnow())
+    date_posted = DateTimeField(formats="%Y-%m-%d %H:%M", default=datetime.now())
 
 
 Product.add_index(Product.name, Product.description)
