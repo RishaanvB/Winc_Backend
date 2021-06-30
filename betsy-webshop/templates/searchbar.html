@@ -1,5 +1,7 @@
+
+
 <form action="{{url_for('search')}}" method="POST" class="container ms-4">
-  {{ search_form.hidden_tag() }}
+  {{ search_term_form.hidden_tag() }}
   <div class="input-group row">
     <span
       class="
@@ -10,42 +12,41 @@
       "
       style="max-width: 40px"
     >
-      {{search_form.submit(id="SearchBarInput")}}
+      {{search_term_form.submit(id="SearchBarInput")}}
 
       <i class="bi bi-search" style="color: white"></i
     ></span>
 
-    {{search_form.search(class="position-relative form-control col-8 rounded-0
-    btn-dark bg-light text-dark border-2 border-start-0",
+    {{search_term_form.search_term(class="position-relative form-control col-8
+    rounded-0 btn-dark bg-light text-dark border-2 border-start-0",
     placeholder="Search")}}
+  </div>
+</form>
 
-    <select
-      class="
-        form-select
-        btn-dark
-        bg-light
-        text-dark
-        border-dark border border-2 border-end-0
-      "
-      id="inputGroupSelect01"
-      style="max-width: 167px"
-    >
-    <option selected>Choose...</option>
-    {% for tag in tags %}
-      <option value="{{tag.name}}">{{tag}}</option>
-      {% endfor %}
-    </select>
-    <label
+
+<form action="{{url_for('search')}}" method="POST" class="container ms-4">
+  {{ search_tag_form.hidden_tag() }}
+  <div class="input-group row">
+    <span
       class="
         input-group-text
-        col-2
-        bg-warning
-        text-dark
-        border-dark border border-2 border-start-0
+        bg-dark
+        col-1
+        border border-2 border-dark border-end-0
       "
-      style="max-width: 100px"
-      for="inputGroupSelect01"
-      >Category</label
+      style="max-width: 40px"
     >
+      {{search_tag_form.submit(id="SearchBarInput")}}
+
+      <i class="bi bi-search" style="color: white"></i
+    ></span>
+
+    {{search_tag_form.search_tag(class="position-relative form-control col-8
+    rounded-0 btn-dark bg-light text-dark border-2 border-start-0",
+    placeholder="Search")}}
+
+    
+
+
   </div>
 </form>

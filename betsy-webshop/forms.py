@@ -16,7 +16,7 @@ from wtforms import (
 from wtforms.validators import InputRequired, Length, Email, EqualTo, DataRequired
 
 from models import User, Tag
-from main import list_user_products
+from main import list_user_products, get_alpha_tag_names
 
 
 class RegistrationForm(FlaskForm):
@@ -124,7 +124,7 @@ class AddProductForm(FlaskForm):
     name = StringField("Name", validators=[InputRequired(), Length(max=50)])
     description = TextAreaField("Description", validators=[Length(max=50)])
     price_per_unit = DecimalField("Price", places=2, validators=[InputRequired()])
-    amount_to_add = SelectField(
+    stock = SelectField(
         "Amount to add",
         choices=[num for num in range(1, 11)],
         validators=[InputRequired()],
@@ -134,6 +134,15 @@ class AddProductForm(FlaskForm):
     add_product = SubmitField("Add")
 
 
-class SearchForm(FlaskForm):
-    search = StringField(validators=[InputRequired()])
+class SearchByTermForm(FlaskForm):
+    search_term = StringField(validators=[InputRequired()])
     submit = SubmitField("")
+
+
+class SearchByTagForm(FlaskForm):
+    search_tag = SelectField()
+    submit = SubmitField("")
+
+    def validate_search_tag(self, search_tag):
+        if search_tag.data == "None":
+            raise ValidationError("cant use none")

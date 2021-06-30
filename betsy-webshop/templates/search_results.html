@@ -1,4 +1,8 @@
 {% extends "base.html" %} {% block content %}
+
+
+
+
 <h1>Hallo je bent op search_products</h1>
 <section class="py-5">
   <div class="container px-4 px-lg-5 mt-5">
@@ -10,7 +14,7 @@
         justify-content-center
       "
     >
-      {% for product in products %}
+      {% for product in all_products %}
       <div class="col mb-5">
         <h1>Tags: {{product}}</h1>
         {% for PT in product.tags %}
@@ -32,6 +36,8 @@
               <!-- Product price-->
               € {{product.price_per_unit}}
             </div>
+            <!-- product description -->
+            <p>{{product.description}}</p>
           </div>
           <!-- Product actions-->
           <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
