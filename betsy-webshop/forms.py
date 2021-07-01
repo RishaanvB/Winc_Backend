@@ -1,4 +1,5 @@
 from decimal import Decimal
+from flask import flash
 from flask_wtf import FlaskForm
 from flask_login import current_user
 from wtforms import (
@@ -51,8 +52,8 @@ class RegistrationForm(FlaskForm):
         if email:
             raise ValidationError("A user with this email already exists.")
 
-    def validate_password(self, user, password):
-        pass
+    # def validate_password(self, user, password):
+    #     pass
 
 
 class LoginForm(FlaskForm):
@@ -134,6 +135,20 @@ class AddProductForm(FlaskForm):
     add_product = SubmitField("Add")
 
 
+class UpdateProductForm(FlaskForm):
+    name = StringField("Name", validators=[InputRequired(), Length(max=50)])
+    description = TextAreaField("Description", validators=[Length(max=50)])
+    price_per_unit = DecimalField("Price", places=2, validators=[InputRequired()])
+    stock = SelectField(
+        "Amount to add",
+        choices=[num for num in range(1, 11)],
+        validators=[InputRequired()],
+    )
+
+    tags = StringField("Create Your Tag", validators=[InputRequired()])
+    update_product = SubmitField("Update")
+
+
 class SearchByTermForm(FlaskForm):
     search_term = StringField(validators=[InputRequired()])
     submit = SubmitField("")
@@ -145,4 +160,4 @@ class SearchByTagForm(FlaskForm):
 
     def validate_search_tag(self, search_tag):
         if search_tag.data == "None":
-            raise ValidationError("cant use none")
+            raise ValidationError("cant use none")  # deze werkt niet naar behoren

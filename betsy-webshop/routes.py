@@ -1,5 +1,4 @@
-from flask.helpers import send_file
-from werkzeug import exceptions
+from collections import UserDict
 from wtforms.validators import ValidationError
 from utils import is_safe_url, validate_owner_owns_product
 from datetime import datetime
@@ -14,8 +13,9 @@ from forms import (
     AddProductForm,
     SearchByTermForm,
     SearchByTagForm,
+    UpdateProductForm,
 )
-
+from playhouse.flask_utils import get_object_or_404
 from flask import render_template, url_for, redirect, flash, request, abort
 from flask_bcrypt import check_password_hash, generate_password_hash
 from flask_login import (
@@ -32,6 +32,7 @@ from main import (
     list_user_products,
     get_alpha_tag_names,
     add_product_to_catalog,
+    create_producttags,
 )
 
 
@@ -87,7 +88,7 @@ def register():
     login_form = LoginForm()
     register_form = RegistrationForm()
     search_term_form = SearchByTermForm()
-    search_tag_form = SearchByTagForm
+    search_tag_form = SearchByTagForm()
 
     if register_form.validate_on_submit():
         password = register_form.password.data
@@ -203,6 +204,7 @@ def account():
         search_tag_form=search_tag_form,
         banner_info=banner_info,
         products=products,
+        user=current_user,
     )
 
 
@@ -235,15 +237,12 @@ def update_account():
 def add_product():
     add_product_form = AddProductForm()
     name = add_product_form.name.data.lower()
-    # price_per_unit = format(add_product_form.price_per_unit.data, ".2f")
-    # stock = int(add_product_form.stock.data)
     owner = current_user.id
-    # description = add_product_form.description.data
 
     tags_list = get_words_in_string(add_product_form.tags.data)
     product = {
         "name": add_product_form.name.data.lower(),
-        "price_per_unit": format(add_product_form.price_per_unit.data, ".2f"),
+        "price_per_unit": add_product_form.price_per_unit.data,  # this format is not working, formatting is done by ninja
         "stock": int(add_product_form.stock.data),
         "description": add_product_form.description.data,
     }
@@ -254,15 +253,7 @@ def add_product():
     else:
         if add_product_form.validate_on_submit():
             new_product = add_product_to_catalog(owner, product)
-            for new_tag in tags_list:
-                try:
-                    tag_to_add = Tag.get_or_create(name=new_tag)
-                    ProductTag.create(
-                        product=Product.get_by_id(new_product.id),
-                        tag=Tag.get_by_id(tag_to_add[0].id),
-                    )
-                except NameError:
-                    raise ValidationError("somethign went wrong")
+            create_producttags(new_product, tags_list)
             flash(
                 f"Your {add_product_form.name.data} has been added to the catalog!",
                 "success",
@@ -272,7 +263,7 @@ def add_product():
     return redirect(url_for("account"))
 
 
-@app.route("/search_name/<search_term>/", methods=["GET", "POST"])
+@app.route("/search_results/search_name/<search_term>/", methods=["GET", "POST"])
 def search_by_term(search_term):
     register_form = RegistrationForm()
     login_form = LoginForm()
@@ -291,7 +282,7 @@ def search_by_term(search_term):
     )
 
 
-@app.route("/search_tags/<search_tag>/", methods=["GET", "POST"])
+@app.route("/search_results/search_tags/<search_tag>/", methods=["GET", "POST"])
 def search_by_tag(search_tag):
     register_form = RegistrationForm()
     login_form = LoginForm()
@@ -299,7 +290,6 @@ def search_by_tag(search_tag):
     search_tag_form = SearchByTagForm()
     search_tag_form.search_tag.choices = get_alpha_tag_names()
 
-    # tag_id = Tag.get_or_none(Tag.name == search_term_form.search_tag.data).get_id()
     tag_id = Tag.get_or_none(Tag.name == search_tag).get_id()
     all_products = list_products_per_tag(tag_id)
 
@@ -339,6 +329,53 @@ def search():
     return redirect(url_for("home"))
 
 
+@app.route("/product/<int:product_id>")
+def product_page(product_id):
+    products = Product.select().where(Product.id == product_id)
+    product = get_object_or_404(products, (Product.id == product_id))
+    update_product_form = UpdateProductForm(
+        description=product.description, stock=product.stock
+    )
+    register_form = RegistrationForm()
+    login_form = LoginForm()
+    search_term_form = SearchByTermForm()
+    search_tag_form = SearchByTagForm()
+
+    tags = get_tags_per_product(product_id)
+    tags = " ".join(tags)
+    return render_template(
+        "product_page.html",
+        product=product,
+        login_form=login_form,
+        register_form=register_form,
+        search_term_form=search_term_form,
+        search_tag_form=search_tag_form,
+        update_product_form=update_product_form,
+        user=current_user,
+        tags=tags,
+    )
+
+
+@app.route("/product/<int:product_id>/update", methods=["GET", "POST"])
+@login_required
+def update_product(product_id):
+    update_product_form = UpdateProductForm()
+
+    product = Product.get_by_id(product_id)
+
+    product.name = update_product_form.name.data
+    product.price_per_unit = update_product_form.price_per_unit.data
+    product.stock = update_product_form.stock.data
+    product.description = update_product_form.description.data
+    product.save()
+
+    tags_list = get_words_in_string(update_product_form.tags.data)
+    create_producttags(product, tags_list)
+    #    !!!!!!!!!!!!!!update producttags, it will create new ones with every update
+    flash(f"{product.name} has been updated!", "success")
+    return redirect(url_for("product_page", product_id=product_id))
+
+
 @app.route("/product/<int:product_id>/delete", methods=["GET", "DELETE"])
 @login_required
 def delete_product(product_id):
@@ -350,7 +387,83 @@ def delete_product(product_id):
 @app.route("/account/delete/<int:user_id>", methods=["GET", "DELETE"])
 @login_required
 def delete_user_account(user_id):
-    logout()
-    User.delete_instance(user_id)
+    logout_user(user_id)
+    User.delete_by_id(user_id)
     flash("Your account has been deleted!", "success")
     return redirect(url_for("home"))
+
+
+@app.route("/users/<int:user_id>")
+def get_user_profile(user_id):
+    register_form = RegistrationForm()
+    login_form = LoginForm()
+    search_term_form = SearchByTermForm()
+    search_tag_form = SearchByTagForm()
+    products = list_user_products(user_id)
+    product_count = products.count()
+
+    users = User.select().where(User.id == user_id)
+    user = get_object_or_404(users, User.id == user_id)
+
+    return render_template(
+        "user_profile.html",
+        user=user,
+        products=products,
+        product_count=product_count,
+        login_form=login_form,
+        register_form=register_form,
+        search_term_form=search_term_form,
+        search_tag_form=search_tag_form,
+    )
+
+
+# error handling
+
+
+@app.errorhandler(404)
+def page_not_found(error):
+    register_form = RegistrationForm()
+    login_form = LoginForm()
+    search_term_form = SearchByTermForm()
+    search_tag_form = SearchByTagForm()
+
+    message = "Oops! Page not found."
+    error_type = 404
+    return (
+        render_template(
+            "error.html",
+            message=message,
+            login_form=login_form,
+            register_form=register_form,
+            search_term_form=search_term_form,
+            search_tag_form=search_tag_form,
+            error_type=error_type,
+            error=error,
+        ),
+        404,
+    )
+
+
+@app.errorhandler(403)
+def page_access_denied(error):
+    register_form = RegistrationForm()
+    login_form = LoginForm()
+    search_term_form = SearchByTermForm()
+    search_tag_form = SearchByTagForm()
+
+    message = "You dont'have access to this page!"
+    error_type = 403
+
+    return (
+        render_template(
+            "error.html",
+            message=message,
+            login_form=login_form,
+            register_form=register_form,
+            search_term_form=search_term_form,
+            search_tag_form=search_tag_form,
+            error=error,
+            error_type=error_type,
+        ),
+        404,
+    )

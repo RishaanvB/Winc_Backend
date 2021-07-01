@@ -51,11 +51,11 @@ def update_stock(product_id, new_quantity) -> None:
 # moet zorgen dat je niet van jezelf kunt kopen...
 def purchase_product(product_id, buyer_id, quantity) -> None:
     product = Product.get_by_id(product_id)
+    new_quantity = product.stock - quantity
     if product.stock < quantity:
         raise ValueError("Amount not available in stock")
     Transaction.create(buyer=buyer_id, product_bought=product_id, amount=quantity)
-    product.stock -= quantity
-    product.save()
+    update_stock(product_id, new_quantity)
 
 
 # non assignment functions
@@ -87,9 +87,17 @@ def get_alpha_tag_names() -> tuple[Tag]:
     """
     Returns a list of tuples (Tag.name, Tag.name)
     With an additional tuple containing (None, "Choose")
-    One time use for the options in SelectField in SearchForm.
+    Used to dynamically determine available tags for the selectfield in the searchbar.
     """
     tags = Tag.select().order_by(Tag.name)
     tag_list = [(tag.name, tag.name) for tag in tags]
     tag_list.insert(0, (None, "Categories..."))
     return tag_list
+
+
+def create_producttags(product_model, tag_list):
+    for tag in tag_list:
+        added_tag = Tag.get_or_create(name=tag)
+        ProductTag.create(
+            product=Product.get_by_id(product_model), tag=Tag.get_by_id(added_tag[0].id)
+        )

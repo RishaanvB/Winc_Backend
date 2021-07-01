@@ -1,0 +1,64 @@
+{% extends 'base.html' %} {% block content %}
+
+<!-- macro for seperate input groups -->
+{% macro user_profile(name="", value="", class="form-control border border-2
+border-secondary") %}
+<div class="form-group col-md-12">
+  <div class="input-group input-group-sm">
+    <span
+      class="
+        input-group-text
+        bg-secondary
+        text-light
+        border border-2 border-secondary
+      "
+      >{{name}}
+    </span>
+    <input
+      class="form-control text-end fw-bold"
+      type="text"
+      value="{{value}}"
+      aria-label="Disabled input example"
+      disabled
+      readonly
+    />
+  </div>
+</div>
+{% endmacro %}
+
+<div class="container mb-3">
+  <div class="row">
+    <div class="col-lg-4 mt-4">
+      <div class="position-sticky mt-4 container p-0" style="top: 6rem">
+        <div class="row g-3 me-4">
+          <div class="d-flex justify-content-between">
+            <h4 class="mb-2 fw-bolder">User Profile</h4>
+          </div>
+          <!-- username -->
+          {{user_profile(name="Username", value= user.username)}}
+          {{user_profile(name="Amount of Products", value= product_count)}}
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-8 container ms-0">
+      {% if not products %}
+
+      <div class="card text-center my-4">
+        <div class="card-header">No products available!!!</div>
+        <div class="card-body">
+          <h5 class="card-title">User has no products.</h5>
+          <p class="card-text">
+            {{user.username}} has not added products to sell. Please check
+            another user.
+          </p>
+          <a href="{{url_for('home')}}" class="btn btn-warning text-dark"
+            >Get me back to the homepage.</a
+          >
+        </div>
+      </div>
+      {% endif %} {% include "featurette_product.html" %}
+    </div>
+  </div>
+</div>
+
+{% endblock content %}

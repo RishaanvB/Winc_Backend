@@ -51,8 +51,6 @@ css_class = 'form-control form-control-lg is-invalid ' + kwargs.pop('class', '')
   </div>
 </div>
 
-
-
 <!-- macro for seperate input groups -->
 {% macro account_form_group(name="", input="", col=12, value="", textinfo="",
 class="form-control border border-2 border-secondary") %}
@@ -73,70 +71,6 @@ class="form-control border border-2 border-secondary") %}
 </div>
 {% endmacro %}
 
-<div class="container p-0 py-4 mx-auto">
-  <form
-    action="{{url_for('update_account')}}"
-    method="POST"
-    enctype="multipart/form-data"
-    class="row g-3 me-4"
-  >
-    {{ update_account_form.hidden_tag() }}
-    <div class="d-flex justify-content-between">
-      <h4 class="mb-2 fw-bolder">Change Profile</h4>
-      <span class="form-group" role="button">
-        {{ update_account_form.update(class="btn btn-dark text-warning
-        fw-bolder") }}
-      </span>
-    </div>
-
-    <!-- username -->
-    {{account_form_group(input=update_account_form.username, name="Username",
-    value=current_user.username)}} 
-
-    <!-- firstname -->
-    {{account_form_group(input=update_account_form.first_name, name="Name",
-    value=current_user.first_name)}}
-
-    <!-- lastname -->
-    {{account_form_group(input=update_account_form.last_name, name="Surname",
-    value=current_user.last_name)}}
-    <!-- address -->
-    {{account_form_group(input=update_account_form.address, name="Address",
-    value=current_user.address)}}
-    <!-- city -->
-    {{account_form_group(input=update_account_form.city, name="City",
-    value=current_user.city)}}
-    <!-- country -->
-    {{account_form_group(input=update_account_form.country, name="Country",
-    class="form-control form-select border border-2 border-secondary")}}
-    <!-- email -->
-    {{account_form_group(input=update_account_form.email, name="Email",
-    value=current_user.email, textinfo="How can we contact you?")}}
-    <!-- creditcard number -->
-    {{account_form_group(input=update_account_form.cc_number, name="CreditCard
-    #", value=current_user.cc_number, textinfo="Numbers only please. Skip
-    dashes.")}}
-  </form>
-  <div class="mt-2">
-    <small class="text-danger">Do you want to delete you account?</small>
-    <small
-      type="button"
-      class="text-danger text-decoration-underline"
-      data-bs-toggle="modal"
-      data-bs-target="#deleteAccountModal"
-    >
-      Click here.
-    </small>
-  </div>
-</div>
-
-
-
-
-
-
-
-
 <div class="container mb-3">
   <div class="row">
     <div class="col-lg-4 mt-4">
@@ -155,7 +89,7 @@ class="form-control border border-2 border-secondary") %}
           </button>
           <div class="collapse" id="collapseProfileForm">
             <div class="card card-body border-0 p-0 mt-2">
-              include account_info_form.html
+              {% include "account_info_form.html" %}
             </div>
           </div>
         </div>
