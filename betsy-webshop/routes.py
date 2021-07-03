@@ -1,5 +1,3 @@
-from collections import UserDict
-from wtforms.validators import ValidationError
 from utils import is_safe_url, validate_owner_owns_product
 from datetime import datetime
 from app import app, db
@@ -25,14 +23,16 @@ from flask_login import (
     logout_user,
 )
 from main import (
+    delete_producttags_from_product,
     list_products_per_tag,
-    get_words_in_string,
+    get_unique_words_in_string,
     get_tags_per_product,
     get_products_by_name,
     list_user_products,
     get_alpha_tag_names,
     add_product_to_catalog,
     create_producttags,
+    purchase_product,
 )
 
 
@@ -110,6 +110,7 @@ def register():
     )
     return render_template(
         "index.html",
+        title="Register",
         login_form=login_form,
         register_form=register_form,
         search_term_form=search_term_form,
@@ -164,6 +165,7 @@ def login():
 
     return render_template(
         "index.html",
+        title="Login",
         login_form=login_form,
         register_form=register_form,
         search_term_form=search_term_form,
@@ -197,7 +199,7 @@ def account():
 
     return render_template(
         "account.html",
-        title="Account",
+        title=current_user.username,
         add_product_form=add_product_form,
         update_account_form=update_account_form,
         search_term_form=search_term_form,
@@ -239,21 +241,21 @@ def add_product():
     name = add_product_form.name.data.lower()
     owner = current_user.id
 
-    tags_list = get_words_in_string(add_product_form.tags.data)
+    tags_list = get_unique_words_in_string(add_product_form.tags.data)
     product = {
         "name": add_product_form.name.data.lower(),
-        "price_per_unit": add_product_form.price_per_unit.data,  # this format is not working, formatting is done by ninja
+        "price_per_unit": add_product_form.price_per_unit.data,
         "stock": int(add_product_form.stock.data),
         "description": add_product_form.description.data,
     }
 
     if validate_owner_owns_product(name, owner):
         flash(f"You already own the product: {name}", "danger")
-        return redirect(url_for("account"))
+        return redirect(url_for("product_page", Product.get(Product.name == name)))
     else:
         if add_product_form.validate_on_submit():
             new_product = add_product_to_catalog(owner, product)
-            create_producttags(new_product, tags_list)
+            create_producttags(new_product.id, tags_list)
             flash(
                 f"Your {add_product_form.name.data} has been added to the catalog!",
                 "success",
@@ -271,9 +273,12 @@ def search_by_term(search_term):
     search_tag_form = SearchByTagForm()
     search_tag_form.search_tag.choices = get_alpha_tag_names()
     all_products = get_products_by_name(search_term)
+    search_count = all_products.count()
+    flash(f"Found {search_count} result(s) for {search_term}.", "info")
 
     return render_template(
         "search_results.html",
+        title=search_term,
         all_products=all_products,
         login_form=login_form,
         register_form=register_form,
@@ -292,9 +297,11 @@ def search_by_tag(search_tag):
 
     tag_id = Tag.get_or_none(Tag.name == search_tag).get_id()
     all_products = list_products_per_tag(tag_id)
-
+    search_count = len(all_products)
+    flash(f"Found {search_count} result(s) for {search_tag}.", "info")
     return render_template(
         "search_results.html",
+        title=search_tag,
         all_products=all_products,
         login_form=login_form,
         register_form=register_form,
@@ -345,6 +352,7 @@ def product_page(product_id):
     tags = " ".join(tags)
     return render_template(
         "product_page.html",
+        title=product.name,
         product=product,
         login_form=login_form,
         register_form=register_form,
@@ -368,9 +376,8 @@ def update_product(product_id):
     product.stock = update_product_form.stock.data
     product.description = update_product_form.description.data
     product.save()
-
-    tags_list = get_words_in_string(update_product_form.tags.data)
-    create_producttags(product, tags_list)
+    tags_list = get_unique_words_in_string(update_product_form.tags.data)
+    create_producttags(product_id, tags_list)
     #    !!!!!!!!!!!!!!update producttags, it will create new ones with every update
     flash(f"{product.name} has been updated!", "success")
     return redirect(url_for("product_page", product_id=product_id))
@@ -407,6 +414,7 @@ def get_user_profile(user_id):
 
     return render_template(
         "user_profile.html",
+        title=user.username,
         user=user,
         products=products,
         product_count=product_count,
@@ -417,7 +425,15 @@ def get_user_profile(user_id):
     )
 
 
-# error handling
+@app.route("/buy_product/<int:product_id>", methods=["GET", "POST"])
+@login_required
+def buy_product(product_id):
+    buyer_id = current_user.id
+    quantity = 1  # needs to change dynamically
+
+    purchase_product(product_id, buyer_id, quantity)
+    flash("Product bought")
+    return redirect(url_for("home"))
 
 
 @app.errorhandler(404)
@@ -432,6 +448,7 @@ def page_not_found(error):
     return (
         render_template(
             "error.html",
+            title="404 Error",
             message=message,
             login_form=login_form,
             register_form=register_form,
@@ -457,6 +474,7 @@ def page_access_denied(error):
     return (
         render_template(
             "error.html",
+            title="403 Error",
             message=message,
             login_form=login_form,
             register_form=register_form,

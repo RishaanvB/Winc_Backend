@@ -1,8 +1,5 @@
 {% extends "base.html" %} {% block content %}
 
-
-
-
 <h1>Hallo je bent op search_products</h1>
 <section class="py-5">
   <div class="container px-4 px-lg-5 mt-5">
@@ -16,7 +13,7 @@
     >
       {% for product in all_products %}
       <div class="col mb-5">
-        <h1>Tags: {{product}}</h1>
+        <h5>ProductId: {{product}}</h5>
         {% for PT in product.tags %}
         <!-- tagnames -->
         {{PT.tag.name}} {% endfor %}

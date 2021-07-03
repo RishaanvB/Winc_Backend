@@ -19,6 +19,7 @@ def validate_owner_owns_product(product_name, user_id):
     for product in current_user_products_list:
         if product.name == product_name:
             return True
+    return False
 
 
 def validate_price_per_unit(self, price_per_unit):
@@ -26,6 +27,3 @@ def validate_price_per_unit(self, price_per_unit):
         raise ValidationError(
             "You want them to pay YOU?? Can't have negative numbers. "
         )
-
-
-

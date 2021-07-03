@@ -66,7 +66,7 @@ class LoginForm(FlaskForm):
     def validate_email(self, email):
         emails = User.get_or_none(User.email == email.data)
         if not emails:
-            raise ValidationError("this email does not exist, validate from forms")
+            raise ValidationError("This email does not exist in our database.")
 
 
 class UpdateAccountForm(FlaskForm):

@@ -3,6 +3,7 @@ __human_name__ = "Betsy Webshop"
 
 
 from models import User, Product, Tag, ProductTag, Transaction
+from flask import abort
 
 
 def get_products_by_name(term) -> list[Product]:
@@ -22,10 +23,9 @@ def list_user_products(user_id) -> list[Product]:
     return user_products
 
 
-# add distinct
 def list_products_per_tag(tag_id) -> list[Product]:
     products_with_tag = (
-        Product.select().join(ProductTag).join(Tag).where(Tag.id == tag_id)
+        Product.select().join(ProductTag).join(Tag).distinct().where(Tag.id == tag_id)
     )
     return [product for product in products_with_tag]
 
@@ -51,27 +51,32 @@ def update_stock(product_id, new_quantity) -> None:
 # moet zorgen dat je niet van jezelf kunt kopen...
 def purchase_product(product_id, buyer_id, quantity) -> None:
     product = Product.get_by_id(product_id)
+    seller_id = product.owner.id
+    validate_product_purchase(
+        product=product, buyer_id=buyer_id, seller_id=seller_id, quantity=quantity
+    )
+
     new_quantity = product.stock - quantity
-    if product.stock < quantity:
-        raise ValueError("Amount not available in stock")
-    Transaction.create(buyer=buyer_id, product_bought=product_id, amount=quantity)
+    Transaction.create(
+        buyer=buyer_id, product_bought=product_id, amount_bought=quantity
+    )
     update_stock(product_id, new_quantity)
 
 
 # non assignment functions
 
 
-def get_words_in_string(string) -> list:
+def get_unique_words_in_string(string) -> list:
     """
-    Takes in string of words, removes all duplicates, whitespace, non-alpha characters and
+    Takes in string, removes all duplicates, whitespace, non-alpha characters and
     words containing non-alpha characters.
-    Separate the words by space and retuns list of strings in all lowerscase.
+    Separate the words by space and retuns list of strings in all lowercase.
     """
     words_list = " ".join(string.split()).split()
     return list(set([word.lower() for word in words_list if word.isalpha()]))
 
 
-def get_tags_per_product(product_id):
+def get_tags_per_product(product_id) -> list[Tag.name]:
     tags_per_product = (
         Tag.select().join(ProductTag).join(Product).where(Product.id == product_id)
     )
@@ -95,9 +100,33 @@ def get_alpha_tag_names() -> tuple[Tag]:
     return tag_list
 
 
-def create_producttags(product_model, tag_list):
+def create_tag_from_list(tag_list):
     for tag in tag_list:
-        added_tag = Tag.get_or_create(name=tag)
-        ProductTag.create(
-            product=Product.get_by_id(product_model), tag=Tag.get_by_id(added_tag[0].id)
+        Tag.create(name=tag)
+
+
+def create_producttags(product_id, tag_list):
+    for tag in tag_list:
+        new_tag = Tag.get_or_create(name=tag)
+        ProductTag.get_or_create(product=product_id, tag=new_tag[0].id)
+    return
+
+
+def delete_producttags_from_product(product_id):
+    ProductTag.delete().where(ProductTag.product.id == product_id).execute()
+
+
+def validate_product_purchase(seller_id, buyer_id, product, quantity):
+    if seller_id == buyer_id:
+        abort(403, "You trying to buy your own stuff???")
+
+    if product.stock < quantity:
+        abort(
+            404,
+            "The amount you tried to buy does not exist. I should just disable the buy button. Since these errors are not very userfriendly.",
         )
+
+
+# from app import db
+# from models import User, Product, Tag, ProductTag
+# from main import create_producttags
