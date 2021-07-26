@@ -149,15 +149,9 @@ class UpdateProductForm(FlaskForm):
     update_product = SubmitField("Update")
 
 
-class SearchByTermForm(FlaskForm):
-    search_term = StringField(validators=[InputRequired()])
-    submit = SubmitField("")
-
-
-class SearchByTagForm(FlaskForm):
+class SearchForm(FlaskForm):
+    search_term = StringField()
     search_tag = SelectField()
     submit = SubmitField("")
 
-    def validate_search_tag(self, search_tag):
-        if search_tag.data == "None":
-            raise ValidationError("cant use none")  # deze werkt niet naar behoren
+

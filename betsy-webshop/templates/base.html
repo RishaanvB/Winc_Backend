@@ -70,21 +70,9 @@
     {% include "navbar.html" %}
     <!-- Header-->
     {% block header%}
-    <header class="bg-dark py-5">
-      <div class="container px-4 px-lg-5 my-5">
-        <div class="text-center text-white">
-          {% if banner_info %}
-          <h1 class="display-4 fw-bolder font">{{ banner_info }}</h1>
-          {% else %}
-          <h1 class="display-4 fw-bolder font">Shop in Style</h1>
-          {% endif %}
 
-          <p class="lead fw-normal text-white-50 mb-0">Some random text</p>
-        </div>
-      </div>
-    </header>
-    {% endblock header %} 
-    {% with messages =
+   
+    {% endblock header %} {% with messages =
     get_flashed_messages(with_categories=true) %} {% if messages %} {% for
     category, message in messages %}
     <p class="alert alert-{{ category }}">{{ message }}</p>

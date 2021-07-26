@@ -6,7 +6,7 @@ from models import User, Product, Tag, ProductTag, Transaction
 from flask import abort
 
 
-def get_products_by_name(term) -> list[Product]:
+def get_products_by_name(term) -> Product:
     query_by_name = Product.name.contains(term)
     query_by_description = Product.description.contains(term)
     query_all_products = Product.select().where(query_by_name | query_by_description)
@@ -23,11 +23,15 @@ def list_user_products(user_id) -> list[Product]:
     return user_products
 
 
-def list_products_per_tag(tag_id) -> list[Product]:
+def get_products_per_tag(tag_name) -> Product:
     products_with_tag = (
-        Product.select().join(ProductTag).join(Tag).distinct().where(Tag.id == tag_id)
+        Product.select()
+        .join(ProductTag)
+        .join(Tag)
+        .distinct()
+        .where(Tag.name == tag_name)
     )
-    return [product for product in products_with_tag]
+    return products_with_tag
 
 
 def add_product_to_catalog(user_id, product) -> None:
@@ -96,7 +100,7 @@ def get_alpha_tag_names() -> tuple[Tag]:
     """
     tags = Tag.select().order_by(Tag.name)
     tag_list = [(tag.name, tag.name) for tag in tags]
-    tag_list.insert(0, (None, "Categories..."))
+    tag_list.insert(0, ("All", "All Categories"))
     return tag_list
 
 

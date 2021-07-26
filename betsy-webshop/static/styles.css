@@ -14,6 +14,12 @@
   left: 3px;
   opacity: 0;
 }
+#searchIconBackground:hover {
+  background-color: rgb(102, 102, 102) !important;
+}
+#categorySelect:hover {
+  cursor: pointer;
+}
 .add-to-cart:hover {
   cursor: pointer;
 }
@@ -33,6 +39,26 @@
   /* rtl:remove */
   letter-spacing: -0.05rem;
 }
+.join-now-banner{
+  background-image: url("../static/assets/banner.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: bottom center;
+}
+.shop-in-style-banner{
+  background-image: url("../static/assets/shopinstyle.png");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: bottom center;
+}
+.sale-banner{
+  background-image: url("../static/assets/sale.png");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: bottom center;
+}
+
+
 
 /* RESPONSIVE CSS
 -------------------------------------------------- */

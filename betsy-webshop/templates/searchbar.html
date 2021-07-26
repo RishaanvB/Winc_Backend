@@ -1,53 +1,19 @@
-
-
 <form action="{{url_for('search')}}" method="POST" class="container ms-4">
-  {{ search_term_form.hidden_tag() }}
-  <div class="input-group row">
+  {{ search_form.hidden_tag() }}
+  <div class="input-group">
     <span
-      class="
-        input-group-text
-        bg-dark
-        col-1
-        border border-2 border-dark border-end-0
-      "
-      style="max-width: 40px"
+      class="input-group-text bg-dark border border-2 border-dark border-end-0"
+      id="searchIconBackground"
     >
-      {{search_term_form.submit(id="SearchBarInput")}}
+      <i class="bi bi-search" style="color: white">
+        {{search_form.submit(id="SearchBarInput")}}
+      </i>
+    </span>
 
-      <i class="bi bi-search" style="color: white"></i
-    ></span>
-
-    {{search_term_form.search_term(class="position-relative form-control col-8
-    rounded-0 btn-dark bg-light text-dark border-2 border-start-0",
-    placeholder="Search")}}
-  </div>
-</form>
-
-
-<form action="{{url_for('search')}}" method="POST" class="container ms-4">
-  {{ search_tag_form.hidden_tag() }}
-  <div class="input-group row">
-    <span
-      class="
-        input-group-text
-        bg-dark
-        col-1
-        border border-2 border-dark border-end-0
-      "
-      style="max-width: 40px"
-    >
-      {{search_tag_form.submit(id="SearchBarInput")}}
-
-      <i class="bi bi-search" style="color: white"></i
-    ></span>
-
-    {{search_tag_form.search_tag(class="position-relative form-control col-8
-    rounded-0 btn-dark bg-light text-dark border-2 border-start-0",
-    placeholder="Search")}}
-    
-
-    
-
-
+    {{search_form.search_term(class="position-relative form-control rounded-0
+    btn-dark bg-white text-dark border-2 border-start-0",
+    placeholder="Search")}} {{search_form.search_tag(id="categorySelect",
+    class="form-select rounded-0 btn-light bg-white text-dark border border-dark border-2
+    border-start-0", style="max-width:150px")}}
   </div>
 </form>

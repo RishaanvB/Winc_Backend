@@ -9,8 +9,7 @@ from forms import (
     LoginForm,
     UpdateAccountForm,
     AddProductForm,
-    SearchByTermForm,
-    SearchByTagForm,
+    SearchForm,
     UpdateProductForm,
 )
 from playhouse.flask_utils import get_object_or_404
@@ -24,7 +23,7 @@ from flask_login import (
 )
 from main import (
     delete_producttags_from_product,
-    list_products_per_tag,
+    get_products_per_tag,
     get_unique_words_in_string,
     get_tags_per_product,
     get_products_by_name,
@@ -35,7 +34,7 @@ from main import (
     purchase_product,
 )
 
-
+# checken of deze echt nodig is. Lijkt onnodig..
 @app.context_processor
 def string_to_date_to_string():
     """
@@ -65,19 +64,18 @@ def home():
     products = Product.select().order_by(Product.id.desc())
     login_form = LoginForm()
     register_form = RegistrationForm()
-    search_term_form = SearchByTermForm()
-    search_tag_form = SearchByTagForm()
-    search_tag_form.search_tag.choices = get_alpha_tag_names()
+    search_form = SearchForm()
+    search_form.search_tag.choices = get_alpha_tag_names()
 
     return render_template(
         "index.html",
         title="Home",
         users=users,
         products=products,
+        banner_bg="index_banner_bg",
         login_form=login_form,
         register_form=register_form,
-        search_term_form=search_term_form,
-        search_tag_form=search_tag_form,
+        search_form=search_form,
     )
 
 
@@ -87,8 +85,7 @@ def register():
     products = Product.select()
     login_form = LoginForm()
     register_form = RegistrationForm()
-    search_term_form = SearchByTermForm()
-    search_tag_form = SearchByTagForm()
+    search_form = SearchForm()
 
     if register_form.validate_on_submit():
         password = register_form.password.data
@@ -113,12 +110,11 @@ def register():
         title="Register",
         login_form=login_form,
         register_form=register_form,
-        search_term_form=search_term_form,
-        search_tag_form=search_tag_form,
+        search_form=search_form,
         users=users,
         products=products,
-        is_failed_register=True,
-        is_failed_login=False,  # is_failed_register makes sure modal reopens after failed register
+        is_failed_register=True,  # is_failed_register makes sure modal reopens after failed register
+        is_failed_login=False,
     )
 
 
@@ -129,9 +125,8 @@ def login():
 
     login_form = LoginForm()
     register_form = RegistrationForm()
-    search_term_form = SearchByTermForm()
-    search_tag_form = SearchByTagForm()
-    search_tag_form.search_tag.choices = get_alpha_tag_names()
+    search_form = SearchForm()
+    search_form.search_tag.choices = get_alpha_tag_names()
 
     if login_form.validate_on_submit():
         user = User.get_or_none(User.email == login_form.email.data)
@@ -150,8 +145,7 @@ def login():
                 "index.html",
                 login_form=login_form,
                 register_form=register_form,
-                search_term_form=search_term_form,
-                search_tag_form=search_tag_form,
+                search_form=search_form,
                 products=products,
                 users=users,
                 is_failed_login=True,
@@ -168,8 +162,7 @@ def login():
         title="Login",
         login_form=login_form,
         register_form=register_form,
-        search_term_form=search_term_form,
-        search_tag_form=search_tag_form,
+        search_form=search_form,
         users=users,
         products=products,
         is_failed_login=True,  # is_failed_login makes sure modal reopens after failed login
@@ -192,9 +185,8 @@ def account():
 
     update_account_form = UpdateAccountForm(country=current_user.country)
     add_product_form = AddProductForm()
-    search_term_form = SearchByTermForm()
-    search_tag_form = SearchByTagForm()
-    search_tag_form.search_tag.choices = get_alpha_tag_names()
+    search_form = SearchForm()
+    search_form.search_tag.choices = get_alpha_tag_names()
     banner_info = f"Hey {current_user.username}. This is your account."
 
     return render_template(
@@ -202,8 +194,7 @@ def account():
         title=current_user.username,
         add_product_form=add_product_form,
         update_account_form=update_account_form,
-        search_term_form=search_term_form,
-        search_tag_form=search_tag_form,
+        search_form=search_form,
         banner_info=banner_info,
         products=products,
         user=current_user,
@@ -251,7 +242,7 @@ def add_product():
 
     if validate_owner_owns_product(name, owner):
         flash(f"You already own the product: {name}", "danger")
-        return redirect(url_for("product_page", Product.get(Product.name == name)))
+        return redirect(url_for("product_page", Product.get_id(Product.name == name)))
     else:
         if add_product_form.validate_on_submit():
             new_product = add_product_to_catalog(owner, product)
@@ -265,71 +256,58 @@ def add_product():
     return redirect(url_for("account"))
 
 
-@app.route("/search_results/search_name/<search_term>/", methods=["GET", "POST"])
-def search_by_term(search_term):
+@app.route(
+    "/search_results/<search_term>/<search_tag>/",
+    methods=["GET", "POST"],
+)
+def search_results(search_term, search_tag):
     register_form = RegistrationForm()
     login_form = LoginForm()
-    search_term_form = SearchByTermForm()
-    search_tag_form = SearchByTagForm()
-    search_tag_form.search_tag.choices = get_alpha_tag_names()
-    all_products = get_products_by_name(search_term)
-    search_count = all_products.count()
-    flash(f"Found {search_count} result(s) for {search_term}.", "info")
+    search_form = SearchForm()
 
+    # tag = Tag.get_or_none(Tag.name == search_tag)
+    search_form.search_tag.choices = get_alpha_tag_names()
+
+    if search_term == "All" and search_tag == "All":
+        all_products = Product.select()
+    elif search_term == "All":
+        all_products = get_products_per_tag(search_tag)
+    elif search_tag == "All":
+        all_products = get_products_by_name(search_term)
+    else:
+        all_products = (
+            get_products_by_name(search_term)
+            .join(ProductTag)
+            .join(Tag)
+            .distinct()
+            .where(Tag.name == search_tag)
+        )
     return render_template(
         "search_results.html",
         title=search_term,
         all_products=all_products,
         login_form=login_form,
         register_form=register_form,
-        search_term_form=search_term_form,
-        search_tag_form=search_tag_form,
+        search_form=search_form,
     )
 
 
-@app.route("/search_results/search_tags/<search_tag>/", methods=["GET", "POST"])
-def search_by_tag(search_tag):
-    register_form = RegistrationForm()
-    login_form = LoginForm()
-    search_term_form = SearchByTermForm()
-    search_tag_form = SearchByTagForm()
-    search_tag_form.search_tag.choices = get_alpha_tag_names()
-
-    tag_id = Tag.get_or_none(Tag.name == search_tag).get_id()
-    all_products = list_products_per_tag(tag_id)
-    search_count = len(all_products)
-    flash(f"Found {search_count} result(s) for {search_tag}.", "info")
-    return render_template(
-        "search_results.html",
-        title=search_tag,
-        all_products=all_products,
-        login_form=login_form,
-        register_form=register_form,
-        search_term_form=search_term_form,
-        search_tag_form=search_tag_form,
-    )
-
-
-@app.route("/search_results", methods=["GET", "POST"])
+@app.route("/search", methods=["GET", "POST"])
 def search():
-    search_term_form = SearchByTermForm()
-    search_tag_form = SearchByTagForm()
-    search_tag_form.search_tag.choices = get_alpha_tag_names()
-    if search_term_form.validate_on_submit():
+    search_form = SearchForm()
+    search_form.search_tag.choices = get_alpha_tag_names()
+
+    if search_form.validate_on_submit():
+        if search_form.search_term.data == "":
+            search_term = "All"
+        else:
+            search_term = search_form.search_term.data
         return redirect(
             (
                 url_for(
-                    "search_by_term",
-                    search_term=search_term_form.search_term.data,
-                )
-            )
-        )
-    if search_tag_form.validate_on_submit():
-        return redirect(
-            (
-                url_for(
-                    "search_by_tag",
-                    search_tag=search_tag_form.search_tag.data,
+                    "search_results",
+                    search_term=search_term,
+                    search_tag=search_form.search_tag.data,
                 )
             )
         )
@@ -345,8 +323,7 @@ def product_page(product_id):
     )
     register_form = RegistrationForm()
     login_form = LoginForm()
-    search_term_form = SearchByTermForm()
-    search_tag_form = SearchByTagForm()
+    search_form = SearchForm()
 
     tags = get_tags_per_product(product_id)
     tags = " ".join(tags)
@@ -356,8 +333,7 @@ def product_page(product_id):
         product=product,
         login_form=login_form,
         register_form=register_form,
-        search_term_form=search_term_form,
-        search_tag_form=search_tag_form,
+        search_form=search_form,
         update_product_form=update_product_form,
         user=current_user,
         tags=tags,
@@ -368,7 +344,6 @@ def product_page(product_id):
 @login_required
 def update_product(product_id):
     update_product_form = UpdateProductForm()
-
     product = Product.get_by_id(product_id)
 
     product.name = update_product_form.name.data
@@ -376,9 +351,10 @@ def update_product(product_id):
     product.stock = update_product_form.stock.data
     product.description = update_product_form.description.data
     product.save()
+
     tags_list = get_unique_words_in_string(update_product_form.tags.data)
     create_producttags(product_id, tags_list)
-    #    !!!!!!!!!!!!!!update producttags, it will create new ones with every update
+    #    !!!!!!!!!!!!!!fix !!!!! tags update doesnt remove old tags.
     flash(f"{product.name} has been updated!", "success")
     return redirect(url_for("product_page", product_id=product_id))
 
@@ -387,6 +363,7 @@ def update_product(product_id):
 @login_required
 def delete_product(product_id):
     Product.delete_by_id(product_id)
+    # !!!!!!!!!!delete all producttags associated with product.
     flash("Your product has been deleted!", "success")
     return redirect(url_for("account"))
 
@@ -396,16 +373,16 @@ def delete_product(product_id):
 def delete_user_account(user_id):
     logout_user(user_id)
     User.delete_by_id(user_id)
+    # !!!!!!!!!!!!!!! delete products associated with user.
     flash("Your account has been deleted!", "success")
     return redirect(url_for("home"))
 
 
 @app.route("/users/<int:user_id>")
-def get_user_profile(user_id):
+def get_user_profile(user_id):  # change to user_profile
     register_form = RegistrationForm()
     login_form = LoginForm()
-    search_term_form = SearchByTermForm()
-    search_tag_form = SearchByTagForm()
+    search_form = SearchForm()
     products = list_user_products(user_id)
     product_count = products.count()
 
@@ -420,8 +397,7 @@ def get_user_profile(user_id):
         product_count=product_count,
         login_form=login_form,
         register_form=register_form,
-        search_term_form=search_term_form,
-        search_tag_form=search_tag_form,
+        search_form=search_form,
     )
 
 
@@ -440,8 +416,7 @@ def buy_product(product_id):
 def page_not_found(error):
     register_form = RegistrationForm()
     login_form = LoginForm()
-    search_term_form = SearchByTermForm()
-    search_tag_form = SearchByTagForm()
+    search_form = SearchForm()
 
     message = "Oops! Page not found."
     error_type = 404
@@ -452,8 +427,7 @@ def page_not_found(error):
             message=message,
             login_form=login_form,
             register_form=register_form,
-            search_term_form=search_term_form,
-            search_tag_form=search_tag_form,
+            search_form=search_form,
             error_type=error_type,
             error=error,
         ),
@@ -465,8 +439,7 @@ def page_not_found(error):
 def page_access_denied(error):
     register_form = RegistrationForm()
     login_form = LoginForm()
-    search_term_form = SearchByTermForm()
-    search_tag_form = SearchByTagForm()
+    search_form = SearchForm()
 
     message = "You dont'have access to this page!"
     error_type = 403
@@ -478,8 +451,7 @@ def page_access_denied(error):
             message=message,
             login_form=login_form,
             register_form=register_form,
-            search_term_form=search_term_form,
-            search_tag_form=search_tag_form,
+            search_form=search_form,
             error=error,
             error_type=error_type,
         ),

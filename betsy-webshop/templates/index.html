@@ -1,50 +1,61 @@
 {% extends "base.html" %} {% block content %}
 
-<section class="py-5">
-  <div class="container px-4 px-lg-5 mt-5">
-    <div
-      class="
-        row
-        gx-4 gx-lg-5
-        row-cols-2 row-cols-md-3 row-cols-xl-4
-        justify-content-center
-      "
-    >
-      {% for product in products %}
-      <div class="col mb-5">
-        <div class="card h-100">
-          <!-- Product image-->
-          <img
-            class="card-img-top"
-            src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg"
-            alt="..."
-          />
-          <p>{{product.description}}</p>
-          <!-- Product details-->
-          <div class="card-body p-4">
-            <div class="text-center">
-              <!-- Product name-->
-              <h5 class="fw-bolder">{{product.name}}</h5>
-              <!-- Product price-->
-              € {{product.price_per_unit}}
-            </div>
-            <!-- product tags -->
-
-            {%for pt in product.tags%} {{pt.tag.name}} {%endfor%}
-          </div>
-          <!-- Product actions-->
-          <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-            <div class="text-center">
-              <a class="btn btn-outline-dark mt-auto" href="{{url_for('get_user_profile', user_id=product.owner.id)}}"
-                >Sold by: {{product.owner.username}}</a
-              >
-            </div>
-          </div>
-        </div>
-      </div>
-      {% endfor %}
+<div class="container py-5">
+  <div class="p-5 mb-4 bg-light rounded-3 join-now-banner">
+    <div class="container-fluid py-5">
+      <h1 class="display-5 fw-bold text-white">Join Betsy!</h1>
+      <p class="col-md-8 fs-4 text-white">
+        Betsy's has one of the best products out there. Come join us and enjoy
+        over a gazillion different homemade products.
+      </p>
+      <button
+        class="btn btn-warning btn-lg"
+        type="button"
+        href="#registerModalToggle"
+        data-bs-toggle="modal"
+      >
+        Join Now!
+      </button>
     </div>
   </div>
-</section>
+
+  <div class="row align-items-md-stretch">
+    <div class="col-md-6 mb-4">
+      <div class="h-100 p-5 text-white bg-dark rounded-3 shop-in-style-banner">
+        <h2>Shop in style</h2>
+        <p>
+          Swap the background-color utility and add a `.text-*` color utility to
+          mix up the jumbotron look. Then, mix and match with additional
+          component themes and more.
+        </p>
+        <a
+          href="{{url_for('search_results', search_term='All', search_tag='All')}}"
+          role="button"
+          class="btn btn-outline-light"
+          type="button"
+          >Shop Now!</a
+        >
+      </div>
+    </div>
+    <div class="col-md-6 mb-4">
+      <div class="h-100 p-5 text-white bg-light border rounded-3 sale-banner">
+        <h2>Check out the sales!!!</h2>
+        <p>
+          Or, keep it light and add a border for some added definition to the
+          boundaries of your content. Be sure to look under the hood at the
+          source HTML here as we've adjusted the alignment and sizing of both
+          column's content for equal-height.
+        </p>
+        <a
+          href="{{url_for('search_results', search_term='All', search_tag='All')}}"
+          role="button"
+          class="btn btn-secondary"
+          type="button"
+          >Discount!</a
+        >
+      </div>
+    </div>
+  </div>
+</div>
 
 {% endblock content %}
