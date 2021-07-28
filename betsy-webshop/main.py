@@ -34,7 +34,7 @@ def get_products_per_tag(tag_name) -> Product:
     return products_with_tag
 
 
-def add_product_to_catalog(user_id, product) -> None:
+def add_product_to_catalog(user_id, product) -> Product:
 
     new_product = Product.create(
         name=product["name"],
@@ -109,10 +109,10 @@ def create_tag_from_list(tag_list):
         Tag.create(name=tag)
 
 
-def create_producttags(product_id, tag_list):
+def create_producttags(product_id, tag_list) -> None:
     for tag in tag_list:
-        new_tag = Tag.get_or_create(name=tag)
-        ProductTag.get_or_create(product=product_id, tag=new_tag[0].id)
+        added_tag = Tag.get(name=tag)
+        ProductTag.create(product=product_id, tag_id=added_tag.id)
     return
 
 

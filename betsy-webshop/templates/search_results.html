@@ -1,54 +1,28 @@
 {% extends "base.html" %} {% block content %}
 
-<h1>Hallo je bent op search_products</h1>
-<section class="py-5">
-  <div class="container px-4 px-lg-5 mt-5">
-    <div
-      class="
-        row
-        gx-4 gx-lg-5
-        row-cols-2 row-cols-md-3 row-cols-xl-4
-        justify-content-center
-      "
-    >
-      {% for product in all_products %}
-      <div class="col mb-5">
-        <h5>ProductId: {{product}}</h5>
-        {% for PT in product.tags %}
-        <!-- tagnames -->
-        {{PT.tag.name}} {% endfor %}
-
-        <div class="card h-100">
-          <!-- Product image-->
-          <img
-            class="card-img-top"
-            src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg"
-            alt="..."
-          />
-          <!-- Product details-->
-          <div class="card-body p-4">
-            <div class="text-center">
-              <!-- Product name-->
-              <h5 class="fw-bolder">{{product.name}}</h5>
-              <!-- Product price-->
-              € {{product.price_per_unit}}
-            </div>
-            <!-- product description -->
-            <p>{{product.description}}</p>
-          </div>
-          <!-- Product actions-->
-          <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-            <div class="text-center">
-              <a class="btn btn-outline-dark mt-auto" href="#"
-                >Sold by: {{product.owner.username}}</a
-              >
-            </div>
-          </div>
-        </div>
-      </div>
-      {% endfor %}
+<div class="container py-5">
+  <div class="p-5 mb-4 bg-dark rounded-3 search-results-banner banner">
+    <div class="container-fluid py-5">
+      <h1 class="display-5 fw-bold text-white">Sale!</h1>
+      <p class="col-md-8 fs-4 text-white">
+        More than 80% discount on all our products!
+      </p>
+      <button class="btn btn-light btn-lg" type="button">Check it out!</button>
     </div>
   </div>
-</section>
+  <h2 class="text-center my-3">
+    {% if all_products | count == 1 %}
+    We've found {{ all_products | count }} result.
+    {% else %}
+    We've found {{ all_products | count }} results.
+    {% endif %}
+  </h2>
+  <div class="album">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+      {% for product in all_products %} {% include "product_in_search_results.html" %} {%
+      endfor%}
+    </div>
+  </div>
+</div>
 
 {% endblock content %}

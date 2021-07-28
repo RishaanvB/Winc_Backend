@@ -1,5 +1,3 @@
-from decimal import Decimal
-from flask import flash
 from flask_wtf import FlaskForm
 from flask_login import current_user
 from wtforms import (
@@ -13,7 +11,9 @@ from wtforms import (
     TextAreaField,
     IntegerField,
     SelectMultipleField,
+    widgets,
 )
+from wtforms.fields.html5 import EmailField
 from wtforms.validators import InputRequired, Length, Email, EqualTo, DataRequired
 
 from models import User, Tag
@@ -52,9 +52,6 @@ class RegistrationForm(FlaskForm):
         if email:
             raise ValidationError("A user with this email already exists.")
 
-    # def validate_password(self, user, password):
-    #     pass
-
 
 class LoginForm(FlaskForm):
     email = StringField(
@@ -88,12 +85,9 @@ class UpdateAccountForm(FlaskForm):
         "Username",
         validators=[InputRequired(), Length(min=5, max=25)],
     )
-    email = StringField("Email", validators=[InputRequired(), Length(max=50), Email()])
-    # password = PasswordField("Password", validators=[InputRequired()])
-
-    # image_file = FileField(
-    #     "Change Profile Picture", validators=[FileAllowed(["jpg", "png", "jpeg"])]
-    # )
+    email = EmailField(
+        "Email", validators=[InputRequired(), Length(min=5, max=50), Email()]
+    )
     update = SubmitField("Update")
 
     def validate_username(self, username):
@@ -114,38 +108,48 @@ class UpdateAccountForm(FlaskForm):
                     f"A user with email: {email.data} already exists."
                 )
 
-    # def validate_cc_number(self, cc_number):
-    #     if not cc_number.isdigit():
-    #         raise ValidationError(
-    #             "Please fill in your creditcard number with numbers only. Skip any non-numbers, like '-'"
-    #         )
+class MultiCheckboxField(SelectMultipleField):
+    widget = widgets.ListWidget(prefix_label=False)
+    option_widget = widgets.CheckboxInput()
 
 
 class AddProductForm(FlaskForm):
+    tags = [
+        "Books",
+        "Media",
+        "Electronics",
+        "Health",
+        "Fashion",
+        "Sports",
+        "Vehicles",
+        "Hobby",
+    ]
     name = StringField("Name", validators=[InputRequired(), Length(max=50)])
     description = TextAreaField("Description", validators=[Length(max=50)])
-    price_per_unit = DecimalField("Price", places=2, validators=[InputRequired()])
+    price_per_unit = DecimalField("€", places=2, validators=[InputRequired()])
     stock = SelectField(
-        "Amount to add",
+        "Quantity",
         choices=[num for num in range(1, 11)],
         validators=[InputRequired()],
     )
+    tags = MultiCheckboxField("Categories", choices=[(tag, tag) for tag in tags])
 
-    tags = StringField("Create Your Tag", validators=[InputRequired()])
     add_product = SubmitField("Add")
 
 
 class UpdateProductForm(FlaskForm):
     name = StringField("Name", validators=[InputRequired(), Length(max=50)])
     description = TextAreaField("Description", validators=[Length(max=50)])
-    price_per_unit = DecimalField("Price", places=2, validators=[InputRequired()])
+    price_per_unit = DecimalField("€", places=2, validators=[InputRequired()])
     stock = SelectField(
-        "Amount to add",
+        "Quantity",
         choices=[num for num in range(1, 11)],
         validators=[InputRequired()],
     )
 
-    tags = StringField("Create Your Tag", validators=[InputRequired()])
+    # tags = SelectMultipleField(
+    #     "Create Your Tag", choices=["Fashion", "Electronics", "Sports", "Office"]
+    # )
     update_product = SubmitField("Update")
 
 
@@ -153,5 +157,3 @@ class SearchForm(FlaskForm):
     search_term = StringField()
     search_tag = SelectField()
     submit = SubmitField("")
-
-

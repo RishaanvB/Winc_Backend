@@ -1,4 +1,5 @@
-from utils import is_safe_url, validate_owner_owns_product
+from wtforms.validators import ValidationError
+from utils import is_safe_url, validate_owner_owns_product, validate_duplicate_product
 from datetime import datetime
 from app import app, db
 from app import login_manager
@@ -34,23 +35,6 @@ from main import (
     purchase_product,
 )
 
-# checken of deze echt nodig is. Lijkt onnodig..
-@app.context_processor
-def string_to_date_to_string():
-    """
-    Converts stringtime to datetime object, back to a stringtime.
-    Workaround, since Sqlite stores datetimes as strings.
-    """
-
-    def format_string(date_str):
-        format = "%Y-%m-%d %H:%M:%S.%f"
-        dt_object = datetime.strptime(date_str, format)
-        format = "%Y, %B %w, %H%Mh"
-        dt_string = dt_object.strftime(format)
-        return dt_string
-
-    return dict(format_string=format_string)
-
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -72,7 +56,6 @@ def home():
         title="Home",
         users=users,
         products=products,
-        banner_bg="index_banner_bg",
         login_form=login_form,
         register_form=register_form,
         search_form=search_form,
@@ -151,12 +134,6 @@ def login():
                 is_failed_login=True,
                 is_failed_register=False,
             )
-
-    # flash(
-    #     "Email address not known. Please try another one.",
-    #     "danger",
-    # )
-
     return render_template(
         "index.html",
         title="Login",
@@ -181,23 +158,19 @@ def logout():
 @app.route("/account", methods=["GET", "POST"])
 @login_required
 def account():
-    products = list_user_products(current_user.id)
-
     update_account_form = UpdateAccountForm(country=current_user.country)
     add_product_form = AddProductForm()
     search_form = SearchForm()
+
     search_form.search_tag.choices = get_alpha_tag_names()
-    banner_info = f"Hey {current_user.username}. This is your account."
+    products = list_user_products(current_user.id)
 
     return render_template(
         "account.html",
-        title=current_user.username,
         add_product_form=add_product_form,
         update_account_form=update_account_form,
         search_form=search_form,
-        banner_info=banner_info,
         products=products,
-        user=current_user,
     )
 
 
@@ -222,38 +195,13 @@ def update_account():
         return redirect(url_for("account"))
     else:
         flash("Something went wrong with your inputs. Please try again", "warning")
-        return redirect(url_for("account"))
-
-
-@app.route("/account/add_product", methods=["GET", "POST"])
-@login_required
-def add_product():
-    add_product_form = AddProductForm()
-    name = add_product_form.name.data.lower()
-    owner = current_user.id
-
-    tags_list = get_unique_words_in_string(add_product_form.tags.data)
-    product = {
-        "name": add_product_form.name.data.lower(),
-        "price_per_unit": add_product_form.price_per_unit.data,
-        "stock": int(add_product_form.stock.data),
-        "description": add_product_form.description.data,
-    }
-
-    if validate_owner_owns_product(name, owner):
-        flash(f"You already own the product: {name}", "danger")
-        return redirect(url_for("product_page", Product.get_id(Product.name == name)))
-    else:
-        if add_product_form.validate_on_submit():
-            new_product = add_product_to_catalog(owner, product)
-            create_producttags(new_product.id, tags_list)
-            flash(
-                f"Your {add_product_form.name.data} has been added to the catalog!",
-                "success",
-            )
-            return redirect(url_for("account"))
-    flash("Something went wrong, check your inputs.", "danger")
-    return redirect(url_for("account"))
+        return render_template(
+            "account.html",
+            add_product_form=AddProductForm(),
+            update_account_form=update_account_form,
+            search_form=SearchForm(),
+            products=list_user_products(current_user.id),
+        )
 
 
 @app.route(
@@ -264,8 +212,10 @@ def search_results(search_term, search_tag):
     register_form = RegistrationForm()
     login_form = LoginForm()
     search_form = SearchForm()
-
-    # tag = Tag.get_or_none(Tag.name == search_tag)
+    try:
+        user = User.get_or_none(User.username == current_user.username)
+    except:
+        user = None
     search_form.search_tag.choices = get_alpha_tag_names()
 
     if search_term == "All" and search_tag == "All":
@@ -282,6 +232,8 @@ def search_results(search_term, search_tag):
             .distinct()
             .where(Tag.name == search_tag)
         )
+    flash(f"Results for '{search_term}' and categories '{search_tag}' ", "success")
+
     return render_template(
         "search_results.html",
         title=search_term,
@@ -289,6 +241,7 @@ def search_results(search_term, search_tag):
         login_form=login_form,
         register_form=register_form,
         search_form=search_form,
+        user=user,
     )
 
 
@@ -311,32 +264,83 @@ def search():
                 )
             )
         )
+    flash("something went wrong", "danger")
     return redirect(url_for("home"))
 
 
-@app.route("/product/<int:product_id>")
-def product_page(product_id):
-    products = Product.select().where(Product.id == product_id)
-    product = get_object_or_404(products, (Product.id == product_id))
-    update_product_form = UpdateProductForm(
-        description=product.description, stock=product.stock
-    )
-    register_form = RegistrationForm()
-    login_form = LoginForm()
-    search_form = SearchForm()
+# @app.route("/product/<int:product_id>")
+# def product_page(product_id):
+#     register_form = RegistrationForm()
+#     login_form = LoginForm()
+#     search_form = SearchForm()
+#     search_form.search_tag.choices = get_alpha_tag_names()
 
-    tags = get_tags_per_product(product_id)
-    tags = " ".join(tags)
+#     products = Product.select().where(Product.id == product_id)
+#     product = get_object_or_404(products, (Product.id == product_id))
+#     update_product_form = UpdateProductForm(
+#         description=product.description, stock=product.stock
+#     )
+
+#     tags = get_tags_per_product(product_id)
+#     tags = " ".join(tags)
+#     return render_template(
+#         "product_page.html",
+#         title=product.name,
+#         product=product,
+#         login_form=login_form,
+#         register_form=register_form,
+#         search_form=search_form,
+#         update_product_form=update_product_form,
+#         user=current_user,
+#         tags=tags,
+#     )
+
+
+@app.route("/account/add_product", methods=["GET", "POST"])
+@login_required
+def add_product():
+    add_product_form = AddProductForm()
+    update_account_form = UpdateAccountForm(country=current_user.country)
+    product_name = add_product_form.name.data.lower()
+    product = {
+        "name": product_name,
+        "price_per_unit": add_product_form.price_per_unit.data,
+        "stock": add_product_form.stock.data,
+        "description": add_product_form.description.data,
+    }
+    if validate_duplicate_product(product_name, current_user.id):
+        flash(
+            f"You already own a product with the same name: '{product_name}'", "danger"
+        )
+        return render_template(
+            "account.html",
+            add_product_form=add_product_form,
+            update_account_form=update_account_form,
+            search_form=SearchForm(),
+            products=list_user_products(current_user.id),
+        )
+    if add_product_form.validate_on_submit():
+
+        new_product = add_product_to_catalog(current_user.id, product)
+
+        if add_product_form.tags.data:
+            create_producttags(new_product.id, add_product_form.tags.data)
+        flash(
+            f"Your product '{add_product_form.name.data}' has been added to the catalog!",
+            "success",
+        )
+        return redirect(url_for("account"))
+
+    flash(
+        "Something went wrong with the product inputs, check your inputs.",
+        "danger",
+    )
     return render_template(
-        "product_page.html",
-        title=product.name,
-        product=product,
-        login_form=login_form,
-        register_form=register_form,
-        search_form=search_form,
-        update_product_form=update_product_form,
-        user=current_user,
-        tags=tags,
+        "account.html",
+        add_product_form=add_product_form,
+        update_account_form=update_account_form,
+        search_form=SearchForm(),
+        products=list_user_products(current_user.id),
     )
 
 
@@ -352,8 +356,8 @@ def update_product(product_id):
     product.description = update_product_form.description.data
     product.save()
 
-    tags_list = get_unique_words_in_string(update_product_form.tags.data)
-    create_producttags(product_id, tags_list)
+    # tags_list = get_unique_words_in_string(update_product_form.tags.data)
+    # create_producttags(product_id, tags_list)
     #    !!!!!!!!!!!!!!fix !!!!! tags update doesnt remove old tags.
     flash(f"{product.name} has been updated!", "success")
     return redirect(url_for("product_page", product_id=product_id))
@@ -379,12 +383,15 @@ def delete_user_account(user_id):
 
 
 @app.route("/users/<int:user_id>")
-def get_user_profile(user_id):  # change to user_profile
+def user_profile(user_id):
     register_form = RegistrationForm()
     login_form = LoginForm()
     search_form = SearchForm()
+
     products = list_user_products(user_id)
     product_count = products.count()
+
+    search_form.search_tag.choices = get_alpha_tag_names()
 
     users = User.select().where(User.id == user_id)
     user = get_object_or_404(users, User.id == user_id)
@@ -413,7 +420,7 @@ def buy_product(product_id):
 
 
 @app.errorhandler(404)
-def page_not_found(error):
+def error_404(error):
     register_form = RegistrationForm()
     login_form = LoginForm()
     search_form = SearchForm()
@@ -436,7 +443,7 @@ def page_not_found(error):
 
 
 @app.errorhandler(403)
-def page_access_denied(error):
+def error_403(error):
     register_form = RegistrationForm()
     login_form = LoginForm()
     search_form = SearchForm()
@@ -455,5 +462,5 @@ def page_access_denied(error):
             error=error,
             error_type=error_type,
         ),
-        404,
+        403,
     )

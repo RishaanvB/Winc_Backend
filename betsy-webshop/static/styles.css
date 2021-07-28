@@ -3,7 +3,19 @@
 }
 
 .login-icon.bi.bi-person-circle {
-  transition: 0.4s transform ease-in;
+  transition: 0.2s transform ease-in;
+}
+
+.profile-icon-container {
+  transition: 0.2s transform ease-in;
+}
+.profile-icon-container:hover {
+  cursor: pointer;
+  transform: scale(1.2);
+}
+
+.profile-icon {
+  font-size: 2rem;
 }
 
 #SearchBarInput {
@@ -16,6 +28,10 @@
 }
 #searchIconBackground:hover {
   background-color: rgb(102, 102, 102) !important;
+}
+#categorySelect{
+  border-top-right-radius: 25px !important ;
+  border-bottom-right-radius: 25px !important ;
 }
 #categorySelect:hover {
   cursor: pointer;
@@ -39,27 +55,44 @@
   /* rtl:remove */
   letter-spacing: -0.05rem;
 }
-.join-now-banner{
+.banner {
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+.join-now-banner {
   background-image: url("../static/assets/banner.jpg");
-  background-repeat: no-repeat;
-  background-size: cover;
+
   background-position: bottom center;
 }
-.shop-in-style-banner{
+.shop-in-style-banner {
   background-image: url("../static/assets/shopinstyle.png");
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: bottom center;
+  background-position: center center;
 }
-.sale-banner{
+.sale-banner {
   background-image: url("../static/assets/sale.png");
-  background-repeat: no-repeat;
-  background-size: cover;
   background-position: bottom center;
 }
+.search-results-banner {
+  background-image: url("../static/assets/search_results.png");
+  background-position: center center;
+}
 
+.account-banner {
+  background-image: url("../static/assets/account.jpg");
+  background-position: center center;
+}
+.index-banner-logged-in {
+  background-image: url("../static/assets/index-banner-logged-in.jpg");
+  background-position: center center;
+}
+.form-check-input:checked {
+  background-color: #ffc107 !important;
+  border-color: #ffc107 !important;
+}
 
-
+.fs-small {
+  font-size: 0.8rem;
+}
 /* RESPONSIVE CSS
 -------------------------------------------------- */
 

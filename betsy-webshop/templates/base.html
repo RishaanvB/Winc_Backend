@@ -59,13 +59,7 @@
     {% endif %}
   </head>
   <body>
-    {% if current_user.is_authenticated %}
-    <div class="bg-dark">
-      <p class="container text-light text-center py-3 my-0">
-        Hallo, je bent ingelogd als {{ current_user.username }}!
-      </p>
-    </div>
-    {%endif %}
+  
     <!-- Navigation-->
     {% include "navbar.html" %}
     <!-- Header-->
@@ -75,7 +69,7 @@
     {% endblock header %} {% with messages =
     get_flashed_messages(with_categories=true) %} {% if messages %} {% for
     category, message in messages %}
-    <p class="alert alert-{{ category }}">{{ message }}</p>
+    <p class="alert alert-{{ category }} text-center">{{ message }}</p>
     {% endfor %} {% endif %} {% endwith %}
     <!-- Section-->
     <!-- If-statement keeps modal open after failed login -->

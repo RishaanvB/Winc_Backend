@@ -1,7 +1,27 @@
 {% extends "base.html" %} {% block content %}
 
 <div class="container py-5">
-  <div class="p-5 mb-4 bg-light rounded-3 join-now-banner">
+  {% if current_user.is_authenticated %}
+  <div class="p-5 mb-4 bg-dark rounded-3 index-banner-logged-in banner">
+    <div class="container-fluid py-5">
+      <h1 class="display-5 fw-bold text-white">
+        Welcome to Betsy's {{current_user.first_name }}!
+      </h1>
+      <p class="col-md-8 fs-4 text-white">
+        Enjoy and check out all of the products Betsy users have to offer!
+      </p>
+      <a
+        href="{{url_for('search_results', search_term='All', search_tag='All')}}"
+        role="button"
+        class="btn btn-light"
+        type="button"
+        >All Products</a
+      >
+    </div>
+  </div>
+
+  {% else %}
+  <div class="p-5 mb-4 bg-dark rounded-3 join-now-banner banner">
     <div class="container-fluid py-5">
       <h1 class="display-5 fw-bold text-white">Join Betsy!</h1>
       <p class="col-md-8 fs-4 text-white">
@@ -19,9 +39,20 @@
     </div>
   </div>
 
-  <div class="row align-items-md-stretch">
-    <div class="col-md-6 mb-4">
-      <div class="h-100 p-5 text-white bg-dark rounded-3 shop-in-style-banner">
+  {% endif %}
+  <div class="row">
+    <div class="col-md-7 mb-4">
+      <div
+        class="
+          h-100
+          p-5
+          text-white
+          bg-dark
+          rounded-3
+          shop-in-style-banner
+          banner
+        "
+      >
         <h2>Shop in style</h2>
         <p>
           Swap the background-color utility and add a `.text-*` color utility to
@@ -37,8 +68,19 @@
         >
       </div>
     </div>
-    <div class="col-md-6 mb-4">
-      <div class="h-100 p-5 text-white bg-light border rounded-3 sale-banner">
+    <div class="col-md-5 mb-4">
+      <div
+        class="
+          h-100
+          p-5
+          text-white
+          bg-light
+          border
+          rounded-3
+          sale-banner
+          banner
+        "
+      >
         <h2>Check out the sales!!!</h2>
         <p>
           Or, keep it light and add a border for some added definition to the
@@ -49,7 +91,7 @@
         <a
           href="{{url_for('search_results', search_term='All', search_tag='All')}}"
           role="button"
-          class="btn btn-secondary"
+          class="btn btn-danger text-white"
           type="button"
           >Discount!</a
         >

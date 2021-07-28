@@ -35,8 +35,11 @@ infotext="", class="form-control border border-2 border-secondary") -%}
 {% extends "base.html" %} {% block content %}
 
 <!-- start product featurette -->
+{% include 'account_base.html' %}
 
 <div class="featurette container row mx-auto my-4">
+  {% include 'product_in_profile.html' %}
+
   <form
     action="{{url_for('update_product', product_id=product.id)}}"
     method="POST"
@@ -71,40 +74,6 @@ infotext="", class="form-control border border-2 border-secondary") -%}
     name="Description", infotext="Whatcha selling?")}}
     <!-- add_product -->
   </form>
-  <div class="col-md-6 my-4">
-    <div class="d-flex justify-content-between align-items-center">
-      <h1 class="featurette-heading text-capitalize mt-0">
-        {{product.name}} ID: {{product.id}}
-      </h1>
-      <h3>€ {{ "%.2f"|format(product.price_per_unit) }}</h3>
-    </div>
-    <div class="d-flex text-warning">
-      <i class="bi bi-star-fill"></i>
-      <i class="bi bi-star-fill mx-1"></i>
-      <i class="bi bi-star-fill"></i>
-      <i class="bi bi-star-half"></i>
-    </div>
-    <h5 class="text-muted mt-1">Products available: {{product.stock}}</h5>
-    <small class="text-muted"
-      >Added @ {{format_string(product.date_posted)}}</small
-    >
-    <h6 class="lead featurette-description mt-3">Description:</h6>
-    <p class="m-0">
-      {{product.description}} {% if product.description%} {% else%} This product
-      does not have a description yet. Quasi omnis animi voluptate accusantium
-      hic ad qui doloremque placeat vero expedita debitis rem est, molestias
-      voluptatibus nam quod, et, quos quidem laudantium iusto esse provident
-      eius. Ullam deleniti laudantium iusto numquam et ducimus repellat,
-      maiores, doloremque, ratione consequuntur reiciendis aspernatur inventore?
-      {% endif%}
-    </p>
-    <small class="mt-2 text-primary" style="font-weight: 500"
-      >Sold by: {{product.owner.username}}</small
-    >
-    <button type="button" class="btn btn-warning fs-5">
-      <i class="bi bi-cart-plus-fill"></i>
-    </button>
-  </div>
 </div>
 
 {% endblock content %}

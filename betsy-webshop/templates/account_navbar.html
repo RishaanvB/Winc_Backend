@@ -1,0 +1,58 @@
+<div class="container py-5">
+  <div class="p-5 mb-4 bg-dark rounded-3 account-banner banner">
+    <div class="container-fluid py-5">
+      <h1 class="display-5 fw-bold text-white">
+        Welcome {{ current_user.first_name }}
+      </h1>
+
+      <p class="col-md-8 fs-4 text-white">
+        Check out your products or add another one.
+      </p>
+    </div>
+  </div>
+</div>
+<ul class="nav justify-content-center bg-dark py-3 fs-5">
+  <li class="nav-item d-flex align-items-center">
+    <a
+      id="collapseAccountBtn"
+      class="nav-link text-warning"
+      data-bs-toggle="collapse"
+      href="#collapseAccountForm"
+      role="button"
+      aria-expanded="false"
+      aria-controls="collapseAccountForm"
+    >
+      <span
+        ><i class="bi bi-person-plus-fill text-warning pe-2"></i>Edit
+        Profile</span
+      >
+    </a>
+  </li>
+  <div class="border-start border-warning">|</div>
+  <li class="nav-item">
+    <a
+      id="collapseProductFormBtn"
+      class="nav-link text-warning"
+      data-bs-toggle="collapse"
+      href="#collapseProductForm"
+      role="button"
+      aria-expanded="false"
+      aria-controls="collapseProductForm"
+      ><span><i class="bi bi-plus-circle-fill pe-2"></i>Add Product</span></a
+    >
+  </li>
+  <div class="border-start border-warning">|</div>
+
+  <li class="nav-item">
+    <a class="nav-link text-muted" href="#" tabindex="-1" aria-disabled="true"
+      >Logout</a
+    >
+  </li>
+</ul>
+
+<div class="collapse" id="collapseAccountForm">
+  <div class="card card-body">{% include "form_account_info.html" %}</div>
+</div>
+<div class="collapse" id="collapseProductForm">
+  <div class="card card-body">{% include "form_add_product.html" %}</div>
+</div>

@@ -1,0 +1,89 @@
+<div class="col">
+  <div class="card shadow-sm">
+    <svg
+      class="bd-placeholder-img card-img-top"
+      width="100%"
+      height="225"
+      xmlns="http://www.w3.org/2000/svg"
+      role="img"
+      aria-label="Placeholder: Thumbnail"
+      preserveAspectRatio="xMidYMid slice"
+      focusable="false"
+    >
+      <title>Placeholder</title>
+      <rect width="100%" height="100%" fill="#55595c" />
+      <text x="40%" y="50%" fill="#eceeef" dy=".3em">Thumbnail</text>
+    </svg>
+
+    <div class="card-body">
+      <div class="d-flex justify-content-between">
+        <h3>{{ product.name }}</h3>
+
+        <h3>€ {{ "%.2f"|format(product.price_per_unit) }}</h3>
+      </div>
+      
+      <ul class="d-flex p-0 mb-0">
+        <small class="pe-1 fs-small">Categories:</small>
+        {% if product.tags %}
+        {% for producttags in product.tags %}
+        <span class="pe-1 fs-small"> {{producttags.tag.name}}</span>
+        {% endfor %}
+        {% else %}
+        <span class="pe-1 fs-small">This product has no categories.</span>
+        {% endif %}
+      </ul>
+
+      <div class="d-flex text-warning py-1">
+        <i class="bi bi-star-fill"></i>
+        <i class="bi bi-star-fill mx-1"></i>
+        <i class="bi bi-star-fill"></i>
+        <i class="bi bi-star-half"></i>
+      </div>
+      <h6 class="text-muted my-0 mt-1 mb-2">
+        Products available: {{product.stock}}
+      </h6>
+
+      <p class="card-text mt-2" style="min-height: 70px">
+        Description: {% if product.description %} {{ product.description }} {%
+        else %} This product does not have a description. {% endif %}
+      </p>
+      <div class="d-flex justify-content-between align-items-center">
+        {% if current_user.username == product.owner.username %}
+        <a
+          href="{{url_for('buy_product', product_id=product.id)}}"
+          type="button"
+          class="btn btn-secondary disabled"
+          role="button"
+        >
+          <i class="bi bi-cart-plus"></i>
+        </a>
+        {% elif current_user.is_anonymous %}
+        <small class="text-muted">You need to be logged in to buy this..</small>
+        {% else %}
+        <a
+          href="{{url_for('buy_product', product_id=product.id)}}"
+          type="button"
+          class="btn btn-warning"
+          role="button"
+        >
+          <i class="bi bi-cart-plus"></i>
+        </a>
+        {% endif %}
+        <div class="text-muted fs-small m-0 p-0">
+          <p class="m-0 text-end">
+            Sold by: {% if current_user.username == product.owner.username %}
+            <small>You</small>
+            {% else %}
+            <a
+              class="text-success"
+              href="{{url_for('user_profile', user_id=product.owner.id)}}"
+              >{{ product.owner.username }}</a
+            >
+            {% endif %}
+          </p>
+          <p class="m-0">Since {{product.date_posted[0:10]}}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

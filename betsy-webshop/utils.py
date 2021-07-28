@@ -27,3 +27,12 @@ def validate_price_per_unit(self, price_per_unit):
         raise ValidationError(
             "You want them to pay YOU?? Can't have negative numbers. "
         )
+
+
+def validate_duplicate_product(product_name, user_id):
+    user_productlist = list_user_products(user_id)
+    for product in user_productlist:
+        if product.name == product_name:
+            return True
+    return False
+            

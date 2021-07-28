@@ -24,12 +24,12 @@ class BaseModel(db_wrapper.Model):
 
 
 class User(BaseModel, UserMixin):
-    first_name = CharField(index=True, max_length=30, null=True)
-    last_name = CharField(max_length=120, null=True)
-    address = CharField(max_length=200, null=True)
-    city = CharField(max_length=50, null=True)
+    first_name = CharField(index=True, max_length=30, null=True, default="")
+    last_name = CharField(max_length=120, null=True, default="")
+    address = CharField(max_length=200, null=True, default="")
+    city = CharField(max_length=50, null=True, default="")
     country = CharField(max_length=50, null=True)
-    cc_number = IntegerField(unique=True, null=True)
+    cc_number = IntegerField(unique=True, null=True, default="")
     username = CharField(index=True, max_length=30, unique=True)
     email = CharField(index=True, max_length=50, unique=True)
     password = CharField(max_length=20)
@@ -58,8 +58,7 @@ class Tag(BaseModel):
     name = CharField(unique=True, max_length=30)
 
 
-# moet zorgen dat je niet dezelfde producttags kunt maken. add distinct in query
-# rename singular?--> ProductTag hoeft niet, gewoon vantevoren tags erin gooien.
+
 class ProductTag(BaseModel):
     product = ForeignKeyField(Product, index=True, backref="tags")
     tag = ForeignKeyField(Tag, index=True, backref="products")

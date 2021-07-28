@@ -7,20 +7,28 @@
 // Use this file to add JavaScript to your project
 
 const handleCollapseAccountForms = () => {
-  const collapseProductBtn = document.getElementById("collapseProductBtn");
-  const collapseProfileBtn = document.getElementById("collapseProfileBtn");
+  const collapseAccountBtn = document.getElementById("collapseAccountBtn");
+  const collapseProductFormBtn = document.getElementById(
+    "collapseProductFormBtn"
+  );
 
-  const collapseProfileForm = document.getElementById("collapseProfileForm");
+  const collapseAccountForm = document.getElementById("collapseAccountForm");
   const collapseProductForm = document.getElementById("collapseProductForm");
 
-  collapseProfileBtn.addEventListener("click", () => {
-    collapseProductForm.classList.contains("show") &&
+  collapseProductFormBtn.addEventListener("click", () => {
+    if (collapseAccountForm.classList.contains("show")) {
+      collapseAccountForm.classList.remove("collapse");
+      collapseAccountForm.classList.remove("show");
+      collapseAccountForm.classList.add("collapsing");
+    }
+  });
+  collapseAccountBtn.addEventListener("click",()=>{
+    if (collapseProductForm.classList.contains("show")) {
+      collapseProductForm.classList.remove("collapse");
       collapseProductForm.classList.remove("show");
-  });
-  collapseProductBtn.addEventListener("click", () => {
-    collapseProfileForm.classList.contains("show") &&
-      collapseProfileForm.classList.remove("show");
-  });
+      collapseProductForm.classList.add("collapsing");
+    }
+  })
+ 
 };
-
 handleCollapseAccountForms();

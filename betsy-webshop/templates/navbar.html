@@ -18,20 +18,15 @@
       <ul class="navbar-nav mb-2 mb-lg-0 ms-lg-4 mx-2">
         {% if current_user.is_authenticated %}
 
-        <li class="nav-item dropdown">
-          <i
-            class="bi bi-person-circle mx-3"
-            id="navbarDropdown"
-            role="button"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-            style="font-size: 2rem"
-          ></i>
+        <li class="nav-item dropdown">             
+          <div class="profile-icon-container" id="navbarDropdown" data-bs-toggle="dropdown" aria-expanded="false" >
+                <i class="bi bi-person-circle mx-3 profile-icon"></i>
+          </div>
 
           <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
             <li>
               <a class="dropdown-item" href="{{ url_for('account') }}"
-                >Edit Account</a
+                >Account</a
               >
             </li>
             <li><hr class="dropdown-divider" /></li>
@@ -65,5 +60,5 @@
     </div>
   </div>
 </nav>
-{% if not current_user.is_authenticated %} {% include "login_register_modals.html" %} {% endif
+{% if not current_user.is_authenticated %} {% include "modal_login_register.html" %} {% endif
 %}

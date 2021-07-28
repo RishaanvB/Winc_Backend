@@ -11,46 +11,6 @@ css_class = 'form-control form-control-lg is-invalid ' + kwargs.pop('class', '')
 
 {% else %} {{ field(**kwargs) }} {% endif %} {% endmacro %}
 
-<!-- Delete AccountModal -->
-<div
-  class="modal fade"
-  id="deleteAccountModal"
-  tabindex="-1"
-  aria-labelledby="deleteAccountModalLabel"
-  aria-hidden="true"
->
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="deleteAccountModalLabel">
-          Delete your account?
-        </h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Close"
-        ></button>
-      </div>
-      <div class="modal-body">
-        Are you sure you want to permanently delete your account?
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-          No, just kidding
-        </button>
-        <a
-          href="{{url_for('delete_user_account', user_id=current_user.id)}}"
-          role="button"
-          type="button"
-          class="btn btn-danger"
-          >Yes, get me out of here!!!</a
-        >
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- macro for seperate input groups -->
 {% macro account_form_group(name="", input="", col=12, value="", textinfo="",
 class="form-control border border-2 border-secondary") %}
@@ -71,58 +31,116 @@ class="form-control border border-2 border-secondary") %}
 </div>
 {% endmacro %}
 
+<!-- Delete AccountModal -->
+{% include "modal_delete_account.html" %}
+
+<!-- Delete All Products Modal -->
+{% include "modal_delete_all_products.html" %}
+
+
+
+{% include 'account_navbar.html' %}
+<h1 class="text-center fs-5 bg-dark text-secondary py-3">
+  {% if products|length == 1 %}
+  You currently have {{ products|length }} product to sell.
+  {% else %}
+  You currently have {{ products|length }} products to sell.
+  {% endif %}
+</h1>
+
 <div class="container mb-3">
-  <div class="row">
-    <div class="col-lg-4 mt-4">
-      <div class="position-sticky mt-4 container p-0" style="top: 6rem">
-        <div class="mb-4">
-          <button
-            id="collapseProfileBtn"
-            class="btn btn-warning text-dark fw-bolder dropdown-toggle"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#collapseProfileForm"
-            aria-expanded="false"
-            aria-controls="collapseProfileForm"
+  
+   
+       
+    
+  <div class="album mt-4">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+      {% for product in products %}
+<!-- delete product modal -->
+      {% include "modal_delete_product.html" %}
+<!-- start product featurette -->
+      <div class="col">
+        <div class="card shadow-sm">
+          <svg
+            class="bd-placeholder-img card-img-top"
+            width="100%"
+            height="225"
+            xmlns="http://www.w3.org/2000/svg"
+            role="img"
+            aria-label="Placeholder: Thumbnail"
+            preserveAspectRatio="xMidYMid slice"
+            focusable="false"
           >
-            Change Profile
-          </button>
-          <div class="collapse" id="collapseProfileForm">
-            <div class="card card-body border-0 p-0 mt-2">
-              {% include "account_info_form.html" %}
+            <title>Placeholder</title>
+            <rect width="100%" height="100%" fill="#55595c" />
+            <text x="40%" y="50%" fill="#eceeef" dy=".3em">Thumbnail</text>
+          </svg>
+    
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <h3>{{ product.name }}</h3>
+    
+              <h3>€ {{ "%.2f"|format(product.price_per_unit) }}</h3>
             </div>
-          </div>
-        </div>
-        <div>
-          <button
-            id="collapseProductBtn"
-            class="btn btn-warning text-dark fw-bolder dropdown-toggle"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#collapseProductForm"
-            aria-expanded="false"
-            aria-controls="collapseProductForm"
-          >
-            Add Product
-          </button>
-          <div class="collapse" id="collapseProductForm">
-            <div class="card card-body border-0 p-0 mt-2">
-              {% include "add_product_form.html" %}
+            <ul class="d-flex p-0 mb-0">
+              {% for producttags in product.tags %}
+              <span class="pe-1 fs-small"> {{producttags.tag.name}}</span>
+    
+              {% endfor %}
+            </ul>
+            <div class="d-flex text-warning py-1">
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill mx-1"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-half"></i>
+            </div>
+            <h6 class="text-muted my-0 mt-1 mb-2">
+              Products available: {{product.stock}}
+            </h6>
+    
+            <p class="card-text mt-2" style="min-height: 70px">
+              Description: {% if product.description %} {{ product.description
+              }} {% else %} You haven't added a description to this product yet. {% endif
+              %}
+            </p>
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="btn-group">
+                <a href="#" class="btn btn-secondary"><i class="bi bi-pencil-fill"></i></a>
+                <button
+                  type="button"
+                  class="btn btn-danger"
+                  data-bs-toggle="modal"
+                  data-bs-target="#deleteProductModal{{product.id}}"
+                >
+                  <i class="bi bi-trash-fill"></i>
+                 </button>
+              </div> 
+              
+                
+              </a>
+              <div class="text-muted fs-small m-0 p-0">
+                
+                <p class="m-0">Since {{product.date_posted[0:10]}}</p>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-
-    <div class="col-lg-8 container ms-0">
-      {% if not products %}
-      <h4 class="text-center mt-4 me-auto">
-        You have no products. Click the Add Product button on the left to add a
-        product.
-      </h4>
-      {% endif %} {% include "featurette_product.html" %}
+      
+      {% endfor%}
     </div>
   </div>
+  <div class="border my-5"></div>
+  {% if products | length  >= 1%}
+  <button
+  type="button"
+  class="btn btn-danger"
+  data-bs-toggle="modal"
+  data-bs-target="#deleteAllProductsModal"
+>
+  Delete All Products
+ </button>
+ {% endif %}
 </div>
 <!-- add product form -->
 {% endblock content %}
