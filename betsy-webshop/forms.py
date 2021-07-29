@@ -19,11 +19,22 @@ from wtforms.validators import InputRequired, Length, Email, EqualTo, DataRequir
 from models import User, Tag
 from main import list_user_products, get_alpha_tag_names
 
+tags = [
+    "Books",
+    "Media",
+    "Electronics",
+    "Health",
+    "Fashion",
+    "Sports",
+    "Vehicles",
+    "Hobby",
+]
+
 
 class RegistrationForm(FlaskForm):
     username = StringField(
         "Username",
-        validators=[InputRequired(), Length(min=5, max=30)],
+        validators=[InputRequired(), Length(min=2, max=30)],
     )
 
     email = StringField(
@@ -55,7 +66,7 @@ class RegistrationForm(FlaskForm):
 
 class LoginForm(FlaskForm):
     email = StringField(
-        "Email", validators=[InputRequired(), Length(min=5, max=50), Email()]
+        "Email", validators=[InputRequired(), Length(min=2, max=50), Email()]
     )
     password = PasswordField("Your Password", validators=[InputRequired()])
     login = SubmitField("Login!")
@@ -108,22 +119,14 @@ class UpdateAccountForm(FlaskForm):
                     f"A user with email: {email.data} already exists."
                 )
 
+
 class MultiCheckboxField(SelectMultipleField):
     widget = widgets.ListWidget(prefix_label=False)
     option_widget = widgets.CheckboxInput()
 
 
 class AddProductForm(FlaskForm):
-    tags = [
-        "Books",
-        "Media",
-        "Electronics",
-        "Health",
-        "Fashion",
-        "Sports",
-        "Vehicles",
-        "Hobby",
-    ]
+
     name = StringField("Name", validators=[InputRequired(), Length(max=50)])
     description = TextAreaField("Description", validators=[Length(max=50)])
     price_per_unit = DecimalField("€", places=2, validators=[InputRequired()])
@@ -132,7 +135,7 @@ class AddProductForm(FlaskForm):
         choices=[num for num in range(1, 11)],
         validators=[InputRequired()],
     )
-    tags = MultiCheckboxField("Categories", choices=[(tag, tag) for tag in tags])
+    tags = MultiCheckboxField("Categories", choices=[(tag, tag) for tag in sorted(tags)])
 
     add_product = SubmitField("Add")
 
@@ -147,9 +150,7 @@ class UpdateProductForm(FlaskForm):
         validators=[InputRequired()],
     )
 
-    # tags = SelectMultipleField(
-    #     "Create Your Tag", choices=["Fashion", "Electronics", "Sports", "Office"]
-    # )
+    tags = MultiCheckboxField("Categories", choices=[(tag, tag) for tag in sorted(tags)])
     update_product = SubmitField("Update")
 
 

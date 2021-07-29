@@ -29,7 +29,7 @@
 #searchIconBackground:hover {
   background-color: rgb(102, 102, 102) !important;
 }
-#categorySelect{
+#categorySelect {
   border-top-right-radius: 25px !important ;
   border-bottom-right-radius: 25px !important ;
 }
@@ -83,6 +83,10 @@
 }
 .index-banner-logged-in {
   background-image: url("../static/assets/index-banner-logged-in.jpg");
+  background-position: center center;
+}
+.error-banner {
+  background-image: url("../static/assets/error.jpg");
   background-position: center center;
 }
 .form-check-input:checked {

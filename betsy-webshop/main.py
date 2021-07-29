@@ -92,6 +92,11 @@ def get_alpha_tag() -> list[Tag]:
     return [tag for tag in tags]
 
 
+def get_tagnames() -> list:
+    tags = Tag.select()
+    return [tag.name for tag in tags]
+
+
 def get_alpha_tag_names() -> tuple[Tag]:
     """
     Returns a list of tuples (Tag.name, Tag.name)
@@ -129,6 +134,21 @@ def validate_product_purchase(seller_id, buyer_id, product, quantity):
             404,
             "The amount you tried to buy does not exist. I should just disable the buy button. Since these errors are not very userfriendly.",
         )
+
+
+def check_tags_in_list(tag_list, product_taglist):
+    """
+    Sorts both listed alphabetically, then compares items in each list
+    and returns a string with the index of the identical items found in both lists
+    in the form of 'tags-index'. Used for enabling checked attribute in update_product_form
+    """
+    duplicated_items = []
+    tag_list = sorted(tag_list)
+    product_taglist = sorted(product_taglist)
+    for index, tag in enumerate(tag_list):
+        if tag in product_taglist:
+            duplicated_items.append(f"tags-{index}")
+    return duplicated_items
 
 
 # from app import db

@@ -24,7 +24,9 @@ from flask_login import (
 )
 from main import (
     delete_producttags_from_product,
+    get_alpha_tag,
     get_products_per_tag,
+    get_tagnames,
     get_unique_words_in_string,
     get_tags_per_product,
     get_products_by_name,
@@ -33,6 +35,7 @@ from main import (
     add_product_to_catalog,
     create_producttags,
     purchase_product,
+    check_tags_in_list
 )
 
 
@@ -268,34 +271,6 @@ def search():
     return redirect(url_for("home"))
 
 
-# @app.route("/product/<int:product_id>")
-# def product_page(product_id):
-#     register_form = RegistrationForm()
-#     login_form = LoginForm()
-#     search_form = SearchForm()
-#     search_form.search_tag.choices = get_alpha_tag_names()
-
-#     products = Product.select().where(Product.id == product_id)
-#     product = get_object_or_404(products, (Product.id == product_id))
-#     update_product_form = UpdateProductForm(
-#         description=product.description, stock=product.stock
-#     )
-
-#     tags = get_tags_per_product(product_id)
-#     tags = " ".join(tags)
-#     return render_template(
-#         "product_page.html",
-#         title=product.name,
-#         product=product,
-#         login_form=login_form,
-#         register_form=register_form,
-#         search_form=search_form,
-#         update_product_form=update_product_form,
-#         user=current_user,
-#         tags=tags,
-#     )
-
-
 @app.route("/account/add_product", methods=["GET", "POST"])
 @login_required
 def add_product():
@@ -341,6 +316,38 @@ def add_product():
         update_account_form=update_account_form,
         search_form=SearchForm(),
         products=list_user_products(current_user.id),
+    )
+
+
+@app.route("/product/<int:product_id>")
+@login_required
+def update_product_page(product_id):
+    if current_user.id != Product.get(product_id).owner.id:
+        abort(403)
+    
+    search_form = SearchForm()
+    search_form.search_tag.choices = get_alpha_tag_names()
+    register_form = RegistrationForm()
+    login_form = LoginForm()
+    update_account_form = UpdateAccountForm()
+    add_product_form = AddProductForm()
+    products = Product.select().where(Product.id == product_id)
+    product = get_object_or_404(products, (Product.id == product_id))
+    checked_list = check_tags_in_list(get_tagnames(), get_tags_per_product(product_id))
+    update_product_form = UpdateProductForm(
+        description=product.description, stock=product.stock
+    )
+    return render_template(
+        "update_product_page.html",
+        title=product.name,
+        product=product,
+        login_form=login_form,
+        register_form=register_form,
+        search_form=search_form,
+        update_product_form=update_product_form,
+        update_account_form=update_account_form,
+        add_product_form=add_product_form,
+        checked_list=checked_list
     )
 
 

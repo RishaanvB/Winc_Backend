@@ -35,4 +35,3 @@ def validate_duplicate_product(product_name, user_id):
         if product.name == product_name:
             return True
     return False
-            

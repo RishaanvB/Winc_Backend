@@ -29,7 +29,7 @@ class User(BaseModel, UserMixin):
     address = CharField(max_length=200, null=True, default="")
     city = CharField(max_length=50, null=True, default="")
     country = CharField(max_length=50, null=True)
-    cc_number = IntegerField(unique=True, null=True, default="")
+    cc_number = IntegerField(null=True, default="")
     username = CharField(index=True, max_length=30, unique=True)
     email = CharField(index=True, max_length=50, unique=True)
     password = CharField(max_length=20)
@@ -56,7 +56,6 @@ Product.add_index(Product.name, Product.description)
 
 class Tag(BaseModel):
     name = CharField(unique=True, max_length=30)
-
 
 
 class ProductTag(BaseModel):
