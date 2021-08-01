@@ -14,12 +14,12 @@ field(class=css_class, **kwargs) }}
 {% extends "base.html" %} {% block content %} {% include 'account_navbar.html'
 %}
 
-<div class="container p-0 py-4 mx-auto">
+<div class="container py-4 mx-auto">
   <form
     action="{{url_for('update_product', product_id=product.id)}}"
     method="POST"
     enctype="multipart/form-data"
-    class="row g-3 me-4"
+    class="row g-3"
   >
     {{ update_product_form.hidden_tag() }}
     <div class="d-flex justify-content-between">
@@ -71,7 +71,7 @@ field(class=css_class, **kwargs) }}
       text-light border border-2 border-secondary")}}
     </div>
     <div class="input-group input-group-sm d-flex align-items-center">
-      {% for tag in update_product_form.tags %} {% if tag.id in checked_list %}
+      {% for tag in update_product_form.tags %} {% if tag.id in checked_tags %}
       <div class="form-check form-switch me-4">
         {{ tag(class="form-check-input", checked=true)}}
         {{tag.label(class="form-check-label")}}

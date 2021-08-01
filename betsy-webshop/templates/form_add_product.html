@@ -55,7 +55,6 @@
         border-2 border-secondary form-select")}}
       </div>
       <div class="form-text">How many do you want to add?</div>
-
     </div>
     <div class="form-group col-md-12">
       <div class="input-group input-group-sm">
@@ -65,7 +64,6 @@
         border-2 border-secondary")}}
       </div>
       <div class="form-text">Whatcha selling?</div>
-
     </div>
 
     <div class="input-group input-group-sm">
@@ -74,10 +72,9 @@
     </div>
     <div class="input-group input-group-sm d-flex align-items-center">
       {% for tag in add_product_form.tags %}
-
       <div class="form-check form-switch me-4">
-        {{ tag(class="form-check-input")}}
-        {{tag.label(class="form-check-label")}}
+        {{ tag(class="form-check-input", id=loop.index)}}
+        {{tag.label(class="form-check-label", for=loop.index)}}
       </div>
       {% endfor %}
     </div>

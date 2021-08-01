@@ -15,20 +15,18 @@
       <text x="40%" y="50%" fill="#eceeef" dy=".3em">Thumbnail</text>
     </svg>
 
-    <div class="card-body">
+    <div class="card-body h-100">
       <div class="d-flex justify-content-between">
         <h3>{{ product.name }}</h3>
 
         <h3>€ {{ "%.2f"|format(product.price_per_unit) }}</h3>
       </div>
-      
+
       <ul class="d-flex p-0 mb-0">
         <small class="pe-1 fs-small">Categories:</small>
-        {% if product.tags %}
-        {% for producttags in product.tags %}
+        {% if product.tags %} {% for producttags in product.tags %}
         <span class="pe-1 fs-small"> {{producttags.tag.name}}</span>
-        {% endfor %}
-        {% else %}
+        {% endfor %} {% else %}
         <span class="pe-1 fs-small">This product has no categories.</span>
         {% endif %}
       </ul>

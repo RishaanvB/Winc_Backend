@@ -1,4 +1,5 @@
 {% extends "base.html" %} {% block content %}
+{{ url_for(request.endpoint, **request.view_args) }}
 
 <div class="container py-5">
   <div class="p-5 mb-4 bg-dark rounded-3 search-results-banner banner">
@@ -11,16 +12,14 @@
     </div>
   </div>
   <h2 class="text-center my-3">
-    {% if all_products | count == 1 %}
-    We've found {{ all_products | count }} result.
-    {% else %}
-    We've found {{ all_products | count }} results.
-    {% endif %}
+    {% if all_products | count == 1 %} We've found {{ all_products | count }}
+    result. {% else %} We've found {{ all_products | count }} results. {% endif
+    %}
   </h2>
   <div class="album">
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
-      {% for product in all_products %} {% include "product_in_search_results.html" %} {%
-      endfor%}
+      {% for product in all_products %} {% include
+      "product_in_search_results.html" %} {% endfor%}
     </div>
   </div>
 </div>

@@ -2,6 +2,7 @@ __winc_id__ = "d7b474e9b3a54d23bca54879a4f1855b"
 __human_name__ = "Betsy Webshop"
 
 
+from peewee import _transaction
 from models import User, Product, Tag, ProductTag, Transaction
 from flask import abort
 
@@ -52,7 +53,6 @@ def update_stock(product_id, new_quantity) -> None:
     product.save()
 
 
-# moet zorgen dat je niet van jezelf kunt kopen...
 def purchase_product(product_id, buyer_id, quantity) -> None:
     product = Product.get_by_id(product_id)
     seller_id = product.owner.id
@@ -68,16 +68,6 @@ def purchase_product(product_id, buyer_id, quantity) -> None:
 
 
 # non assignment functions
-
-
-def get_unique_words_in_string(string) -> list:
-    """
-    Takes in string, removes all duplicates, whitespace, non-alpha characters and
-    words containing non-alpha characters.
-    Separate the words by space and retuns list of strings in all lowercase.
-    """
-    words_list = " ".join(string.split()).split()
-    return list(set([word.lower() for word in words_list if word.isalpha()]))
 
 
 def get_tags_per_product(product_id) -> list[Tag.name]:
@@ -122,7 +112,11 @@ def create_producttags(product_id, tag_list) -> None:
 
 
 def delete_producttags_from_product(product_id):
-    ProductTag.delete().where(ProductTag.product.id == product_id).execute()
+    delete_query = (
+        ProductTag.select().join(Product).where(ProductTag.product.id == product_id)
+    )
+    for query in delete_query:
+        query.delete_instance()
 
 
 def validate_product_purchase(seller_id, buyer_id, product, quantity):
@@ -136,19 +130,51 @@ def validate_product_purchase(seller_id, buyer_id, product, quantity):
         )
 
 
-def check_tags_in_list(tag_list, product_taglist):
+def check_tags_in_list(tag_list, part_of_tag_list):
     """
-    Sorts both listed alphabetically, then compares items in each list
-    and returns a string with the index of the identical items found in both lists
-    in the form of 'tags-index'. Used for enabling checked attribute in update_product_form
+    Sorts both lists alphabetically, then compares items in each list
+    and returns a string with the index of the identical items found in the first list
+    in the form of 'tags-index'. Used for enabling checked attribute in update_product_page.html
     """
     duplicated_items = []
     tag_list = sorted(tag_list)
-    product_taglist = sorted(product_taglist)
+    part_of_tag_list = sorted(part_of_tag_list)
     for index, tag in enumerate(tag_list):
-        if tag in product_taglist:
+        if tag in part_of_tag_list:
             duplicated_items.append(f"tags-{index}")
     return duplicated_items
+
+
+def delete_product_by_id(product_id):
+    product = Product.get(product_id)
+    product.delete_instance(recursive=True, delete_nullable=True)
+
+
+def delete_all_products_from_user(user_id):
+    for product in list_user_products(user_id):
+        delete_product_by_id(product.id)
+
+
+def delete_user(user_id):
+    user = User.get(user_id)
+    user.delete_instance(recursive=True, delete_nullable=True)
+
+
+def get_user_sold_transactions(user_id) -> list[Transaction]:
+    transactions = (
+        Transaction.select()
+        .join(Product)
+        .join(User)
+        .where(Transaction.product_bought.owner.id == user_id)
+    )
+    return [transaction for transaction in transactions]
+
+
+def get_user_bought_transactions(user_id) -> list[Transaction]:
+    transactions = (
+        Transaction.select().join(User).where(Transaction.buyer.id == user_id)
+    )
+    return [transaction for transaction in transactions]
 
 
 # from app import db

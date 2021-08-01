@@ -1,9 +1,32 @@
-from wtforms.validators import ValidationError
-from utils import is_safe_url, validate_owner_owns_product, validate_duplicate_product
-from datetime import datetime
-from app import app, db
-from app import login_manager
+from flask import render_template, url_for, redirect, flash, request, abort
+from flask_bcrypt import check_password_hash, generate_password_hash
+from flask_login import (
+    login_user,
+    current_user,
+    login_required,
+    logout_user,
+)
+from playhouse.flask_utils import get_object_or_404
 
+from app import app, login_manager
+from main import (
+    delete_all_products_from_user,
+    delete_producttags_from_product,
+    delete_user,
+    get_products_per_tag,
+    get_tagnames,
+    get_tags_per_product,
+    get_products_by_name,
+    list_user_products,
+    get_alpha_tag_names,
+    add_product_to_catalog,
+    create_producttags,
+    purchase_product,
+    check_tags_in_list,
+    delete_product_by_id,
+    get_user_sold_transactions,
+    get_user_bought_transactions,
+)
 from models import User, Product, Tag, ProductTag, Transaction
 from forms import (
     RegistrationForm,
@@ -13,30 +36,8 @@ from forms import (
     SearchForm,
     UpdateProductForm,
 )
-from playhouse.flask_utils import get_object_or_404
-from flask import render_template, url_for, redirect, flash, request, abort
-from flask_bcrypt import check_password_hash, generate_password_hash
-from flask_login import (
-    login_user,
-    current_user,
-    login_required,
-    logout_user,
-)
-from main import (
-    delete_producttags_from_product,
-    get_alpha_tag,
-    get_products_per_tag,
-    get_tagnames,
-    get_unique_words_in_string,
-    get_tags_per_product,
-    get_products_by_name,
-    list_user_products,
-    get_alpha_tag_names,
-    add_product_to_catalog,
-    create_producttags,
-    purchase_product,
-    check_tags_in_list
-)
+
+from utils import is_safe_url, validate_duplicate_product
 
 
 @login_manager.user_loader
@@ -215,11 +216,11 @@ def search_results(search_term, search_tag):
     register_form = RegistrationForm()
     login_form = LoginForm()
     search_form = SearchForm()
-    try:
-        user = User.get_or_none(User.username == current_user.username)
-    except:
-        user = None
     search_form.search_tag.choices = get_alpha_tag_names()
+    if current_user.is_anonymous:
+        user = None
+    else:
+        user = User.get(current_user.id)
 
     if search_term == "All" and search_tag == "All":
         all_products = Product.select()
@@ -283,6 +284,7 @@ def add_product():
         "stock": add_product_form.stock.data,
         "description": add_product_form.description.data,
     }
+
     if validate_duplicate_product(product_name, current_user.id):
         flash(
             f"You already own a product with the same name: '{product_name}'", "danger"
@@ -294,8 +296,8 @@ def add_product():
             search_form=SearchForm(),
             products=list_user_products(current_user.id),
         )
-    if add_product_form.validate_on_submit():
 
+    if add_product_form.validate_on_submit():
         new_product = add_product_to_catalog(current_user.id, product)
 
         if add_product_form.tags.data:
@@ -324,18 +326,63 @@ def add_product():
 def update_product_page(product_id):
     if current_user.id != Product.get(product_id).owner.id:
         abort(403)
-    
+
     search_form = SearchForm()
     search_form.search_tag.choices = get_alpha_tag_names()
     register_form = RegistrationForm()
     login_form = LoginForm()
-    update_account_form = UpdateAccountForm()
+    update_account_form = UpdateAccountForm(country=current_user.country)
     add_product_form = AddProductForm()
+
     products = Product.select().where(Product.id == product_id)
     product = get_object_or_404(products, (Product.id == product_id))
-    checked_list = check_tags_in_list(get_tagnames(), get_tags_per_product(product_id))
+    checked_tags = check_tags_in_list(get_tagnames(), get_tags_per_product(product_id))
     update_product_form = UpdateProductForm(
         description=product.description, stock=product.stock
+    )
+
+    return render_template(
+        "update_product_page.html",
+        title=product.name,
+        product=product,
+        login_form=login_form,
+        register_form=register_form,
+        search_form=search_form,
+        update_product_form=update_product_form,
+        update_account_form=update_account_form,
+        add_product_form=add_product_form,
+        checked_tags=checked_tags,
+    )
+
+
+@app.route("/product/<int:product_id>/update", methods=["GET", "POST"])
+@login_required
+def update_product(product_id):
+    product = Product.get(product_id)
+    if current_user.id != Product.get(product_id).owner.id:
+        abort(403)
+
+    update_product_form = UpdateProductForm()
+    login_form = LoginForm()
+    register_form = RegistrationForm()
+    search_form = SearchForm()
+    update_account_form = UpdateAccountForm(country=current_user.country)
+    add_product_form = AddProductForm()
+
+    if update_product_form.validate_on_submit():
+
+        product.name = update_product_form.name.data
+        product.price_per_unit = update_product_form.price_per_unit.data
+        product.stock = update_product_form.stock.data
+        product.description = update_product_form.description.data
+        delete_producttags_from_product(product_id)
+        create_producttags(product_id, update_product_form.tags.data)
+        product.save()
+        flash(f"{product.name} has been updated!", "success")
+        return redirect(url_for("update_product_page", product_id=product_id))
+    flash(
+        "Something went wrong with updating the product. Please check your input.",
+        "danger",
     )
     return render_template(
         "update_product_page.html",
@@ -347,44 +394,39 @@ def update_product_page(product_id):
         update_product_form=update_product_form,
         update_account_form=update_account_form,
         add_product_form=add_product_form,
-        checked_list=checked_list
+        checked_tags=check_tags_in_list(
+            get_tagnames(), get_tags_per_product(product_id)
+        ),
     )
-
-
-@app.route("/product/<int:product_id>/update", methods=["GET", "POST"])
-@login_required
-def update_product(product_id):
-    update_product_form = UpdateProductForm()
-    product = Product.get_by_id(product_id)
-
-    product.name = update_product_form.name.data
-    product.price_per_unit = update_product_form.price_per_unit.data
-    product.stock = update_product_form.stock.data
-    product.description = update_product_form.description.data
-    product.save()
-
-    # tags_list = get_unique_words_in_string(update_product_form.tags.data)
-    # create_producttags(product_id, tags_list)
-    #    !!!!!!!!!!!!!!fix !!!!! tags update doesnt remove old tags.
-    flash(f"{product.name} has been updated!", "success")
-    return redirect(url_for("product_page", product_id=product_id))
 
 
 @app.route("/product/<int:product_id>/delete", methods=["GET", "DELETE"])
 @login_required
 def delete_product(product_id):
-    Product.delete_by_id(product_id)
-    # !!!!!!!!!!delete all producttags associated with product.
+    if current_user.id != Product.get(product_id).owner.id:
+        abort(403)
+    delete_product_by_id(product_id)
     flash("Your product has been deleted!", "success")
+    return redirect(url_for("account"))
+
+
+@app.route("/product/<int:user_id>/delete_all", methods=["GET", "DELETE"])
+@login_required
+def delete_all_products(user_id):
+    if current_user.id != user_id:
+        abort(403)
+    delete_all_products_from_user(current_user.id)
+    flash("Your products have been deleted!", "success")
     return redirect(url_for("account"))
 
 
 @app.route("/account/delete/<int:user_id>", methods=["GET", "DELETE"])
 @login_required
 def delete_user_account(user_id):
-    logout_user(user_id)
-    User.delete_by_id(user_id)
-    # !!!!!!!!!!!!!!! delete products associated with user.
+    if current_user.id != user_id:
+        abort(403)
+    logout_user()
+    delete_user(user_id)
     flash("Your account has been deleted!", "success")
     return redirect(url_for("home"))
 
@@ -395,8 +437,7 @@ def user_profile(user_id):
     login_form = LoginForm()
     search_form = SearchForm()
 
-    products = list_user_products(user_id)
-    product_count = products.count()
+    user_products = list_user_products(user_id)
 
     search_form.search_tag.choices = get_alpha_tag_names()
 
@@ -407,22 +448,32 @@ def user_profile(user_id):
         "user_profile.html",
         title=user.username,
         user=user,
-        products=products,
-        product_count=product_count,
+        user_products=user_products,
         login_form=login_form,
         register_form=register_form,
         search_form=search_form,
+        transactions_sold=get_user_sold_transactions(user_id),
+        transactions_bought=get_user_bought_transactions(user_id),
+        bannerinfo={
+            "banner_bg": "user-profile-banner",
+            "banner_h1": "Welcome!",
+            "banner_text": f"Here you can find the products and info for user '{user.username}'",
+        },
     )
 
 
 @app.route("/buy_product/<int:product_id>", methods=["GET", "POST"])
 @login_required
 def buy_product(product_id):
+    get_object_or_404(Product, (Product.id == product_id))
+
+    # check if buyer is not owner of product
     buyer_id = current_user.id
     quantity = 1  # needs to change dynamically
 
     purchase_product(product_id, buyer_id, quantity)
     flash("Product bought")
+    return redirect(url_for(request.referrer))
     return redirect(url_for("home"))
 
 
@@ -431,6 +482,7 @@ def error_404(error):
     register_form = RegistrationForm()
     login_form = LoginForm()
     search_form = SearchForm()
+    search_form.search_tag.choices = get_alpha_tag_names()
 
     message = "Oops! Page not found."
     error_type = 404
@@ -454,6 +506,7 @@ def error_403(error):
     register_form = RegistrationForm()
     login_form = LoginForm()
     search_form = SearchForm()
+    search_form.search_tag.choices = get_alpha_tag_names()
 
     message = "You dont'have access to this page!"
     error_type = 403

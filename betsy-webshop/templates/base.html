@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-100">
   <head>
     <meta charset="utf-8" />
     <meta
@@ -58,27 +58,23 @@
 
     {% endif %}
   </head>
-  <body>
-  
-    <!-- Navigation-->
-    {% include "navbar.html" %}
-    <!-- Header-->
-    {% block header%}
-
-   
-    {% endblock header %} {% with messages =
-    get_flashed_messages(with_categories=true) %} {% if messages %} {% for
-    category, message in messages %}
-    <p class="alert alert-{{ category }} text-center">{{ message }}</p>
-    {% endfor %} {% endif %} {% endwith %}
-    <!-- Section-->
-    <!-- If-statement keeps modal open after failed login -->
-    {%if is_failed_login%}
-    <h1 id="checklogin" data-login="true" data-failure="true"></h1>
-    {% endif %} {%if is_failed_register%}
-    <h1 id="checkregister" data-register="true" data-failure="true"></h1>
-    <h1>Registration failed!!!</h1>
-    {% endif %} {% block content%} {% endblock content %}
+  <body class="d-flex flex-column h-100">
+    <main>
+      <!-- Navigation-->
+      {% include "navbar.html" %}
+      <!-- Header-->
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %} {% for category, message in messages %}
+      <p class="alert alert-{{ category }} text-center">{{ message }}</p>
+      {% endfor %} {% endif %} {% endwith %}
+      <!-- Section-->
+      <!-- If-statement keeps modal open after failed login -->
+      {%if is_failed_login%}
+      <h1 id="checklogin" data-login="true" data-failure="true"></h1>
+      {% endif %} {%if is_failed_register%}
+      <h1 id="checkregister" data-register="true" data-failure="true"></h1>
+      {% endif %} {% block content%} {% endblock content %}
+    </main>
     <!-- Footer-->
     {% include "footer.html" %}
   </body>

@@ -85,6 +85,10 @@
   background-image: url("../static/assets/index-banner-logged-in.jpg");
   background-position: center center;
 }
+.user-profile-banner {
+  background-image: url("../static/assets/user_profile.jpg");
+  background-position: center center;
+}
 .error-banner {
   background-image: url("../static/assets/error.jpg");
   background-position: center center;

@@ -26,22 +26,32 @@ border-secondary") %}
 </div>
 {% endmacro %}
 
-<div class="container mb-3">
+<div class="container mb-3 py-5">
+  {% include "banner.html" %}
   <div class="row">
     <div class="col-lg-4 mt-4">
-      <div class="position-sticky mt-4 container p-0" style="top: 6rem">
-        <div class="row g-3 me-4">
+      <div class="position-sticky my-4 container p-0" style="top: 6rem">
+        <div class="row g-3 m-auto">
           <div class="d-flex justify-content-between">
-            <h4 class="mb-2 fw-bolder">User Profile</h4>
+            <h4 class="mb-2 fw-bolder">User Info</h4>
           </div>
-          <!-- username -->
+          <!-- User Info -->
+          <!-- user name -->
           {{user_profile(name="Username", value= user.username)}}
-          {{user_profile(name="Amount of Products", value= product_count)}}
+          <!-- user total products -->
+          {{user_profile(name="Amount of Products", value= user_products |
+          length)}}
+          <!-- products sold -->
+          {{user_profile(name="Products Sold", value= transactions_sold |
+          length)}}
+          <!-- products bought -->
+          {{user_profile(name="Products Bought", value= transactions_bought |
+          length)}}
         </div>
       </div>
     </div>
     <div class="col-lg-8 container ms-0">
-      {% if not products %}
+      {% if user_products | length == 0 %}
 
       <div class="card text-center my-4">
         <div class="card-header">No products available!!!</div>
@@ -56,7 +66,14 @@ border-secondary") %}
           >
         </div>
       </div>
-      {% endif %} {% include "featurette_product.html" %}
+      {% else %}
+      <div class="album">
+        <div class="row row-cols-1 row-cols-md-2 g-3">
+          {% for product in user_products %} {% include
+          "product_in_search_results.html" %} {% endfor %}
+        </div>
+      </div>
+      {% endif %}
     </div>
   </div>
 </div>
