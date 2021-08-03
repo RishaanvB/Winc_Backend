@@ -1,3 +1,6 @@
+{% include "offcanvas_sidecart.html" %}
+
+
 <nav
   class="navbar navbar-expand-md navbar-light bg-light sticky-top"
   
@@ -30,15 +33,15 @@
               >
             </li>
             <li><hr class="dropdown-divider" /></li>
-            <li><a class="dropdown-item" href="#!">Popular Items</a></li>
             <li>
               <a class="dropdown-item" href="{{url_for('logout')}}">Logout</a>
             </li>
           </ul>
         </li>
-        <form class="d-flex">
-          <i class="bi bi-basket-fill" style="font-size: 2rem"></i>
-        </form>
+        <li class="d-flex cart-icon position-relative" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCart" aria-controls="offcanvasCart" >
+          <i class="bi bi-cart4" style="font-size: 2rem;"></i>
+          <span class="position-absolute bottom-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: .7rem;">{{session['cart'] | length}}</span>
+        </li>
 
         {% else %}
 

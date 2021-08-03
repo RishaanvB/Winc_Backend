@@ -61,6 +61,12 @@
   </li>
 </ul>
 
+<h1 class="text-center fs-5 bg-dark text-secondary py-3">
+  {% if user_products|length == 1 %} You currently have {{ user_products|length
+  }} product to sell. {% else %} You currently have {{ user_products|length }}
+  products to sell. {% endif %}
+</h1>
+
 <div class="collapse" id="collapseAccountForm">
   <div class="card card-body">{% include "form_account_info.html" %}</div>
 </div>

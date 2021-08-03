@@ -40,13 +40,7 @@ class="form-control border border-2 border-secondary") %}
 
 
 {% include 'account_navbar.html' %}
-<h1 class="text-center fs-5 bg-dark text-secondary py-3">
-  {% if products|length == 1 %}
-  You currently have {{ products|length }} product to sell.
-  {% else %}
-  You currently have {{ products|length }} products to sell.
-  {% endif %}
-</h1>
+
 
 <div class="container mb-3">
   
@@ -55,7 +49,7 @@ class="form-control border border-2 border-secondary") %}
     
   <div class="album mt-4">
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
-      {% for product in products %}
+      {% for product in user_products %}
 <!-- delete product modal -->
       {% include "modal_delete_product.html" %}
 <!-- start product featurette -->
@@ -131,7 +125,7 @@ class="form-control border border-2 border-secondary") %}
     </div>
   </div>
   <div class="border my-5"></div>
-  {% if products | length  >= 1%}
+  {% if user_products | length  >= 1%}
   <button
   type="button"
   class="btn btn-danger"

@@ -17,6 +17,12 @@
 .profile-icon {
   font-size: 2rem;
 }
+.cart-icon {
+  transition: 0.2s transform ease-in;
+}
+.cart-icon:hover {
+  transform: scale(1.2);
+}
 
 #SearchBarInput {
   width: 35px;
@@ -87,6 +93,11 @@
 }
 .user-profile-banner {
   background-image: url("../static/assets/user_profile.jpg");
+  background-position: center center;
+}
+
+.checkout-banner {
+  background-image: url("../static/assets/checkout.jpg");
   background-position: center center;
 }
 .error-banner {

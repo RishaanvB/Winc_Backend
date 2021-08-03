@@ -17,13 +17,12 @@
 
     <div class="card-body h-100">
       <div class="d-flex justify-content-between">
-        <h3>{{ product.name }}</h3>
+        <h4>{{ product.name }}</h4>
 
-        <h3>€ {{ "%.2f"|format(product.price_per_unit) }}</h3>
+        <h5>€ {{ "%.2f"|format(product.price_per_unit) }}</h5>
       </div>
 
       <ul class="d-flex p-0 mb-0">
-        <small class="pe-1 fs-small">Categories:</small>
         {% if product.tags %} {% for producttags in product.tags %}
         <span class="pe-1 fs-small"> {{producttags.tag.name}}</span>
         {% endfor %} {% else %}
@@ -45,29 +44,34 @@
         Description: {% if product.description %} {{ product.description }} {%
         else %} This product does not have a description. {% endif %}
       </p>
-      <div class="d-flex justify-content-between align-items-center">
-        {% if current_user.username == product.owner.username %}
-        <a
-          href="{{url_for('buy_product', product_id=product.id)}}"
-          type="button"
-          class="btn btn-secondary disabled"
-          role="button"
-        >
-          <i class="bi bi-cart-plus"></i>
-        </a>
+      <div class="d-flex justify-content-between ">
+        {% if current_user.id == product.owner.id %}
+       
+        
         {% elif current_user.is_anonymous %}
         <small class="text-muted">You need to be logged in to buy this..</small>
         {% else %}
+        {% if product.id in session['cart'] %}
         <a
-          href="{{url_for('buy_product', product_id=product.id)}}"
+          href="{{url_for('handle_product_in_cart', product_id=product.id)}}"
+          type="button"
+          class="btn btn-light"
+          role="button"
+        >
+          <i class="bi bi-cart-check" style="font-size: 1.3rem;"></i>
+          {% else  %}
+          
+          <a
+          href="{{url_for('handle_product_in_cart', product_id=product.id)}}"
           type="button"
           class="btn btn-warning"
           role="button"
         >
-          <i class="bi bi-cart-plus"></i>
+          <i class="bi bi-cart-plus" style="font-size: 1.3rem;"></i>
+        {% endif %}
         </a>
         {% endif %}
-        <div class="text-muted fs-small m-0 p-0">
+        <div class="text-muted fs-small m-0 p-0  ms-auto">
           <p class="m-0 text-end">
             Sold by: {% if current_user.username == product.owner.username %}
             <small>You</small>
@@ -85,3 +89,5 @@
     </div>
   </div>
 </div>
+
+

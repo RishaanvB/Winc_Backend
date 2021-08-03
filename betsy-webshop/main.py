@@ -2,9 +2,10 @@ __winc_id__ = "d7b474e9b3a54d23bca54879a4f1855b"
 __human_name__ = "Betsy Webshop"
 
 
-from peewee import _transaction
 from models import User, Product, Tag, ProductTag, Transaction
 from flask import abort
+from urllib.parse import urlparse, urljoin
+from flask import request
 
 
 def get_products_by_name(term) -> Product:
@@ -119,17 +120,6 @@ def delete_producttags_from_product(product_id):
         query.delete_instance()
 
 
-def validate_product_purchase(seller_id, buyer_id, product, quantity):
-    if seller_id == buyer_id:
-        abort(403, "You trying to buy your own stuff???")
-
-    if product.stock < quantity:
-        abort(
-            404,
-            "The amount you tried to buy does not exist. I should just disable the buy button. Since these errors are not very userfriendly.",
-        )
-
-
 def check_tags_in_list(tag_list, part_of_tag_list):
     """
     Sorts both lists alphabetically, then compares items in each list
@@ -141,7 +131,7 @@ def check_tags_in_list(tag_list, part_of_tag_list):
     part_of_tag_list = sorted(part_of_tag_list)
     for index, tag in enumerate(tag_list):
         if tag in part_of_tag_list:
-            duplicated_items.append(f"tags-{index}")
+            duplicated_items.append(f"update-product-tags-{index}")
     return duplicated_items
 
 
@@ -175,6 +165,52 @@ def get_user_bought_transactions(user_id) -> list[Transaction]:
         Transaction.select().join(User).where(Transaction.buyer.id == user_id)
     )
     return [transaction for transaction in transactions]
+
+
+def is_safe_url(target):
+    ref_url = urlparse(request.host_url)
+    test_url = urlparse(urljoin(request.host_url, target))
+    return test_url.scheme in ("http", "https") and ref_url.netloc == test_url.netloc
+
+
+# def validate_price_per_unit(self, price_per_unit):
+#     if price_per_unit.data is not None and price_per_unit.data < 0:
+#         raise ValidationError(
+#             "You want them to pay YOU?? Can't have negative numbers. "
+#         )
+
+
+def check_user_owns_product_by_name(product_name, user_id) -> bool:
+    """
+    Checks if user already owns the product with the same name. If so, returns True,
+    otherwise returns False. Used for checking duplicating names in updating product-info.
+    """
+    for product in list_user_products(user_id):
+        if product.name == product_name:
+            return True
+    return False
+
+
+def check_user_owns_product_by_product(user_id, product_model) -> None:
+    """
+    Checks if user already owns the product by checking the list of products the user owns.
+    If so, aborts to 403, otherwise does nothing.
+    Used to check buyer can't buy his own products.
+    """
+    if product_model in list_user_products(user_id):
+        abort(403, "You can't buy your own products")
+
+
+def get_name_on_cc(user_id):
+    user = User.get(user_id)
+    first_name = user.first_name
+    last_name = user.last_name
+    full_name = first_name[0] + ". " + last_name
+    return full_name
+
+
+def create_hidden_cc(password):
+    return str(password)[-4:].rjust(len(str(password)), "*")
 
 
 # from app import db

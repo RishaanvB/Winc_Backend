@@ -63,8 +63,9 @@
       <!-- Navigation-->
       {% include "navbar.html" %}
       <!-- Header-->
-      {% with messages = get_flashed_messages(with_categories=true) %} {% if
-      messages %} {% for category, message in messages %}
+      {% with messages = get_flashed_messages(category_filter=['success',
+      "danger", "info", "warning"] ,with_categories=true) %} {% if messages %}
+      {% for category, message in messages %}
       <p class="alert alert-{{ category }} text-center">{{ message }}</p>
       {% endfor %} {% endif %} {% endwith %}
       <!-- Section-->
@@ -76,6 +77,7 @@
       {% endif %} {% block content%} {% endblock content %}
     </main>
     <!-- Footer-->
+
     {% include "footer.html" %}
   </body>
 </html>
