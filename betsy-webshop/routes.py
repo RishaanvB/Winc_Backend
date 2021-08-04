@@ -145,7 +145,7 @@ def login():
 @app.route("/logout")
 @login_required
 def logout():
-    session.pop("cart", None)
+    # session.pop("cart", None)
     logout_user()
     flash("Successfully logged out!", "success")
     return redirect(url_for("home"))

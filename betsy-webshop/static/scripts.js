@@ -5,6 +5,28 @@
  */
 // This file is intentionally blank
 // Use this file to add JavaScript to your project
+const calculateTotalPriceInCheckout = () => {
+  const prices = document.querySelectorAll(".productPrice");
+  const totalPriceCheckout = document.getElementById("totalPriceCheckout");
+  let totalPrice = 0;
+  prices.forEach((price) => {
+    totalPrice += +price.innerHTML;
+  });
+  totalPriceCheckout.innerHTML = `€ ${totalPrice}`;
+};
+
+const displayTotalPricePerProduct = () => {
+  const selectElements = document.querySelectorAll(".productAmountCheckout");
+  selectElements.forEach((select) => {
+    select.addEventListener("change", () => {
+      const id = select.id.split("-").slice(-1);
+      const totalSinglePrice = document.getElementById(`product-data-${id}`);
+      const pricePerUnit = totalSinglePrice.getAttribute("data-target");
+      totalSinglePrice.innerText = `${pricePerUnit * select.value}`;
+      calculateTotalPriceInCheckout();
+    });
+  });
+};
 
 const displayTotalPriceinSideCart = () => {
   const productPricesInSideCart = document.querySelectorAll(
@@ -18,7 +40,6 @@ const displayTotalPriceinSideCart = () => {
   });
   totalPriceSideCart.innerHTML = `Total: € ${totalPrice}`;
 };
-displayTotalPriceinSideCart();
 
 const handleCollapseAccountForms = () => {
   const collapseAccountBtn = document.getElementById("collapseAccountBtn");
@@ -47,3 +68,7 @@ const handleCollapseAccountForms = () => {
 if (window.location.href.endsWith("account")) {
   handleCollapseAccountForms();
 }
+
+calculateTotalPriceInCheckout();
+displayTotalPricePerProduct();
+displayTotalPriceinSideCart();
