@@ -1,0 +1,15 @@
+<h1 class="text-center">cart session</h1>{{session['cart']}}
+
+
+<p>form amount </p>
+<h1>
+    <form action="{{url_for('checkout_payment')}}" method="POST">
+        {{form.hidden_tag()}}
+        {{form['9']}}
+        {{form['8']}}
+        {{form['4']}}
+        {{form['7']}}
+
+        {{form.submit()}}
+    </form>
+</h1>

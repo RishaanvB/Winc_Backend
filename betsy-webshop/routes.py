@@ -7,7 +7,10 @@ from flask_login import (
     login_required,
     logout_user,
 )
+from wtforms import SelectField
+from flask_wtf.form import FlaskForm
 from playhouse.flask_utils import get_object_or_404
+from wtforms.fields.simple import SubmitField
 
 from app import app, login_manager
 from main import (
@@ -41,6 +44,7 @@ from forms import (
     AddProductForm,
     SearchForm,
     UpdateProductForm,
+    ProductAmountForm,
 )
 
 
@@ -119,7 +123,10 @@ def login():
             if not is_safe_url(next_page):
                 return abort(400)
             flash(f"Logged in successfully. Welcome {user.username}", "success")
-            return redirect(next_page or url_for("account"))
+            return redirect(
+                next_page
+                or url_for("search_results", search_term="All", search_tag="All")
+            )
 
         if user and not check_password_hash(user.password, login_form.password.data):
             flash("Your password is not correct. Pleas try again.", "danger")
@@ -510,9 +517,29 @@ def handle_product_in_cart(product_id):
         return redirect(request.referrer)
 
 
+class F(FlaskForm):
+    pass
+
+
 @app.route("/checkout")
 @login_required
 def checkout_page():
+    # start testing
+
+    F.amount = SelectField("Amount")
+    F.submit = SubmitField("Check")
+    for product_id in session["cart"]:
+        stock = Product.get(product_id).stock
+        setattr(
+            F,
+            str(product_id),
+            SelectField(
+                "Amount",
+                choices=[i for i in range(1, stock + 1)],
+            ),
+        )
+    # end testing
+
     login_form = LoginForm(prefix="login_form")
     register_form = RegistrationForm(prefix="register_form")
     search_form = SearchForm(prefix="search_form")
@@ -523,7 +550,7 @@ def checkout_page():
     add_product_form = AddProductForm(prefix="add-product")
 
     return render_template(
-        "checkout.html",
+        "test.html",
         login_form=login_form,
         register_form=register_form,
         search_form=search_form,
@@ -532,7 +559,16 @@ def checkout_page():
         all_products=Product.select(),
         get_name_on_cc=get_name_on_cc,
         create_hidden_cc=create_hidden_cc,
+        form=F(),
     )
+
+
+@app.route("/payment", methods=["GET", "POST"])
+@login_required
+def checkout_payment():
+
+    print(request.form)
+    return redirect(url_for("checkout_page"))
 
 
 @app.errorhandler(400)

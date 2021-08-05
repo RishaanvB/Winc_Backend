@@ -15,6 +15,7 @@ from wtforms import (
 )
 from wtforms.fields.html5 import EmailField
 from wtforms.validators import InputRequired, Length, Email, EqualTo, DataRequired
+from wtforms.widgets.core import Input
 
 from models import User, Tag
 from main import list_user_products, get_alpha_tag_names
@@ -135,7 +136,9 @@ class AddProductForm(FlaskForm):
         choices=[num for num in range(1, 11)],
         validators=[InputRequired()],
     )
-    tags = MultiCheckboxField("Categories", choices=[(tag, tag) for tag in sorted(tags)])
+    tags = MultiCheckboxField(
+        "Categories", choices=[(tag, tag) for tag in sorted(tags)]
+    )
 
     add_product = SubmitField("Add")
 
@@ -150,7 +153,9 @@ class UpdateProductForm(FlaskForm):
         validators=[InputRequired()],
     )
 
-    tags = MultiCheckboxField("Categories", choices=[(tag, tag) for tag in sorted(tags)])
+    tags = MultiCheckboxField(
+        "Categories", choices=[(tag, tag) for tag in sorted(tags)]
+    )
     update_product = SubmitField("Update")
 
 
@@ -158,3 +163,8 @@ class SearchForm(FlaskForm):
     search_term = StringField()
     search_tag = SelectField()
     submit = SubmitField("")
+
+
+class ProductAmountForm(FlaskForm):
+    amount = SelectField("Amount", validators=[InputRequired()])
+    submit = SubmitField("Submit payment")
