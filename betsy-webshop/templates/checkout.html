@@ -1,5 +1,20 @@
-{% extends "base.html" %} {% block content %}
-
+<!-- inputfield error macro -->
+{% macro with_errors(field) %}
+<!--  -->
+{% if field.errors %}
+<!--  -->
+{% set css_class = 'form-select form-select-sm w-25 me-4 productAmountCheckout
+is-invalid' + kwargs.pop('class') %}
+<!--  -->
+{{ field(class=css_class, **kwargs) }}
+<div class="invalid-feedback">
+  {% for error in field.errors %}
+  <small>{{ error }}</small>
+  {% endfor %}
+</div>
+{% else %} {{ field(**kwargs) }} {% endif %} {% endmacro %} {% extends
+"base.html" %} {% block content %}
+{{session['cart']}}
 <div class="container py-5">
   <div class="p-5 mb-4 bg-dark rounded-3 checkout-banner banner">
     <div class="container-fluid py-5">
@@ -17,7 +32,13 @@
     <h2 class="my-3">Billing Information</h2>
   </div>
 
-  <div class="row d-flex justify-content-between">
+  <form
+    action="{{url_for('checkout_payment')}}"
+    method="POST"
+    class="row d-flex justify-content-between "
+  >
+    <!-- csrf  -->
+    {{product_amount_form.hidden_tag()}}
     <div class="col-xl-7 order-1">
       <h4 class="d-flex justify-content-between align-items-center mb-3">
         <span>Your items.</span>
@@ -26,84 +47,84 @@
         >
       </h4>
       <!-- product start -->
-      <form action="{{url_for('checkout_payment')}}" method="POST">
-        {{form.hidden_tag()}} {% for product in all_products %} {% if product.id
-        in session['cart'] %} 
-        
-        <div class="row my-4">
-          <div class="col-md-5">
-            <svg
-              class="bd-placeholder-img"
-              width="100%"
-              height="100%"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-hidden="true"
-              preserveAspectRatio="xMidYMid slice"
-              focusable="false"
-            >
-              <rect width="100%" height="100%" fill="#777" />
-            </svg>
-          </div>
-          <div class="row col-md-7 d-flex">
-            <div>
-              <h4>{{ product.name }}</h4>
-              {% if product.description %}
-              <p class="fs-6">{{ product.description }}</p>
-              {% else %}
-              <p class="fs-6">This product does not have a description</p>
-              {% endif %}
-              <div class="d-flex">
-                {% for producttag in product.tags %}
-                <p class="me-1 fs-small">{{producttag.tag.name}}</p>
-                {% endfor %}
-              </div>
+      {% set prefix = 'product_id-' %}
+      <!--  -->
+      {% for product in all_products %}
+      <!--  -->
+      {% if product.id in session['cart'] %}
+      <div class="row my-4">
+        <div class="col-md-5">
+          <svg
+            class="bd-placeholder-img"
+            width="100%"
+            height="100%"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+            preserveAspectRatio="xMidYMid slice"
+            focusable="false"
+          >
+            <rect width="100%" height="100%" fill="#777" />
+          </svg>
+        </div>
+        <div class="row col-md-7 d-flex">
+          <div>
+            <h5>{{ product.name }}</h5>
+            {% if product.description %}
+            <p class="fs-6">{{ product.description }}</p>
+            {% else %}
+            <p class="fs-6">This product does not have a description</p>
+            {% endif %}
+            <div class="d-flex">
+              {% for producttag in product.tags %}
+              <p class="me-1 fs-small">{{producttag.tag.name}}</p>
+              {% endfor %}
             </div>
-            <div class="d-flex align-items-end mt-auto">
-              <span class="text-muted pb-1 me-2">Amount: </span>
+          </div>
+          <div class="d-flex align-items-end mt-auto">
+            <span class="text-muted pb-1 me-2">Amount: </span>
+            {{with_errors(product_amount_form[prefix ~ product.id ~
+            ""],class="form-select form-select-sm w-25 me-4
+            productAmountCheckout", style="max-width:60px;")}}
 
-              <h1>new select</h1>
-              <!-- insert select -->
-              <a
-                role="button"
-                class="button ms-4"
-                href="{{url_for('handle_product_in_cart', product_id=product.id)}}"
+            <a
+              role="button"
+              class="button ms-4"
+              href="{{url_for('handle_product_in_cart', product_id=product.id)}}"
+            >
+              <i class="bi bi-trash-fill text-danger fs-6"></i
+            ></a>
+            <div class="ms-auto d-flex align-items-center">
+              <i class="bi bi-currency-euro"></i>
+              <h5
+                class="productPrice my-0"
+                data-price-per-unit="{{product.price_per_unit}}"
+                id="price-data-{{product.id}}"
               >
-                <i class="bi bi-trash-fill text-danger fs-6"></i
-              ></a>
-              <div class="ms-auto d-flex align-items-center">
-                <i class="bi bi-currency-euro"></i>
-                <h5
-                  class="productPrice my-0"
-                  data-target="{{product.price_per_unit}}"
-                  id="product-data-{{product.id}}"
-                >
-                  {{ product.price_per_unit }}
-                </h5>
-              </div>
+                {{ product.price_per_unit }}
+              </h5>
             </div>
           </div>
         </div>
-        <hr class="my-2" />
-        {{form.amount()}}
-
-        {% endif %} {% endfor %} {{form.submit()}}
-      </form>
-      <ul class="p-0">
-        <li
-          class="
-            list-group-item
-            d-flex
-            justify-content-between
-            bg-dark
-            text-warning
-          "
-        >
-          <span class="display-6">Total (EUR)</span>
-          <strong id="totalPriceCheckout" class="display-6"></strong>
-        </li>
-      </ul>
+      </div>
+      <hr class="my-2" />
+      {% endif %} {% endfor %}
+      <!--  -->
     </div>
-
+    <ul class="order-3 my-4">
+      <li
+        class="
+          list-group-item
+          d-flex
+          justify-content-between
+          bg-dark
+          text-warning
+          
+        "
+      >
+        <span class="fs-3">Total (EUR)</span>
+        <h3 id="totalPriceCheckout"></h3>
+      </li>
+    </ul>
     <div class="col-xl-5 order-2">
       <h4 class="mb-3">Payment</h4>
       <div class="my-3">
@@ -149,14 +170,9 @@
           <input type="text" class="form-control" id="cc-cvv" />
         </div>
       </div>
-      <button
-        class="w-100 btn btn-warning btn-lg order-last mt-4"
-        type="submit"
-      >
-        <a href="{{url_for('checkout_payment')}}"> Proceed with payment</a>
-      </button>
     </div>
-  </div>
+    {{product_amount_form.submit(class="btn btn-warning order-last my-1")}}
+  </form>
 </div>
 
 {% endblock content %}

@@ -165,6 +165,6 @@ class SearchForm(FlaskForm):
     submit = SubmitField("")
 
 
+# empty form, since select fields will be made dynamically in view function
 class ProductAmountForm(FlaskForm):
-    amount = SelectField("Amount", validators=[InputRequired()])
-    submit = SubmitField("Submit payment")
+    submit = SubmitField("Finish Payment")

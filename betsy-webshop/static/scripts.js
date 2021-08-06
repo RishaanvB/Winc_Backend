@@ -20,8 +20,8 @@ const displayTotalPricePerProduct = () => {
   selectElements.forEach((select) => {
     select.addEventListener("change", () => {
       const id = select.id.split("-").slice(-1);
-      const totalSinglePrice = document.getElementById(`product-data-${id}`);
-      const pricePerUnit = totalSinglePrice.getAttribute("data-target");
+      const totalSinglePrice = document.getElementById(`price-data-${id}`);
+      const pricePerUnit = totalSinglePrice.getAttribute("data-price-per-unit");
       totalSinglePrice.innerText = `${pricePerUnit * select.value}`;
       calculateTotalPriceInCheckout();
     });

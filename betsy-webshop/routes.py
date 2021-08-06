@@ -35,6 +35,7 @@ from main import (
     check_user_owns_product_by_product,
     get_name_on_cc,
     create_hidden_cc,
+    create_dynamic_formselect,
 )
 from models import User, Product, Tag, ProductTag, Transaction
 from forms import (
@@ -152,7 +153,7 @@ def login():
 @app.route("/logout")
 @login_required
 def logout():
-    # session.pop("cart", None)
+    session.pop("cart", None)
     logout_user()
     flash("Successfully logged out!", "success")
     return redirect(url_for("home"))
@@ -162,7 +163,7 @@ def logout():
 @login_required
 def account():
     update_account_form = UpdateAccountForm(
-        prefix="update-account", country=current_user.country
+        prefix="update_account", country=current_user.country
     )
     add_product_form = AddProductForm(prefix="add-product")
     search_form = SearchForm(prefix="search_form")
@@ -184,7 +185,7 @@ def account():
 @login_required
 def update_account():
     update_account_form = UpdateAccountForm(
-        prefix="update-account", country=current_user.country
+        prefix="update_account", country=current_user.country
     )
 
     if update_account_form.validate_on_submit():
@@ -281,7 +282,7 @@ def search():
 def add_product():
     add_product_form = AddProductForm(prefix="add-product")
     update_account_form = UpdateAccountForm(
-        prefix="update-account", country=current_user.country
+        prefix="update_account", country=current_user.country
     )
     product_name = add_product_form.name.data.lower()
     product = {
@@ -340,7 +341,7 @@ def update_product_page(product_id):
     register_form = RegistrationForm(prefix="register_form")
     login_form = LoginForm(prefix="login_form")
     update_account_form = UpdateAccountForm(
-        prefix="update-account", country=current_user.country
+        prefix="update_account", country=current_user.country
     )
     add_product_form = AddProductForm(prefix="add-product")
 
@@ -379,7 +380,7 @@ def update_product(product_id):
     register_form = RegistrationForm(prefix="register_form")
     search_form = SearchForm(prefix="search_form")
     update_account_form = UpdateAccountForm(
-        prefix="update-account", country=current_user.country
+        prefix="update_account", country=current_user.country
     )
     add_product_form = AddProductForm(prefix="add-product")
 
@@ -517,40 +518,21 @@ def handle_product_in_cart(product_id):
         return redirect(request.referrer)
 
 
-class F(FlaskForm):
-    pass
-
-
 @app.route("/checkout")
 @login_required
 def checkout_page():
-    # start testing
-
-    F.amount = SelectField("Amount")
-    F.submit = SubmitField("Check")
-    for product_id in session["cart"]:
-        stock = Product.get(product_id).stock
-        setattr(
-            F,
-            str(product_id),
-            SelectField(
-                "Amount",
-                choices=[i for i in range(1, stock + 1)],
-            ),
-        )
-    # end testing
-
+    create_dynamic_formselect(session, ProductAmountForm, SelectField)
     login_form = LoginForm(prefix="login_form")
     register_form = RegistrationForm(prefix="register_form")
     search_form = SearchForm(prefix="search_form")
     search_form.search_tag.choices = get_alpha_tag_names()
     update_account_form = UpdateAccountForm(
-        prefix="update-account", country=current_user.country
+        prefix="update_account", country=current_user.country
     )
     add_product_form = AddProductForm(prefix="add-product")
 
     return render_template(
-        "test.html",
+        "checkout.html",
         login_form=login_form,
         register_form=register_form,
         search_form=search_form,
@@ -559,16 +541,23 @@ def checkout_page():
         all_products=Product.select(),
         get_name_on_cc=get_name_on_cc,
         create_hidden_cc=create_hidden_cc,
-        form=F(),
+        product_amount_form=ProductAmountForm(prefix="product_amount"),
     )
 
 
 @app.route("/payment", methods=["GET", "POST"])
 @login_required
 def checkout_payment():
-
-    print(request.form)
-    return redirect(url_for("checkout_page"))
+    product_amount_form = ProductAmountForm(prefix="product_amount")
+    if product_amount_form.validate_on_submit():
+        for id in session["cart"]:
+            amount_bought = product_amount_form["product_id-" + str(id)].data
+            purchase_product(id, current_user.id, amount_bought)
+        flash(f"products bought ", "success")
+        session.pop("cart", None)
+        return redirect(url_for("home"))
+    else:
+        abort(500)
 
 
 @app.errorhandler(400)
@@ -644,4 +633,30 @@ def error_403(error):
             all_products=Product.select(),
         ),
         403,
+    )
+
+
+@app.errorhandler(500)
+def error_500(error):
+    register_form = RegistrationForm(prefix="register_form")
+    login_form = LoginForm(prefix="login_form")
+    search_form = SearchForm(prefix="search_form")
+    search_form.search_tag.choices = get_alpha_tag_names()
+
+    message = "Oops, something went wrong!"
+    error_type = 500
+
+    return (
+        render_template(
+            "error.html",
+            title="500 Error",
+            message=message,
+            login_form=login_form,
+            register_form=register_form,
+            search_form=search_form,
+            error=error,
+            error_type=error_type,
+            all_products=Product.select(),
+        ),
+        500,
     )

@@ -5,7 +5,7 @@
   class="navbar navbar-expand-md navbar-light bg-light sticky-top"
   
 >
-  <div class="container">
+  <div class="container py-3">
     <a class="navbar-brand" href="{{url_for('home') }}"
       ><img
         src="{{url_for('static', filename='assets/brand.svg')}}"
@@ -18,7 +18,7 @@
         <!-- search bar -->
         {% include "searchbar.html" %}
       </ul>
-      <ul class="navbar-nav mb-2 mb-lg-0 ms-lg-4 mx-2">
+      <ul class="navbar-nav mb-2 mb-lg-0">
         {% if current_user.is_authenticated %}
 
         <li class="nav-item dropdown">             
@@ -46,7 +46,7 @@
         {% else %}
 
         <li
-          class="nav-link fw-bolder d-flex align-items-center login-btn"
+          class="nav-link fw-bolder d-flex align-items-center login-btn px-0"
           data-bs-toggle="modal"
           href="#loginModalToggle"
           role="button"
@@ -55,7 +55,7 @@
             class="bi bi-person-circle mx-3 login-icon"
             style="font-size: 2rem"
           ></i>
-          <a class="nav-link" role="button">Login</a>
+          <a class="nav-link px-0" role="button">Login</a>
         </li>
 
         {% endif %}

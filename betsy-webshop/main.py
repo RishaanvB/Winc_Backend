@@ -56,11 +56,6 @@ def update_stock(product_id, new_quantity) -> None:
 
 def purchase_product(product_id, buyer_id, quantity) -> None:
     product = Product.get_by_id(product_id)
-    seller_id = product.owner.id
-    validate_product_purchase(
-        product=product, buyer_id=buyer_id, seller_id=seller_id, quantity=quantity
-    )
-
     new_quantity = product.stock - quantity
     Transaction.create(
         buyer=buyer_id, product_bought=product_id, amount_bought=quantity
@@ -211,6 +206,17 @@ def get_name_on_cc(user_id):
 
 def create_hidden_cc(password):
     return str(password)[-4:].rjust(len(str(password)), "*")
+
+
+def create_dynamic_formselect(session, form, field):
+    if session.get("cart"):
+        for product_id in session["cart"]:
+            stock = Product.get(product_id).stock
+            setattr(
+                form,
+                str(f"product_id-{product_id}"),
+                field("Amount", choices=[i for i in range(1, stock + 1)], coerce=int),
+            )
 
 
 # from app import db
