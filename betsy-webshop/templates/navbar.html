@@ -13,20 +13,21 @@
         width="40"
         class="d-inline-block align-text-top"
     /></a>
+    {% include "searchbar.html" %}
+
    
   
         <!-- search bar -->
-        {% include "searchbar.html" %}
-      </ul>
-      <ul class="navbar-nav mb-2 mb-lg-0">
+        
+        <ul class="nav">
         {% if current_user.is_authenticated %}
 
-        <li class="nav-item dropdown">             
+        <li class="nav-item dropdown position-relative">             
           <div class="profile-icon-container" id="navbarDropdown" data-bs-toggle="dropdown" aria-expanded="false" >
                 <i class="bi bi-person-circle mx-3 profile-icon"></i>
           </div>
 
-          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <ul class="dropdown-menu position-absolute" aria-labelledby="navbarDropdown">
             <li>
               <a class="dropdown-item" href="{{ url_for('account') }}"
                 >Account</a
@@ -40,13 +41,13 @@
         </li>
         <li class="d-flex cart-icon position-relative" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCart" aria-controls="offcanvasCart" >
           <i class="bi bi-cart4" style="font-size: 2rem;"></i>
-          <span class="position-absolute bottom-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: .7rem;">{{session['cart'] | length}}</span>
+          <span class="position-absolute top-100 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: .7rem;">{{session['cart'] | length}}</span>
         </li>
 
         {% else %}
 
         <li
-          class="nav-link fw-bolder d-flex align-items-center login-btn px-0"
+          class="nav-link fw-bolder d-flex align-items-center login-btn px-0 text-dark"
           data-bs-toggle="modal"
           href="#loginModalToggle"
           role="button"
@@ -55,7 +56,7 @@
             class="bi bi-person-circle mx-3 login-icon"
             style="font-size: 2rem"
           ></i>
-          <a class="nav-link px-0" role="button">Login</a>
+          <a class="nav-link px-0 text-dark" role="button">Login</a>
         </li>
 
         {% endif %}
