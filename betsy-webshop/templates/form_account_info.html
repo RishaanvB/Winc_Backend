@@ -3,7 +3,7 @@
 <!--  -->
 {% if field.errors %}
 <!--  -->
-{% set css_class = 'form-control-lg is-invalid ' + kwargs.pop('class') %}
+{% set css_class = 'form-control is-invalid ' + kwargs.pop('class') %}
 <!--  -->
 {{ field(class=css_class, **kwargs) }}
 <div class="invalid-feedback">
@@ -19,15 +19,17 @@
     action="{{url_for('update_account')}}"
     method="POST"
     enctype="multipart/form-data"
-    class="row g-3 me-4"
+    class="row g-3 mx-auto"
   >
     {{ update_account_form.hidden_tag() }}
-    <div class="d-flex justify-content-between">
+    <div class="d-flex justify-content-between align-items-center">
       <h4 class="mb-2 fw-bolder">Change Profile</h4>
-      <span class="form-group" role="button">
-        {{ update_account_form.update(class="btn btn-dark text-warning
-        fw-bolder") }}
-      </span>
+      <img
+        style="width: 80px; height: 80px; object-fit: cover"
+        class="rounded-circle"
+        src="{{profile_pic}}"
+        alt="user thumbnail"
+      />
     </div>
 
     <div class="form-group col-md-12">
@@ -97,22 +99,34 @@
       <div class="input-group input-group-sm">
         {{update_account_form.cc_number.label(class="input-group-text
         bg-secondary text-light border border-2 border-secondary ")}}
-        {{with_errors(update_account_form.cc_number, class="form-control
-        form-select border border-2
+        {{with_errors(update_account_form.cc_number, class="form-control border
+        border-2
         border-secondary",value=current_user.cc_number,maxlength="20")}}
       </div>
       <div class="form-text">Numbers only please. Skip dashes.</div>
     </div>
+    <div class="form-group col-md-12">
+      <div class="input-group input-group-sm">
+        {{update_account_form.profile_pic.label(class="input-group-text
+        bg-secondary text-light border border-2 border-secondary ")}}
+        {{with_errors(update_account_form.profile_pic, class="form-control
+        border border-2 border-secondary")}}
+      </div>
+    </div>
+    <span class="form-group" role="button">
+      {{ update_account_form.update(class="btn btn-warning text-dark fw-bolder")
+      }}
+    </span>
+    <div class="mt-2">
+      <small class="text-danger">Do you want to delete you account?</small>
+      <small
+        type="button"
+        class="text-danger text-decoration-underline"
+        data-bs-toggle="modal"
+        data-bs-target="#deleteAccountModal"
+      >
+        Click here.
+      </small>
+    </div>
   </form>
-  <div class="mt-2">
-    <small class="text-danger">Do you want to delete you account?</small>
-    <small
-      type="button"
-      class="text-danger text-decoration-underline"
-      data-bs-toggle="modal"
-      data-bs-target="#deleteAccountModal"
-    >
-      Click here.
-    </small>
-  </div>
 </div>

@@ -6,6 +6,7 @@ from app import db_wrapper, db
 from datetime import datetime
 
 from peewee import (
+    BlobField,
     CharField,
     Check,
     DecimalField,
@@ -33,6 +34,7 @@ class User(BaseModel, UserMixin):
     username = CharField(index=True, max_length=30, unique=True)
     email = CharField(index=True, max_length=50, unique=True)
     password = CharField(max_length=20)
+    profile_pic = CharField(null=True, default="default_user.jpg")
 
 
 class Product(BaseModel):

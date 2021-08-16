@@ -19,15 +19,11 @@
     action="{{url_for('add_product')}}"
     method="POST"
     enctype="multipart/form-data"
-    class="row g-3 me-4"
+    class="row g-3 mx-auto"
   >
     {{ add_product_form.hidden_tag() }}
     <div class="d-flex justify-content-between">
       <h4 class="mb-2 fw-bolder">Add Product</h4>
-      <span class="form-group" role="button">
-        {{ add_product_form.add_product(class="btn btn-dark text-warning
-        fw-bolder") }}
-      </span>
     </div>
 
     <div class="form-group col-md-12">
@@ -78,5 +74,9 @@
       </div>
       {% endfor %}
     </div>
+    <span class="form-group" role="button">
+      {{ add_product_form.add_product(class="btn btn-warning text-dark
+      fw-bolder") }}
+    </span>
   </form>
 </div>

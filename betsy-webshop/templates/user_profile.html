@@ -32,20 +32,21 @@ border-secondary") %}
     <div class="col-lg-4">
       <div class="position-sticky my-4 container p-0" style="top: 6rem">
         <div class="row g-3 m-auto">
-          <div class="d-flex justify-content-between">
+          <div class="d-flex justify-content-between align-items-center">
             <h4 class="mb-2 fw-bolder">User Info</h4>
+
+            <img
+              style="width: 80px; height: 80px; object-fit: cover"
+              class="rounded-circle"
+              src="{{  profile_pic  }}"
+              alt=""
+            />
           </div>
           <!-- User Info -->
           <!-- user name -->
           {{user_profile(name="Username", value= user.username)}}
           <!-- user total products -->
           {{user_profile(name="Amount of Products", value= user_products |
-          length)}}
-          <!-- products sold -->
-          {{user_profile(name="Products Sold", value= transactions_sold |
-          length)}}
-          <!-- products bought -->
-          {{user_profile(name="Products Bought", value= transactions_bought |
           length)}}
         </div>
       </div>

@@ -7,14 +7,14 @@ from flask_login import (
     login_required,
     logout_user,
 )
+from werkzeug.utils import secure_filename
 from wtforms import SelectField
-from flask_wtf.form import FlaskForm
-from playhouse.flask_utils import get_object_or_404
-from wtforms.fields.simple import SubmitField
+from playhouse.flask_utils import get_object_or_404, object_list
 
 from app import app, login_manager
 from main import (
     delete_all_products_from_user,
+    delete_picture_data,
     delete_producttags_from_product,
     delete_user,
     get_products_per_tag,
@@ -28,16 +28,16 @@ from main import (
     purchase_product,
     check_tags_in_list,
     delete_product_by_id,
-    get_user_sold_transactions,
-    get_user_bought_transactions,
     is_safe_url,
     check_user_owns_product_by_name,
     check_user_owns_product_by_product,
     get_name_on_cc,
     create_hidden_cc,
     create_dynamic_formselect,
+    get_user_transactions,
+    save_picture_data,
 )
-from models import User, Product, Tag, ProductTag, Transaction
+from models import User, Product, Tag, ProductTag
 from forms import (
     RegistrationForm,
     LoginForm,
@@ -124,10 +124,7 @@ def login():
             if not is_safe_url(next_page):
                 return abort(400)
             flash(f"Logged in successfully. Welcome {user.username}", "success")
-            return redirect(
-                next_page
-                or url_for("search_results", search_term="All", search_tag="All")
-            )
+            return redirect(next_page or url_for("account"))
 
         if user and not check_password_hash(user.password, login_form.password.data):
             flash("Your password is not correct. Pleas try again.", "danger")
@@ -163,14 +160,18 @@ def logout():
 @login_required
 def account():
     update_account_form = UpdateAccountForm(
-        prefix="update_account", country=current_user.country
+        prefix="update_account",
+        country=current_user.country,
+        profile_pic=current_user.profile_pic,
     )
     add_product_form = AddProductForm(prefix="add-product")
     search_form = SearchForm(prefix="search_form")
 
     search_form.search_tag.choices = get_alpha_tag_names()
     user_products = list_user_products(current_user.id)
-
+    profile_pic = url_for(
+        "static", filename=f"/profile_pics/{current_user.profile_pic}"
+    )
     return render_template(
         "account.html",
         add_product_form=add_product_form,
@@ -178,6 +179,7 @@ def account():
         search_form=search_form,
         user_products=user_products,
         all_products=Product.select(),
+        profile_pic=profile_pic,
     )
 
 
@@ -185,7 +187,9 @@ def account():
 @login_required
 def update_account():
     update_account_form = UpdateAccountForm(
-        prefix="update_account", country=current_user.country
+        prefix="update_account",
+        country=current_user.country,
+        profile_pic=current_user.profile_pic,
     )
 
     if update_account_form.validate_on_submit():
@@ -199,6 +203,9 @@ def update_account():
         user.cc_number = update_account_form.cc_number.data
         user.username = update_account_form.username.data
         user.email = update_account_form.email.data
+        if update_account_form.profile_pic.data:
+            delete_picture_data(current_user.id)
+            user.profile_pic = save_picture_data(update_account_form.profile_pic.data)
         user.save()
         flash("Your account has been updated!", "success")
         return redirect(url_for("account"))
@@ -213,6 +220,27 @@ def update_account():
         )
 
 
+@app.route("/account/transactions")
+@login_required
+def account_transactions():
+    update_account_form = UpdateAccountForm(
+        prefix="update_account", country=current_user.country
+    )
+    add_product_form = AddProductForm(prefix="add-product")
+    search_form = SearchForm(prefix="search_form")
+
+    search_form.search_tag.choices = get_alpha_tag_names()
+    user_transactions = get_user_transactions(current_user.id)
+    return render_template(
+        "account_transactions.html",
+        add_product_form=add_product_form,
+        update_account_form=update_account_form,
+        search_form=search_form,
+        user_transactions=user_transactions,
+        user_products=list_user_products(current_user.id),
+    )
+
+
 @app.route(
     "/search_results/<search_term>/<search_tag>/",
     methods=["GET", "POST"],
@@ -222,6 +250,9 @@ def search_results(search_term, search_tag):
     login_form = LoginForm(prefix="login_form")
     search_form = SearchForm(prefix="search_form")
     search_form.search_tag.choices = get_alpha_tag_names()
+
+    page = request.args.get("page", 1, type=int)
+
     if current_user.is_anonymous:
         user = None
     else:
@@ -240,11 +271,17 @@ def search_results(search_term, search_tag):
             .join(Tag)
             .where(Tag.name == search_tag)
         )
+    product_count = all_products_on_search.count()
+    all_products_on_search = all_products_on_search
 
-    return render_template(
+    return object_list(
         "search_results.html",
+        query=all_products_on_search,
+        context_variable="product_list",
+        paginate_by=10,
+        page=page,
         title="Search",
-        all_products_on_search=all_products_on_search,
+        product_count=product_count,
         login_form=login_form,
         register_form=register_form,
         search_form=search_form,
@@ -393,7 +430,7 @@ def update_product(product_id):
         delete_producttags_from_product(product_id)
         create_producttags(product_id, update_product_form.tags.data)
         product.save()
-        flash(f"{product.name} has been updated!", "success")
+        flash(f"'{product.name}' has been updated!", "success")
         return redirect(url_for("account"))
     flash(
         "Something went wrong with updating the product. Please check your input.",
@@ -418,10 +455,11 @@ def update_product(product_id):
 @app.route("/product/<int:product_id>/delete", methods=["GET", "DELETE"])
 @login_required
 def delete_product(product_id):
+    product_name = Product.get(product_id).name
     if current_user.id != Product.get(product_id).owner.id:
         abort(403)
     delete_product_by_id(product_id)
-    flash("Your product has been deleted!", "success")
+    flash(f"Your product '{product_name}' has been deleted!", "success")
     return redirect(url_for("account"))
 
 
@@ -448,6 +486,9 @@ def delete_user_account(user_id):
 
 @app.route("/users/<int:user_id>")
 def user_profile(user_id):
+    if not current_user.is_anonymous:
+        if user_id == current_user.id:
+            return redirect(url_for("account"))
     register_form = RegistrationForm(prefix="register_form")
     login_form = LoginForm(prefix="login_form")
     search_form = SearchForm(prefix="search_form")
@@ -458,7 +499,7 @@ def user_profile(user_id):
 
     users = User.select().where(User.id == user_id)
     user = get_object_or_404(users, User.id == user_id)
-
+    profile_pic = (url_for("static", filename=f"/profile_pics/{user.profile_pic}"),)
     return render_template(
         "user_profile.html",
         title=user.username,
@@ -468,28 +509,13 @@ def user_profile(user_id):
         login_form=login_form,
         register_form=register_form,
         search_form=search_form,
-        transactions_sold=get_user_sold_transactions(user_id),
-        transactions_bought=get_user_bought_transactions(user_id),
         bannerinfo={
             "banner_bg": "user-profile-banner",
             "banner_h1": "Welcome!",
             "banner_text": f"Here you can find the products and info for user '{user.username}'",
         },
+        profile_pic=profile_pic,
     )
-
-
-# @app.route("/buy_product/<int:product_id>", methods=["GET", "POST"])
-# @login_required
-# def buy_product(product_id):
-#     product = get_object_or_404(Product, (Product.id == product_id))
-
-#     # check if buyer is not owner of product
-#     buyer_id = current_user.id
-#     quantity = 1  # needs to change dynamically
-
-#     purchase_product(product_id, buyer_id, quantity)
-#     flash(f"Product '{product.name}' bought", "success")
-#     return redirect(request.referrer)  # is flask versie van request.headers.get("Referer")
 
 
 @app.route("/handle_product_in_cart/<int:product_id>", methods=["GET", "POST"])
@@ -503,18 +529,18 @@ def handle_product_in_cart(product_id):
     if product.id in session["cart"]:
         session["cart"].remove(product.id)
         session.modified = True
-        flash(f"'{product.name.capitalize()}' removed from cart.", "cart")
+        flash(f"'{product.name.capitalize()}' removed from cart.", "info")
         return redirect(request.referrer)
 
     elif product.id not in session["cart"]:
         session["cart"].append(product.id)
         session.modified = True
-        flash(f"'{product.name.capitalize()}' added to cart.", "cart")
+        flash(f"'{product.name.capitalize()}' added to cart.", "info")
         return redirect(
             request.referrer
         )  # is flask versie van request.headers.get("Referer")
     else:
-        flash("Something went wrong", "cart")
+        flash("Something went wrong", "danger")
         return redirect(request.referrer)
 
 
@@ -556,8 +582,7 @@ def checkout_payment():
         flash(f"products bought ", "success")
         session.pop("cart", None)
         return redirect(url_for("home"))
-    else:
-        abort(500)
+    abort(500)
 
 
 @app.errorhandler(400)

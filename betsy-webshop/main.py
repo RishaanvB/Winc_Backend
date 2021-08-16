@@ -1,11 +1,15 @@
 __winc_id__ = "d7b474e9b3a54d23bca54879a4f1855b"
 __human_name__ = "Betsy Webshop"
 
+import os
 
+from flask_wtf import file
 from models import User, Product, Tag, ProductTag, Transaction
 from flask import abort
 from urllib.parse import urlparse, urljoin
 from flask import request
+from PIL import Image
+from app import app
 
 
 def get_products_by_name(term) -> Product:
@@ -73,21 +77,23 @@ def get_tags_per_product(product_id) -> list[Tag.name]:
     return [tag.name for tag in tags_per_product]
 
 
-def get_alpha_tag() -> list[Tag]:
+def get_alpha_tag() -> list[Tag]:  # gebruik ik deze?
     tags = Tag.select().order_by(Tag.name)
     return [tag for tag in tags]
 
 
-def get_tagnames() -> list:
+def get_tagnames() -> list:  # gebruik ik deze?
     tags = Tag.select()
     return [tag.name for tag in tags]
 
 
-def get_alpha_tag_names() -> tuple[Tag]:
+def get_alpha_tag_names() -> tuple[
+    Tag
+]:  # deze kan mss weg of in de form zelf zetten, tags zijn statisch nu
     """
     Returns a list of tuples (Tag.name, Tag.name)
     With an additional tuple containing (None, "Choose")
-    Used to dynamically determine available tags for the selectfield in the searchbar.
+    Used to display  available tags for the categories in the searchbar.
     """
     tags = Tag.select().order_by(Tag.name)
     tag_list = [(tag.name, tag.name) for tag in tags]
@@ -104,7 +110,6 @@ def create_producttags(product_id, tag_list) -> None:
     for tag in tag_list:
         added_tag = Tag.get(name=tag)
         ProductTag.create(product=product_id, tag_id=added_tag.id)
-    return
 
 
 def delete_producttags_from_product(product_id):
@@ -145,34 +150,10 @@ def delete_user(user_id):
     user.delete_instance(recursive=True, delete_nullable=True)
 
 
-def get_user_sold_transactions(user_id) -> list[Transaction]:
-    transactions = (
-        Transaction.select()
-        .join(Product)
-        .join(User)
-        .where(Transaction.product_bought.owner.id == user_id)
-    )
-    return [transaction for transaction in transactions]
-
-
-def get_user_bought_transactions(user_id) -> list[Transaction]:
-    transactions = (
-        Transaction.select().join(User).where(Transaction.buyer.id == user_id)
-    )
-    return [transaction for transaction in transactions]
-
-
 def is_safe_url(target):
     ref_url = urlparse(request.host_url)
     test_url = urlparse(urljoin(request.host_url, target))
     return test_url.scheme in ("http", "https") and ref_url.netloc == test_url.netloc
-
-
-# def validate_price_per_unit(self, price_per_unit):
-#     if price_per_unit.data is not None and price_per_unit.data < 0:
-#         raise ValidationError(
-#             "You want them to pay YOU?? Can't have negative numbers. "
-#         )
 
 
 def check_user_owns_product_by_name(product_name, user_id) -> bool:
@@ -193,7 +174,7 @@ def check_user_owns_product_by_product(user_id, product_model) -> None:
     Used to check buyer can't buy his own products.
     """
     if product_model in list_user_products(user_id):
-        abort(403, "You can't buy your own products")
+        abort(403)
 
 
 def get_name_on_cc(user_id):
@@ -217,6 +198,44 @@ def create_dynamic_formselect(session, form, field):
                 str(f"product_id-{product_id}"),
                 field("Amount", choices=[i for i in range(1, stock + 1)], coerce=int),
             )
+
+
+def get_user_transactions(user_id) -> list[Transaction]:
+    transactions = (
+        Transaction.select()
+        .join(User)
+        .join(Product)
+        .where(Transaction.buyer.id == user_id)
+        .order_by(-Transaction.id)
+        .distinct()
+    )
+    return [transaction for transaction in transactions]
+
+
+def save_picture_data(picture_data) -> str:
+    """
+    Replaces and saves input filename with randomhex and then returns the replaced name
+    as string in path-form.
+    """
+    random_hex = os.urandom(16).hex()
+    image_name, img_ext = os.path.splitext(picture_data.filename)
+    picture_filename = random_hex + img_ext
+    picture_path = os.path.join(app.root_path, "static/profile_pics", picture_filename)
+    with Image.open(picture_data) as img:
+        img.thumbnail((128, 128))
+        img.save(picture_path)
+    return picture_filename
+
+
+def delete_picture_data(user_id):
+    user = User.get(user_id)
+    picture_filename = user.profile_pic
+    picture_path = os.path.join(app.root_path, "static/profile_pics", picture_filename)
+    try:
+        os.remove(picture_path)
+    except:
+        abort(500)
+
 
 
 # from app import db

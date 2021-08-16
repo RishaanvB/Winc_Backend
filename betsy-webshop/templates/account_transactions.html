@@ -1,0 +1,36 @@
+{% extends "base.html" %} {% block content %} {% include 'account_navbar.html'
+%} {% set banner = "hallo" %}
+<div class="container mb-3 my-4">
+  <h1 class="text-center my-4">Your orders</h1>
+  {% for transaction in user_transactions %} {% set product_name =
+  transaction.product_bought.name %} {% set amount = transaction.amount_bought
+  %} {% set seller = transaction.product_bought.owner.username%} {% set
+  date_sold = transaction.transaction_date[:10] %} {% set price =
+  transaction.product_bought.price_per_unit %}
+  <div class="my-4">
+    <section class="d-flex align-items-center my-auto shadow">
+      <div>
+        <img
+          style="width: 240px; height: auto"
+          class="img-fluid d-block my-auto"
+          src="../static/assets/unavailable.jfif"
+          alt=""
+        />
+      </div>
+      <div class="row my-auto ms-4 d-flex flex-row justify-content-between">
+        <div>
+          <h3>{{product_name}}</h3>
+          <p class="text-muted">Amount: {{amount}}</p>
+        </div>
+        <div>
+          <h6 class="text-muted">Bought from: {{seller}}</h6>
+          <p class="text-success display-6">Spent: € {{price * amount}}</p>
+        </div>
+      </div>
+    </section>
+    <p class="text-muted mb-0">{{date_sold}}</p>
+  </div>
+  {% endfor %}
+</div>
+
+{% endblock content %}

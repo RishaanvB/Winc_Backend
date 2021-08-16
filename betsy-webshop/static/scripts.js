@@ -65,7 +65,10 @@ const handleCollapseAccountForms = () => {
     }
   });
 };
-if (window.location.href.endsWith("account")) {
+if (
+  window.location.href.endsWith("account") ||
+  window.location.href.endsWith("account/transactions")
+) {
   handleCollapseAccountForms();
 }
 

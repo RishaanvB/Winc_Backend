@@ -1,24 +1,25 @@
 from flask_wtf import FlaskForm
 from flask_login import current_user
+from flask_wtf.file import FileAllowed
+from werkzeug.utils import secure_filename
 from wtforms import (
     StringField,
     PasswordField,
     SubmitField,
     ValidationError,
-    BooleanField,
     SelectField,
     DecimalField,
     TextAreaField,
     IntegerField,
     SelectMultipleField,
+    FileField,
     widgets,
 )
 from wtforms.fields.html5 import EmailField
 from wtforms.validators import InputRequired, Length, Email, EqualTo, DataRequired
-from wtforms.widgets.core import Input
 
-from models import User, Tag
-from main import list_user_products, get_alpha_tag_names
+
+from models import User
 
 tags = [
     "Books",
@@ -99,6 +100,12 @@ class UpdateAccountForm(FlaskForm):
     )
     email = EmailField(
         "Email", validators=[InputRequired(), Length(min=5, max=50), Email()]
+    )
+    profile_pic = FileField(
+        "Profile Picture",
+        validators=[
+            FileAllowed(["jpeg", "jpg", "png"], "Accepts only 'jpg' and 'png' !")
+        ],
     )
     update = SubmitField("Update")
 

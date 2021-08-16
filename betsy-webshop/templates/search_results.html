@@ -11,11 +11,10 @@
     </div>
   </div>
   <h2 class="text-center my-3">
-    {% if all_products_on_search | count == 1 %} We've found {{
-    all_products_on_search | count }} result for '{{ search_tuple[0] }}' in '{{
-    search_tuple[1] }}'. {% else %} We've found {{ all_products_on_search |
-    count }} results for '{{ search_tuple[0] }}' in '{{ search_tuple[1] }}'. {%
-    endif %}
+    {% if product_count == 1 %} We've found {{ product_count }} result for '{{
+    search_tuple[0] }}' in '{{ search_tuple[1] }}'. {% else %} We've found {{
+    product_count }} results for '{{ search_tuple[0] }}' in '{{ search_tuple[1]
+    }}'. {% endif %}
   </h2>
   {% with message = get_flashed_messages(category_filter=["cart"]) %} {% if
   message %} {%- for msg in message %}
@@ -41,11 +40,55 @@
     ></button>
   </div>
   {% endfor -%} {% endif %} {% endwith %}
-  <div class="album">
+  <div class="album" id="page_top">
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
-      {% for product in all_products_on_search %} {% include
+      {% for product in product_list %} {% include
       "product_in_search_results.html" %} {% endfor%}
     </div>
+  </div>
+
+  <div class="btn-group mx-auto text-center d-block mt-4" role="group">
+    {% set cur_page = pagination.get_page() %}
+    <!--  -->
+    {% set page_count = pagination.get_page_count() %}
+    <!--  -->
+    {% if cur_page > 1 %}
+    <a
+      href="{{ request.path }}?page=1#page_top"
+      role="button"
+      type="button"
+      class="text-dark"
+      ><i class="bi bi-chevron-double-left"></i
+    ></a>
+    <a
+      href="{{ request.path }}?page={{cur_page - 1}}#page_top"
+      role="button"
+      type="button"
+      class="btn btn-outline-warning text-dark"
+      >{{cur_page - 1}}</a
+    >
+
+    {% endif %}
+
+    <a href="#page_top" role="button" type="button" class="btn btn-warning"
+      >{{cur_page}}</a
+    >
+    {% if cur_page != page_count %}
+    <a
+      href="{{ request.path }}?page={{cur_page + 1}}#page_top"
+      role="button"
+      type="button"
+      class="btn btn-outline-warning text-dark"
+      >{{cur_page + 1}}</a
+    >
+    <a
+      href="{{ request.path }}?page={{page_count}}#page_top"
+      role="button"
+      type="button"
+      ><i class="bi bi-chevron-double-right text-dark"></i
+    ></a>
+
+    {% endif %}
   </div>
 </div>
 

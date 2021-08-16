@@ -4,15 +4,26 @@
       <h1 class="display-5 fw-bold text-white">
         Welcome {{ current_user.first_name }}
       </h1>
-
       <p class="col-md-8 fs-4 text-white">
-        Check out your products or add another one.
+        Here you can modify or add new products and see which orders you've
+        made.
       </p>
     </div>
   </div>
 </div>
-<ul class="nav justify-content-center bg-dark py-3 fs-5">
-  <li class="nav-item d-flex align-items-center">
+
+<ul
+  class="
+    nav
+    row row-cols-md-2 row-cols-lg-auto
+    justify-content-center
+    bg-dark
+    py-3
+    fs-5
+    mx-0
+  "
+>
+  <li class="nav-item d-flex align-items-center justify-content-center">
     <a
       class="nav-link text-warning"
       href="{{url_for('account')}}"
@@ -21,9 +32,18 @@
       <span><i class="bi bi-person-lines-fill pe-2"></i>My Account</span>
     </a>
   </li>
-  <div class="border-start border-warning">|</div>
+  <li class="nav-item d-flex align-items-center justify-content-center">
+    <a
+      class="nav-link text-warning"
+      href="{{url_for('account_transactions')}}"
+      role="button"
+    >
+      <span><i class="bi bi-wallet-fill pe-2"></i>My Orders</span>
+    </a>
+  </li>
+  <!-- <div class="border-start border-warning">|</div> -->
 
-  <li class="nav-item d-flex align-items-center">
+  <li class="nav-item d-flex align-items-center justify-content-center">
     <a
       id="collapseAccountBtn"
       class="nav-link text-warning"
@@ -39,8 +59,8 @@
       >
     </a>
   </li>
-  <div class="border-start border-warning">|</div>
-  <li class="nav-item">
+  <!-- <div class="border-start border-warning">|</div> -->
+  <li class="nav-item d-flex align-items-center justify-content-center">
     <a
       id="collapseProductFormBtn"
       class="nav-link text-warning"
@@ -52,10 +72,14 @@
       ><span><i class="bi bi-plus-circle-fill pe-2"></i>Add Product</span></a
     >
   </li>
-  <div class="border-start border-warning">|</div>
+  <!-- <div class="border-start border-warning">|</div> -->
 
-  <li class="nav-item">
-    <a class="nav-link text-muted" href="#" tabindex="-1" aria-disabled="true"
+  <li class="nav-item d-flex align-items-center justify-content-center">
+    <a
+      class="nav-link text-muted"
+      href="{{url_for('logout')}}"
+      tabindex="-1"
+      aria-disabled="true"
       >Logout</a
     >
   </li>
@@ -68,8 +92,12 @@
 </h1>
 
 <div class="collapse" id="collapseAccountForm">
-  <div class="card card-body">{% include "form_account_info.html" %}</div>
+  <div class="card card-body border-0">
+    {% include "form_account_info.html" %}
+  </div>
 </div>
 <div class="collapse" id="collapseProductForm">
-  <div class="card card-body">{% include "form_add_product.html" %}</div>
+  <div class="card card-body border-0">
+    {% include "form_add_product.html" %}
+  </div>
 </div>
