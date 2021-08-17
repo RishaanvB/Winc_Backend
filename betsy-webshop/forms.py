@@ -146,6 +146,12 @@ class AddProductForm(FlaskForm):
     tags = MultiCheckboxField(
         "Categories", choices=[(tag, tag) for tag in sorted(tags)]
     )
+    product_pic = FileField(
+        "Product Picture",
+        validators=[
+            FileAllowed(["jpeg", "jpg", "png"], "Accepts only 'jpg' and 'png' !")
+        ],
+    )
 
     add_product = SubmitField("Add")
 
@@ -162,6 +168,12 @@ class UpdateProductForm(FlaskForm):
 
     tags = MultiCheckboxField(
         "Categories", choices=[(tag, tag) for tag in sorted(tags)]
+    )
+    product_pic = FileField(
+        "Product Picture",
+        validators=[
+            FileAllowed(["jpeg", "jpg", "png"], "Accepts only 'jpg' and 'png' !")
+        ],
     )
     update_product = SubmitField("Update")
 

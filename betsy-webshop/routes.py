@@ -252,7 +252,6 @@ def search_results(search_term, search_tag):
     search_form.search_tag.choices = get_alpha_tag_names()
 
     page = request.args.get("page", 1, type=int)
-
     if current_user.is_anonymous:
         user = None
     else:
@@ -273,7 +272,6 @@ def search_results(search_term, search_tag):
         )
     product_count = all_products_on_search.count()
     all_products_on_search = all_products_on_search
-
     return object_list(
         "search_results.html",
         query=all_products_on_search,

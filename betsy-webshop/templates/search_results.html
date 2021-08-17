@@ -16,7 +16,7 @@
     product_count }} results for '{{ search_tuple[0] }}' in '{{ search_tuple[1]
     }}'. {% endif %}
   </h2>
-  {% with message = get_flashed_messages(category_filter=["cart"]) %} {% if
+  {% with message = get_flashed_messages() %} {% if
   message %} {%- for msg in message %}
   <div
     class="
