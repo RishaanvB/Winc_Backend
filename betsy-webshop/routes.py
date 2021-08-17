@@ -272,6 +272,12 @@ def search_results(search_term, search_tag):
         )
     product_count = all_products_on_search.count()
     all_products_on_search = all_products_on_search
+    if product_count == 0:
+        flash(
+            f"We couldn't find any results for '{search_tag}' and '{search_term}'",
+            "danger",
+        )
+        return redirect(request.referrer)
     return object_list(
         "search_results.html",
         query=all_products_on_search,

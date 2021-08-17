@@ -10,14 +10,8 @@
       <button class="btn btn-light btn-lg" type="button">Check it out!</button>
     </div>
   </div>
-  <h2 class="text-center my-3">
-    {% if product_count == 1 %} We've found {{ product_count }} result for '{{
-    search_tuple[0] }}' in '{{ search_tuple[1] }}'. {% else %} We've found {{
-    product_count }} results for '{{ search_tuple[0] }}' in '{{ search_tuple[1]
-    }}'. {% endif %}
-  </h2>
-  {% with message = get_flashed_messages() %} {% if
-  message %} {%- for msg in message %}
+
+
   <div
     class="
       alert alert-info
@@ -31,7 +25,14 @@
     role="alert"
   >
     <i class="bi bi-info-circle me-2" style="font-size: 1.5rem"></i>
-    <div class="text-center">{{msg}}</div>
+    <div class="text-center">
+      <h5 class="text-center my-3">
+        {% if product_count == 1 %} We've found {{ product_count }} result for
+        '{{ search_tuple[0] }}' in '{{ search_tuple[1] }}'. {% else %} We've
+        found {{ product_count }} results for '{{ search_tuple[0] }}' in '{{
+        search_tuple[1] }}'. {% endif %}
+      </h5>
+    </div>
     <button
       type="button"
       class="btn-close"
@@ -39,7 +40,7 @@
       aria-label="Close"
     ></button>
   </div>
-  {% endfor -%} {% endif %} {% endwith %}
+
   <div class="album" id="page_top">
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
       {% for product in product_list %} {% include
