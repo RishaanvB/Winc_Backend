@@ -1,6 +1,5 @@
 from flask import render_template, url_for, redirect, flash, request, abort
 from flask.globals import session
-from flask_bcrypt import check_password_hash, generate_password_hash
 from flask_login import (
     login_user,
     current_user,
@@ -9,12 +8,11 @@ from flask_login import (
 )
 from wtforms import SelectField
 from playhouse.flask_utils import get_object_or_404, object_list
+from textblob import TextBlob
 
 from app import app, login_manager
 from main import (
     delete_all_products_from_user,
-    delete_profile_picture_data,
-    delete_producttags_from_product,
     delete_user,
     get_products_per_tag,
     get_tagnames,
@@ -36,7 +34,6 @@ from main import (
     get_user_transactions,
     register_new_user,
     save_picture_data,
-    delete_product_picture_data,
     update_account_db,
     update_product_db,
 )
@@ -207,6 +204,7 @@ def account_transactions():
         search_form=search_form,
         user_transactions=user_transactions,
         user_products=list_user_products(current_user.id),
+        all_products=Product.select(),
     )
 
 
@@ -296,6 +294,7 @@ def no_results(search_query):
         register_form=register_form,
         search_form=search_form,
         search_query=search_query,
+        all_products=Product.select(),
     )
 
 

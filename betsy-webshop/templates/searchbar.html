@@ -2,7 +2,7 @@
   style="max-width: 860px"
   action="{{url_for('search')}}"
   method="POST"
-  class="px-0 mt-2 mt-md-0 order-last order-md-0 flex-grow-1 "
+  class="px-0 mt-2 mt-md-0 order-last order-md-0 flex-grow-1"
 >
   {{ search_form.hidden_tag() }}
   <div class="input-group">
@@ -18,9 +18,13 @@
     {{search_form.search_term(class="position-relative form-control rounded-0
     btn-dark bg-white text-dark border-2 border-start-0",
     placeholder="Search")}}
+
+
     <!-- categories -->
     {{search_form.search_tag(id="categorySelect", class="form-select rounded-0
     border-end-3 btn-light bg-white text-dark border border-dark border-2
     border-start-0", style="max-width:150px")}}
   </div>
 </form>
+
+

@@ -12,12 +12,22 @@ from PIL import Image
 from app import app
 from flask_bcrypt import check_password_hash, generate_password_hash
 from flask_login import login_user
+from textblob import Word, TextBlob
 
 
 def get_products_by_name(term) -> Product:
-    query_by_name = Product.name.contains(term)
+    corrected_word = TextBlob(term).correct()
+    misspelled_word_list = Word(term)
+    suggested_word_list = misspelled_word_list.spellcheck()
+    suggested_word_list = [word[0] for word in suggested_word_list]
+
+    query_by_suggested = Product.name.in_(suggested_word_list)
+    query_by_corrected_word = Product.name.contains(corrected_word)
     query_by_description = Product.description.contains(term)
-    query_all_products = Product.select().where(query_by_name | query_by_description)
+
+    query_all_products = Product.select().where(
+        query_by_suggested | query_by_description | query_by_corrected_word
+    )
     return query_all_products
 
 
