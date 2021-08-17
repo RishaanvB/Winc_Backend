@@ -14,7 +14,6 @@ is-invalid' + kwargs.pop('class') %}
 </div>
 {% else %} {{ field(**kwargs) }} {% endif %} {% endmacro %} {% extends
 "base.html" %} {% block content %}
-{{session['cart']}}
 <div class="container py-5">
   <div class="p-5 mb-4 bg-dark rounded-3 checkout-banner banner">
     <div class="container-fluid py-5">
@@ -35,7 +34,7 @@ is-invalid' + kwargs.pop('class') %}
   <form
     action="{{url_for('checkout_payment')}}"
     method="POST"
-    class="row d-flex justify-content-between "
+    class="row d-flex justify-content-between"
   >
     <!-- csrf  -->
     {{product_amount_form.hidden_tag()}}
@@ -118,7 +117,6 @@ is-invalid' + kwargs.pop('class') %}
           justify-content-between
           bg-dark
           text-warning
-          
         "
       >
         <span class="fs-3">Total (EUR)</span>

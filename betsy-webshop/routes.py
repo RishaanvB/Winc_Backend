@@ -238,7 +238,7 @@ def search_results(search_term, search_tag):
             .where(Tag.name == search_tag)
         )
     product_count = all_products_on_search.count()
-    all_products_on_search = all_products_on_search
+    all_products_on_search = all_products_on_search.order_by(-Product.id)
     if product_count == 0:
         return redirect(url_for("no_results", search_query=search_term))
     return object_list(
@@ -504,7 +504,6 @@ def user_profile(user_id):
 
 
 @app.route("/handle_product_in_cart/<int:product_id>", methods=["GET", "POST"])
-@login_required
 def handle_product_in_cart(product_id):
     product = get_object_or_404(Product, (Product.id == product_id))
     check_user_owns_product_by_product(current_user.id, product)
@@ -524,6 +523,29 @@ def handle_product_in_cart(product_id):
         return redirect(
             request.referrer
         )  # is flask versie van request.headers.get("Referer")
+    else:
+        flash("Something went wrong", "danger")
+        return redirect(request.referrer)
+
+
+@app.route("/handle_favorite/<int:product_id>", methods=["GET", "POST"])
+def handle_favorite(product_id):
+    product = get_object_or_404(Product, (Product.id == product_id))
+    check_user_owns_product_by_product(current_user.id, product)
+    if "favorite" not in session:
+        session["favorite"] = []
+
+    if product.id in session["favorite"]:
+        session["favorite"].remove(product.id)
+        session.modified = True
+        return redirect(request.referrer)
+
+    elif product.id not in session["favorite"]:
+        session["favorite"].append(product.id)
+        session.modified = True
+        return redirect(
+            request.referrer
+        )  
     else:
         flash("Something went wrong", "danger")
         return redirect(request.referrer)
