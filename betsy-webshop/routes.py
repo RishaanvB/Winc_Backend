@@ -7,14 +7,13 @@ from flask_login import (
     login_required,
     logout_user,
 )
-from werkzeug.utils import secure_filename
 from wtforms import SelectField
 from playhouse.flask_utils import get_object_or_404, object_list
 
 from app import app, login_manager
 from main import (
     delete_all_products_from_user,
-    delete_picture_data,
+    delete_profile_picture_data,
     delete_producttags_from_product,
     delete_user,
     get_products_per_tag,
@@ -35,7 +34,11 @@ from main import (
     create_hidden_cc,
     create_dynamic_formselect,
     get_user_transactions,
+    register_new_user,
     save_picture_data,
+    delete_product_picture_data,
+    update_account_db,
+    update_product_db,
 )
 from models import User, Product, Tag, ProductTag
 from forms import (
@@ -79,23 +82,12 @@ def register():
     search_form = SearchForm(prefix="search_form")
 
     if register_form.validate_on_submit():
-        password = register_form.password.data
-        hashed_pw = generate_password_hash(password)
-        User.create(
-            username=register_form.username.data,
-            email=register_form.email.data,
-            password=hashed_pw,
-        )
-        flash(
-            "Your account has been created! Please login update your profile!",
-            "success",
-        )
-        return redirect(url_for("home"))
+        register_new_user(register_form)
+        flash("Your account has been created!", "success")
+        user = User.get(User.email == register_form.email.data)
+        login_user(user)
+        return redirect(url_for("account"))
 
-    flash(
-        "Registration failed!!! Check if your input was correct.",
-        "danger",
-    )
     return render_template(
         "index.html",
         title="Register",
@@ -118,24 +110,13 @@ def login():
     if login_form.validate_on_submit():
         user = User.get_or_none(User.email == login_form.email.data)
 
-        if user and check_password_hash(user.password, login_form.password.data):
-            login_user(user)
-            next_page = request.args.get("next")
-            if not is_safe_url(next_page):
-                return abort(400)
-            flash(f"Logged in successfully. Welcome {user.username}", "success")
-            return redirect(next_page or url_for("account"))
+        login_user(user)
+        next_page = request.args.get("next")
+        if not is_safe_url(next_page):
+            return abort(400)
+        flash(f"Logged in successfully. Welcome {user.username}", "success")
+        return redirect(next_page or url_for("account"))
 
-        if user and not check_password_hash(user.password, login_form.password.data):
-            flash("Your password is not correct. Pleas try again.", "danger")
-            return render_template(
-                "index.html",
-                login_form=login_form,
-                register_form=register_form,
-                search_form=search_form,
-                is_failed_login=True,
-                is_failed_register=False,
-            )
     return render_template(
         "index.html",
         title="Login",
@@ -172,6 +153,7 @@ def account():
     profile_pic = url_for(
         "static", filename=f"/profile_pics/{current_user.profile_pic}"
     )
+
     return render_template(
         "account.html",
         add_product_form=add_product_form,
@@ -193,20 +175,7 @@ def update_account():
     )
 
     if update_account_form.validate_on_submit():
-        user = User.get_by_id(current_user.id)
-
-        user.first_name = update_account_form.first_name.data
-        user.last_name = update_account_form.last_name.data
-        user.address = update_account_form.address.data
-        user.city = update_account_form.city.data
-        user.country = update_account_form.country.data
-        user.cc_number = update_account_form.cc_number.data
-        user.username = update_account_form.username.data
-        user.email = update_account_form.email.data
-        if update_account_form.profile_pic.data:
-            delete_picture_data(current_user.id)
-            user.profile_pic = save_picture_data(update_account_form.profile_pic.data)
-        user.save()
+        update_account_db(current_user.id, update_account_form)
         flash("Your account has been updated!", "success")
         return redirect(url_for("account"))
     else:
@@ -273,16 +242,12 @@ def search_results(search_term, search_tag):
     product_count = all_products_on_search.count()
     all_products_on_search = all_products_on_search
     if product_count == 0:
-        flash(
-            f"We couldn't find any results for '{search_tag}' and '{search_term}'",
-            "danger",
-        )
-        return redirect(request.referrer)
+        return redirect(url_for("no_results", search_query=search_term))
     return object_list(
         "search_results.html",
         query=all_products_on_search,
         context_variable="product_list",
-        paginate_by=10,
+        paginate_by=3,
         page=page,
         title="Search",
         product_count=product_count,
@@ -318,6 +283,22 @@ def search():
     return redirect(url_for("home"))
 
 
+@app.route("/no_results/<search_query>")
+def no_results(search_query):
+    register_form = RegistrationForm(prefix="register_form")
+    login_form = LoginForm(prefix="login_form")
+    search_form = SearchForm(prefix="search_form")
+    search_form.search_tag.choices = get_alpha_tag_names()
+
+    return render_template(
+        "no_results.html",
+        login_form=login_form,
+        register_form=register_form,
+        search_form=search_form,
+        search_query=search_query,
+    )
+
+
 @app.route("/account/add_product", methods=["GET", "POST"])
 @login_required
 def add_product():
@@ -326,11 +307,18 @@ def add_product():
         prefix="update_account", country=current_user.country
     )
     product_name = add_product_form.name.data.lower()
+    if add_product_form.product_pic.data:
+        product_pic = save_picture_data(
+            add_product_form.product_pic.data, folder="product_pics", size=320
+        )
+    else:
+        product_pic = "default_product.jpg"
     product = {
         "name": product_name,
         "price_per_unit": add_product_form.price_per_unit.data,
         "stock": add_product_form.stock.data,
         "description": add_product_form.description.data,
+        "product_pic": product_pic,
     }
 
     if check_user_owns_product_by_name(product_name, current_user.id):
@@ -415,7 +403,7 @@ def update_product(product_id):
         abort(403)
 
     update_product_form = UpdateProductForm(
-        prefix="update-product",
+        prefix="update-product", profile_pic=product.product_pic
     )
     login_form = LoginForm(prefix="login_form")
     register_form = RegistrationForm(prefix="register_form")
@@ -426,16 +414,10 @@ def update_product(product_id):
     add_product_form = AddProductForm(prefix="add-product")
 
     if update_product_form.validate_on_submit():
-
-        product.name = update_product_form.name.data
-        product.price_per_unit = update_product_form.price_per_unit.data
-        product.stock = update_product_form.stock.data
-        product.description = update_product_form.description.data
-        delete_producttags_from_product(product_id)
-        create_producttags(product_id, update_product_form.tags.data)
-        product.save()
+        update_product_db(product_id, update_product_form)
         flash(f"'{product.name}' has been updated!", "success")
         return redirect(url_for("account"))
+
     flash(
         "Something went wrong with updating the product. Please check your input.",
         "danger",
@@ -583,7 +565,7 @@ def checkout_payment():
         for id in session["cart"]:
             amount_bought = product_amount_form["product_id-" + str(id)].data
             purchase_product(id, current_user.id, amount_bought)
-        flash(f"products bought ", "success")
+        flash("Transaction Complete ", "success")
         session.pop("cart", None)
         return redirect(url_for("home"))
     abort(500)

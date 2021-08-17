@@ -1,3 +1,4 @@
+from flask_bcrypt import check_password_hash
 from flask_wtf import FlaskForm
 from flask_login import current_user
 from flask_wtf.file import FileAllowed
@@ -52,7 +53,7 @@ class RegistrationForm(FlaskForm):
             Length(min=5, max=20),
         ],
     )
-    password_confirm = PasswordField("Confirm Password")
+    password_confirm = PasswordField("Confirm Password", validators=[InputRequired()])
     submit = SubmitField("Sign Up")
 
     def validate_username(self, username):
@@ -77,6 +78,11 @@ class LoginForm(FlaskForm):
         emails = User.get_or_none(User.email == email.data)
         if not emails:
             raise ValidationError("This email does not exist in our database.")
+
+    def validate_password(self, password):
+        user = User.get_or_none(User.email == self.email.data)
+        if user and not check_password_hash(user.password, password.data):
+            raise ValidationError("Your password is incorrect!")
 
 
 class UpdateAccountForm(FlaskForm):

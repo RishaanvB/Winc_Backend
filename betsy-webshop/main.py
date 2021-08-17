@@ -10,6 +10,8 @@ from urllib.parse import urlparse, urljoin
 from flask import request
 from PIL import Image
 from app import app
+from flask_bcrypt import check_password_hash, generate_password_hash
+from flask_login import login_user
 
 
 def get_products_by_name(term) -> Product:
@@ -47,6 +49,7 @@ def add_product_to_catalog(user_id, product) -> Product:
         price_per_unit=product["price_per_unit"],
         stock=product["stock"],
         description=product["description"],
+        product_pic=product["product_pic"],
         owner=user_id,
     )
     return new_product
@@ -212,7 +215,7 @@ def get_user_transactions(user_id) -> list[Transaction]:
     return [transaction for transaction in transactions]
 
 
-def save_picture_data(picture_data) -> str:
+def save_picture_data(picture_data, folder, size) -> str:
     """
     Replaces and saves input filename with randomhex and then returns the replaced name
     as string in path-form.
@@ -220,14 +223,14 @@ def save_picture_data(picture_data) -> str:
     random_hex = os.urandom(16).hex()
     image_name, img_ext = os.path.splitext(picture_data.filename)
     picture_filename = random_hex + img_ext
-    picture_path = os.path.join(app.root_path, "static/profile_pics", picture_filename)
+    picture_path = os.path.join(app.root_path, "static/" + folder, picture_filename)
     with Image.open(picture_data) as img:
-        img.thumbnail((128, 128))
+        img.thumbnail((size, size))
         img.save(picture_path)
     return picture_filename
 
 
-def delete_picture_data(user_id):
+def delete_profile_picture_data(user_id):
     user = User.get(user_id)
     picture_filename = user.profile_pic
     picture_path = os.path.join(app.root_path, "static/profile_pics", picture_filename)
@@ -236,6 +239,59 @@ def delete_picture_data(user_id):
     except:
         abort(500)
 
+
+def delete_product_picture_data(product_id):
+    product = Product.get(product_id)
+    picture_filename = product.product_pic
+    picture_path = os.path.join(app.root_path, "static/product_pics", picture_filename)
+    try:
+        os.remove(picture_path)
+    except:
+        abort(500)
+
+
+def update_product_db(product_id, form):
+    product = Product.get(product_id)
+    product.name = form.name.data
+    product.stock = form.stock.data
+    product.description = form.description.data
+    delete_producttags_from_product(product_id)
+    create_producttags(product_id, form.tags.data)
+
+    if form.product_pic.data:
+        delete_product_picture_data(product_id)
+        product.product_pic = save_picture_data(
+            form.product_pic.data, folder="product_pics", size=320
+        )
+    product.save()
+
+
+def update_account_db(user_id, form):
+    user = User.get(user_id)
+    user.first_name = form.first_name.data
+    user.last_name = form.last_name.data
+    user.address = form.address.data
+    user.city = form.city.data
+    user.country = form.country.data
+    user.cc_number = form.cc_number.data
+    user.username = form.username.data
+    user.email = form.email.data
+    if form.profile_pic.data:
+        delete_profile_picture_data(user_id)
+        user.profile_pic = save_picture_data(
+            form.profile_pic.data, folder="profile_pics", size=128
+        )
+    user.save()
+
+
+def register_new_user(form):
+    password = form.password.data
+    hashed_pw = generate_password_hash(password)
+    User.create(
+        username=form.username.data,
+        email=form.email.data,
+        password=hashed_pw,
+    )
 
 
 # from app import db

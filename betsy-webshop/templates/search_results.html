@@ -11,7 +11,6 @@
     </div>
   </div>
 
-
   <div
     class="
       alert alert-info
@@ -48,49 +47,67 @@
     </div>
   </div>
 
-  <div class="btn-group mx-auto text-center d-block mt-4" role="group">
+  <nav
+    class="btn-group mx-auto text-center d-block mt-4"
+    aria-label="Page navigation example"
+  >
     {% set cur_page = pagination.get_page() %}
     <!--  -->
     {% set page_count = pagination.get_page_count() %}
     <!--  -->
-    {% if cur_page > 1 %}
-    <a
-      href="{{ request.path }}?page=1#page_top"
-      role="button"
-      type="button"
-      class="text-dark"
-      ><i class="bi bi-chevron-double-left"></i
-    ></a>
-    <a
-      href="{{ request.path }}?page={{cur_page - 1}}#page_top"
-      role="button"
-      type="button"
-      class="btn btn-outline-warning text-dark"
-      >{{cur_page - 1}}</a
-    >
 
-    {% endif %}
+    <ul class="pagination justify-content-center">
+      {% if cur_page > 1 %}
+      <li class="page-item">
+        <a
+          class="page-link text-dark"
+          href="{{ request.path }}?page=1#page_top"
+          aria-label="First Page"
+        >
+          <span aria-hidden="true">&laquo;</span>
+        </a>
+      </li>
+      <li class="page-item text-dark">
+        <a
+          class="page-link text-dark"
+          href="{{ request.path }}?page={{cur_page - 1}}#page_top"
+          >{{cur_page - 1}}</a
+        >
+      </li>
+      {% endif %}
 
-    <a href="#page_top" role="button" type="button" class="btn btn-warning"
-      >{{cur_page}}</a
-    >
-    {% if cur_page != page_count %}
-    <a
-      href="{{ request.path }}?page={{cur_page + 1}}#page_top"
-      role="button"
-      type="button"
-      class="btn btn-outline-warning text-dark"
-      >{{cur_page + 1}}</a
-    >
-    <a
-      href="{{ request.path }}?page={{page_count}}#page_top"
-      role="button"
-      type="button"
-      ><i class="bi bi-chevron-double-right text-dark"></i
-    ></a>
+      <li class="page-item text-dark">
+        <a
+          href="#page_top"
+          role="button"
+          type="button"
+          class="page-link btn btn-warning text-dark bg-warning"
+          >{{cur_page}}</a
+        >
+      </li>
+      {% if cur_page != page_count %}
 
-    {% endif %}
-  </div>
+      <li class="page-item text-dark">
+        <a
+          class="page-link text-dark"
+          href="{{ request.path }}?page={{cur_page + 1}}#page_top"
+          aria-label="Next"
+        >
+          {{cur_page + 1}}
+        </a>
+      </li>
+      <li class="page-item text-dark">
+        <a
+          class="page-link text-dark"
+          href="{{ request.path }}?page={{page_count}}#page_top"
+          aria-label="Last Page"
+        >
+          <span aria-hidden="true">&raquo;</span>
+        </a>
+      </li>
+      {% endif %}
+    </ul>
+  </nav>
 </div>
 
 {% endblock content %}

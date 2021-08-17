@@ -73,15 +73,6 @@ kwargs.pop('class') %}
             <div class="form-group mt-4 mb-2 d-grid">
               {{ register_form.submit(class="btn btn-warning") }}
             </div>
-            {% with messages = get_flashed_messages(with_categories=true) %} {%
-            if messages %} {% for category, message in messages %}
-            <p
-              class="alert alert-{{ category }} p-1 text-center"
-              style="font-size: 12px"
-            >
-              {{ message }}
-            </p>
-            {% endfor %} {% endif %} {% endwith %}
           </form>
         </div>
       </div>
@@ -156,15 +147,6 @@ kwargs.pop('class') %}
             <div class="form-group mt-4 mb-2 d-grid">
               {{ login_form.login(class="btn btn-warning") }}
             </div>
-            {% with messages = get_flashed_messages(with_categories=true) %} {%
-            if messages %} {% for category, message in messages %}
-            <p
-              class="alert alert-{{ category }} p-1 text-center"
-              style="font-size: 12px"
-            >
-              {{ message }}
-            </p>
-            {% endfor %} {% endif %} {% endwith %}
           </form>
         </div>
       </div>

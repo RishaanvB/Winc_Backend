@@ -32,16 +32,7 @@
       <span><i class="bi bi-person-lines-fill pe-2"></i>My Account</span>
     </a>
   </li>
-  <li class="nav-item d-flex align-items-center justify-content-center">
-    <a
-      class="nav-link text-warning"
-      href="{{url_for('account_transactions')}}"
-      role="button"
-    >
-      <span><i class="bi bi-wallet-fill pe-2"></i>My Orders</span>
-    </a>
-  </li>
-  <!-- <div class="border-start border-warning">|</div> -->
+ 
 
   <li class="nav-item d-flex align-items-center justify-content-center">
     <a
@@ -59,7 +50,6 @@
       >
     </a>
   </li>
-  <!-- <div class="border-start border-warning">|</div> -->
   <li class="nav-item d-flex align-items-center justify-content-center">
     <a
       id="collapseProductFormBtn"
@@ -72,8 +62,15 @@
       ><span><i class="bi bi-plus-circle-fill pe-2"></i>Add Product</span></a
     >
   </li>
-  <!-- <div class="border-start border-warning">|</div> -->
-
+  <li class="nav-item d-flex align-items-center justify-content-center">
+    <a
+      class="nav-link text-warning"
+      href="{{url_for('account_transactions')}}"
+      role="button"
+    >
+      <span><i class="bi bi-wallet-fill pe-2"></i>My Orders</span>
+    </a>
+  </li>
   <li class="nav-item d-flex align-items-center justify-content-center">
     <a
       class="nav-link text-muted"
