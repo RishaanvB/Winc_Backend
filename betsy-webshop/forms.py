@@ -192,3 +192,31 @@ class SearchForm(FlaskForm):
 # empty form, since select fields will be made dynamically in view function
 class ProductAmountForm(FlaskForm):
     submit = SubmitField("Finish Payment")
+
+
+# reset password forms
+class ResetRequestForm(FlaskForm):
+    email = EmailField(
+        "Email", validators=[InputRequired(), Length(min=5, max=50), Email()]
+    )
+    submit = SubmitField("Request Password Reset")
+
+    def validate_email(self, email):
+        user = User.get_or_none(User.email == email.data)
+        if user is None:
+            raise ValidationError("Your email is incorrect.")
+
+
+class ResetPasswordForm(FlaskForm):
+    password = PasswordField(
+        "Set Password",
+        validators=[
+            InputRequired(),
+            EqualTo(
+                "password_confirm", message="Password must be identical in both inputs"
+            ),
+            Length(min=5, max=20),
+        ],
+    )
+    password_confirm = PasswordField("Confirm Password", validators=[InputRequired()])
+    submit = SubmitField("Reset Password")

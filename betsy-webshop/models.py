@@ -2,9 +2,9 @@
 
 from enum import unique
 from flask_login.mixins import UserMixin
-from app import db_wrapper, db
+from app import db_wrapper, db, app
 from datetime import datetime
-
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from peewee import (
     BlobField,
     CharField,
@@ -35,6 +35,20 @@ class User(BaseModel, UserMixin):
     email = CharField(index=True, max_length=50, unique=True)
     password = CharField(max_length=20)
     profile_pic = CharField(null=True, default="default_user.jpg")
+
+    def get_reset_token(self, expires_seconds=900):
+        s = Serializer(app.secret_key, expires_seconds)
+        token = s.dumps({"user_id": self.id}).decode("utf-8")
+        return token
+
+    @staticmethod
+    def verify_reset_token(token):
+        s = Serializer(app.secret_key)
+        try:
+            user_id = s.loads(token)["user_id"]
+        except:
+            return None
+        return User.get(user_id)
 
 
 class Product(BaseModel):

@@ -6,12 +6,13 @@ from flask_login import (
     login_required,
     logout_user,
 )
+
 from wtforms import SelectField
 from playhouse.flask_utils import get_object_or_404, object_list
-from textblob import TextBlob
 
 from app import app, login_manager
 from main import (
+    change_password,
     delete_all_products_from_user,
     delete_user,
     get_products_per_tag,
@@ -36,11 +37,14 @@ from main import (
     save_picture_data,
     update_account_db,
     update_product_db,
+    send_reset_email,
 )
 from models import User, Product, Tag, ProductTag
 from forms import (
     RegistrationForm,
     LoginForm,
+    ResetPasswordForm,
+    ResetRequestForm,
     UpdateAccountForm,
     AddProductForm,
     SearchForm,
@@ -543,9 +547,7 @@ def handle_favorite(product_id):
     elif product.id not in session["favorite"]:
         session["favorite"].append(product.id)
         session.modified = True
-        return redirect(
-            request.referrer
-        )  
+        return redirect(request.referrer)
     else:
         flash("Something went wrong", "danger")
         return redirect(request.referrer)
@@ -590,6 +592,42 @@ def checkout_payment():
         session.pop("cart", None)
         return redirect(url_for("home"))
     abort(500)
+
+
+@app.route("/reset_request", methods=["GET", "POST"])
+def reset_request():
+    request_form = ResetRequestForm(prefix="reset_request")
+    if current_user.is_authenticated:
+        return redirect(url_for("home"))
+    if request_form.validate_on_submit():
+        user = User.get(User.email == request_form.email.data)
+        send_reset_email(user)
+        flash(
+            f"An email has been sent to '{request_form.email.data}' with instructions to reset your password.",
+            "info",
+        )
+        return redirect(url_for("home"))
+    return render_template("reset_request.html", request_form=request_form)
+
+
+@app.route("/reset_password/<token>", methods=["GET", "POST"])
+def reset_token(token):
+    if current_user.is_authenticated:
+        return redirect(url_for("home"))
+    reset_password_form = ResetPasswordForm(prefix="reset_password_form")
+    user = User.verify_reset_token(token)
+
+    if user is None:
+        flash("That is an invalid/expired token!", "warning")
+        return redirect(url_for("home"))
+
+    if reset_password_form.validate_on_submit():
+        change_password(user, reset_password_form)
+        user = User.get(User.email == user.email)
+        login_user(user)
+        flash("Your password has been changed!", "success")
+        return redirect(url_for("account"))
+    return render_template("reset_token.html", reset_password_form=reset_password_form, token=token)
 
 
 @app.errorhandler(400)

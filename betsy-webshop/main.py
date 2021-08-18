@@ -2,14 +2,17 @@ __winc_id__ = "d7b474e9b3a54d23bca54879a4f1855b"
 __human_name__ = "Betsy Webshop"
 
 import os
+from flask.helpers import url_for
+from flask.templating import render_template
 
 from flask_wtf import file
 from models import User, Product, Tag, ProductTag, Transaction
 from flask import abort
+from flask_mail import Message
 from urllib.parse import urlparse, urljoin
 from flask import request
 from PIL import Image
-from app import app
+from app import app, mail
 from flask_bcrypt import check_password_hash, generate_password_hash
 from flask_login import login_user
 from textblob import Word, TextBlob
@@ -306,6 +309,25 @@ def register_new_user(form):
         email=form.email.data,
         password=hashed_pw,
     )
+
+
+def change_password(user, form):
+    password = form.password.data
+    hashed_pw = generate_password_hash(password)
+    user.password = hashed_pw
+    user.save()
+
+
+def send_reset_email(user):
+    token = user.get_reset_token()
+    msg = Message(
+        sender="betsy@betsy.com",
+        recipients=[user.email],
+        reply_to="noreply@betsy.com",
+        subject=f"Hey {user.username}! Resetting your password?",
+    )
+    msg.html = render_template("email.html", token=token, user=user)
+    mail.send(msg)
 
 
 # from app import db
