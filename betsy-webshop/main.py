@@ -251,20 +251,22 @@ def delete_profile_picture_data(user_id):
     user = User.get(user_id)
     picture_filename = user.profile_pic
     picture_path = os.path.join(app.root_path, "static/profile_pics", picture_filename)
-    try:
-        os.remove(picture_path)
-    except:
-        abort(500)
+    if not picture_path.endswith("default_user.jpg"):
+        try:
+            os.remove(picture_path)
+        except:
+            abort(500)
 
 
 def delete_product_picture_data(product_id):
     product = Product.get(product_id)
     picture_filename = product.product_pic
     picture_path = os.path.join(app.root_path, "static/product_pics", picture_filename)
-    try:
-        os.remove(picture_path)
-    except:
-        abort(500)
+    if not picture_path.endswith("default_product.jpg"):
+        try:
+            os.remove(picture_path)
+        except:
+            abort(500)
 
 
 def update_product_db(product_id, form):
