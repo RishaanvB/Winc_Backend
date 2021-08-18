@@ -35,10 +35,7 @@
 #searchIconBackground:hover {
   background-color: rgb(102, 102, 102) !important;
 }
-#categorySelect {
-  border-top-right-radius: 25px !important ;
-  border-bottom-right-radius: 25px !important ;
-}
+
 #categorySelect:hover {
   cursor: pointer;
 }

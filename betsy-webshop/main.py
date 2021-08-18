@@ -23,10 +23,14 @@ def get_products_by_name(term) -> Product:
 
     query_by_suggested = Product.name.in_(suggested_word_list)
     query_by_corrected_word = Product.name.contains(corrected_word)
+    query_by_word = Product.name.contains(term)
     query_by_description = Product.description.contains(term)
 
     query_all_products = Product.select().where(
-        query_by_suggested | query_by_description | query_by_corrected_word
+        query_by_suggested
+        | query_by_description
+        | query_by_corrected_word
+        | query_by_word
     )
     return query_all_products
 
