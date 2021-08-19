@@ -172,6 +172,7 @@ def update_account():
         prefix="update_account",
         country=current_user.country,
         profile_pic=current_user.profile_pic,
+        password=current_user.password,
     )
 
     if update_account_form.validate_on_submit():
@@ -248,7 +249,7 @@ def search_results(search_term, search_tag):
         "search_results.html",
         query=all_products_on_search,
         context_variable="product_list",
-        paginate_by=3,
+        paginate_by=8,
         page=page,
         title="Search",
         product_count=product_count,
@@ -628,7 +629,9 @@ def reset_token(token):
         login_user(user)
         flash("Your password has been changed!", "success")
         return redirect(url_for("account"))
-    return render_template("reset_token.html", reset_password_form=reset_password_form, token=token)
+    return render_template(
+        "reset_token.html", reset_password_form=reset_password_form, token=token
+    )
 
 
 @app.errorhandler(400)
