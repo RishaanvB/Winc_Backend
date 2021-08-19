@@ -187,16 +187,6 @@ def check_user_owns_product_by_name(product_name, user_id) -> bool:
     return False
 
 
-def check_user_owns_product_by_product(user_id, product_model) -> None:
-    """
-    Checks if user already owns the product by checking the list of products the user owns.
-    If so, aborts to 403, otherwise does nothing.
-    Used to check buyer can't buy his own products.
-    """
-    if product_model in list_user_products(user_id):
-        abort(403)
-
-
 def get_name_on_cc(user_id):
     user = User.get(user_id)
     first_name = user.first_name
@@ -205,8 +195,8 @@ def get_name_on_cc(user_id):
     return full_name
 
 
-def create_hidden_cc(password):
-    return str(password)[-4:].rjust(len(str(password)), "*")
+def create_hidden_cc(num):
+    return str(num)[-4:].rjust(len(str(num)), "*")
 
 
 def create_dynamic_formselect(session, form, field):

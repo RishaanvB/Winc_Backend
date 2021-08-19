@@ -28,7 +28,6 @@ from main import (
     delete_product_by_id,
     is_safe_url,
     check_user_owns_product_by_name,
-    check_user_owns_product_by_product,
     get_name_on_cc,
     create_hidden_cc,
     create_dynamic_formselect,
@@ -510,7 +509,8 @@ def user_profile(user_id):
 @app.route("/handle_product_in_cart/<int:product_id>", methods=["GET", "POST"])
 def handle_product_in_cart(product_id):
     product = get_object_or_404(Product, (Product.id == product_id))
-    check_user_owns_product_by_product(current_user.id, product)
+    if product in list_user_products(current_user.id):
+        abort(403)
     if "cart" not in session:
         session["cart"] = []
 
@@ -535,7 +535,8 @@ def handle_product_in_cart(product_id):
 @app.route("/handle_favorite/<int:product_id>", methods=["GET", "POST"])
 def handle_favorite(product_id):
     product = get_object_or_404(Product, (Product.id == product_id))
-    check_user_owns_product_by_product(current_user.id, product)
+    if product in list_user_products(current_user.id):
+        abort(403)
     if "favorite" not in session:
         session["favorite"] = []
 
