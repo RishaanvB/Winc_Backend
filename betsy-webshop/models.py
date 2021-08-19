@@ -57,9 +57,6 @@ class Product(BaseModel):
     price_per_unit = DecimalField(
         constraints=[Check("price_per_unit >= 0")],
         decimal_places=2,
-        auto_round=True,
-        null=True,
-        default=0,
         max_digits=10,
     )
     stock = IntegerField(default=1)

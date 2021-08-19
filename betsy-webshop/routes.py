@@ -6,7 +6,6 @@ from flask_login import (
     login_required,
     logout_user,
 )
-
 from wtforms import SelectField
 from playhouse.flask_utils import get_object_or_404, object_list
 
@@ -19,6 +18,7 @@ from main import (
     get_tagnames,
     get_tags_per_product,
     get_products_by_name,
+    int_splitter,
     list_user_products,
     get_alpha_tag_names,
     add_product_to_catalog,
@@ -37,6 +37,8 @@ from main import (
     update_account_db,
     update_product_db,
     send_reset_email,
+    randomize,
+    int_splitter
 )
 from models import User, Product, Tag, ProductTag
 from forms import (
@@ -249,7 +251,7 @@ def search_results(search_term, search_tag):
         "search_results.html",
         query=all_products_on_search,
         context_variable="product_list",
-        paginate_by=8,
+        paginate_by=4,
         page=page,
         title="Search",
         product_count=product_count,
@@ -259,6 +261,8 @@ def search_results(search_term, search_tag):
         user=user,
         all_products=Product.select(),
         search_tuple=(search_term, search_tag),
+        randomize=randomize,
+        int_splitter=int_splitter
     )
 
 
@@ -312,7 +316,7 @@ def add_product():
     product_name = add_product_form.name.data.lower()
     if add_product_form.product_pic.data:
         product_pic = save_picture_data(
-            add_product_form.product_pic.data, folder="product_pics", size=320
+            add_product_form.product_pic.data, folder="product_pics", size=265
         )
     else:
         product_pic = "default_product.jpg"
@@ -488,7 +492,7 @@ def user_profile(user_id):
 
     users = User.select().where(User.id == user_id)
     user = get_object_or_404(users, User.id == user_id)
-    profile_pic = (url_for("static", filename=f"/profile_pics/{user.profile_pic}"),)
+    profile_pic = url_for("static", filename=f"/profile_pics/{user.profile_pic}")
     return render_template(
         "user_profile.html",
         title=user.username,
@@ -536,8 +540,6 @@ def handle_product_in_cart(product_id):
 @app.route("/handle_favorite/<int:product_id>", methods=["GET", "POST"])
 def handle_favorite(product_id):
     product = get_object_or_404(Product, (Product.id == product_id))
-    if product in list_user_products(current_user.id):
-        abort(403)
     if "favorite" not in session:
         session["favorite"] = []
 

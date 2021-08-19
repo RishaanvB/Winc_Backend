@@ -22,15 +22,14 @@
         <ul class="nav">
         {% if current_user.is_authenticated %}
 
-        <li class="nav-item dropdown position-relative">             
+        <li class="nav-item dropdown position-relative d-flex align-items-center">             
           <div class="profile-icon-container" id="navbarDropdown" data-bs-toggle="dropdown" aria-expanded="false" >
             <img
-            style="width: 50px; height: 50px; object-fit: cover"
-            class="rounded-circle mx-3 profile-icon"
-            src="{{profile_pic}}"
+            style="width: 35px; height: 35px; object-fit: cover"
+            class="rounded-circle mx-3 profile-icon d-block align-bottom "
+            src="{{url_for('static', filename='/profile_pics/' + current_user.profile_pic )}}"
             alt="user thumbnail"
           />
-                <!-- <i class="bi bi-person-circle mx-3 profile-icon"></i> -->
           </div>
 
           <ul class="dropdown-menu position-absolute" aria-labelledby="navbarDropdown">

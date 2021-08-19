@@ -16,6 +16,8 @@ from app import app, mail
 from flask_bcrypt import check_password_hash, generate_password_hash
 from flask_login import login_user
 from textblob import Word, TextBlob
+from random import randint
+from math import floor
 
 
 def get_products_by_name(term) -> Product:
@@ -264,6 +266,7 @@ def update_product_db(product_id, form):
     product.name = form.name.data
     product.stock = form.stock.data
     product.description = form.description.data
+    product.price_per_unit = form.price_per_unit.data
     delete_producttags_from_product(product_id)
     create_producttags(product_id, form.tags.data)
 
@@ -320,6 +323,17 @@ def send_reset_email(user):
     )
     msg.html = render_template("email.html", token=token, user=user)
     mail.send(msg)
+
+
+def randomize():
+    random_num = randint(2, 6)
+    return random_num
+
+
+def int_splitter(num):
+    integer = floor(num)
+    decimal = "{:.2f}".format(num)[-2:]
+    return (integer, decimal)
 
 
 # from app import db
