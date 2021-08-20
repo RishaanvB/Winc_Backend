@@ -35,95 +35,26 @@ class="form-control border border-2 border-secondary") %}
 {% include "modal_delete_account.html" %}
 
 <!-- Delete All Products Modal -->
-{% include "modal_delete_all_products.html" %}
+{% include "modal_delete_all_products.html" %} {% include 'account_navbar.html'
+%}
 
-
-
-{% include 'account_navbar.html' %}
-
-
-
-
-<div class="container mb-3">
-  
-   
-       
-    
-  <div class="album mt-4">
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
-      {% for product in user_products %}
-<!-- delete product modal -->
-      {% include "modal_delete_product.html" %}
-<!-- start product featurette -->
-      <div class="col">
-        <div class="card shadow-sm">
-          <img src="{{  url_for('static', filename='/product_pics/' + product.product_pic)  }}" alt="{{ product.name }}">
-    
-          <div class="card-body h-100">
-            <div class="d-flex justify-content-between">
-              <h3>{{ product.name }}</h3>
-    
-              <h3>€ {{ "%.2f"|format(product.price_per_unit) }}</h3>
-            </div>
-            <ul class="d-flex p-0 mb-0">
-              {% for producttags in product.tags %}
-              <span class="pe-1 fs-small"> {{producttags.tag.name}}</span>
-    
-              {% endfor %}
-            </ul>
-            <div class="d-flex text-warning py-1">
-              <i class="bi bi-star-fill"></i>
-              <i class="bi bi-star-fill mx-1"></i>
-              <i class="bi bi-star-fill"></i>
-              <i class="bi bi-star-half"></i>
-            </div>
-            <h6 class="text-muted my-0 mt-1 mb-2">
-              Products available: {{product.stock}}
-            </h6>
-    
-            <p class="card-text mt-2" style="min-height: 70px">
-              Description: {% if product.description %} {{ product.description
-              }} {% else %} You haven't added a description to this product yet. {% endif
-              %}
-            </p>
-            <div class="d-flex justify-content-between align-items-center">
-              <div class="btn-group">
-                <a href="{{url_for('update_product_page', product_id=product.id)}}#updateProductForm" class="btn btn-secondary"><i class="bi bi-pencil-fill"></i></a>
-                <button
-                  type="button"
-                  class="btn btn-danger"
-                  data-bs-toggle="modal"
-                  data-bs-target="#deleteProductModal{{product.id}}"
-                >
-                  <i class="bi bi-trash-fill"></i>
-                 </button>
-              </div> 
-              
-                
-              </a>
-              <div class="text-muted fs-small m-0 p-0">
-                
-                <p class="m-0">Since {{product.date_posted[0:10]}}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      {% endfor%}
+<div class="container">
+  <div class="album my-4">
+    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-4">
+      {% for product in user_products %} {% include "modal_delete_product.html"
+      %} {% include "product_featurette.html" %} {% endfor%}
     </div>
   </div>
+
   <div class="border my-5"></div>
-  {% if user_products | length  >= 1%}
+  {% if user_products | length >= 1%}
   <button
-  type="button"
-  class="btn btn-danger"
-  data-bs-toggle="modal"
-  data-bs-target="#deleteAllProductsModal"
->
-  Delete All Products
- </button>
- {% endif %}
+    type="button"
+    class="btn btn-danger my-4"
+    data-bs-toggle="modal"
+    data-bs-target="#deleteAllProductsModal"
+  >
+    Delete All Products
+  </button>
 </div>
-<!-- add product form -->
-{% endblock content %}
+{% endif %} {% endblock content %}

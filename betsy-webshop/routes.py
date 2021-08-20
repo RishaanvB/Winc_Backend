@@ -1,3 +1,4 @@
+from random import random
 from flask import render_template, url_for, redirect, flash, request, abort
 from flask.globals import session
 from flask_login import (
@@ -38,7 +39,7 @@ from main import (
     update_product_db,
     send_reset_email,
     randomize,
-    int_splitter
+    int_splitter,
 )
 from models import User, Product, Tag, ProductTag
 from forms import (
@@ -134,6 +135,7 @@ def login():
 @login_required
 def logout():
     session.pop("cart", None)
+    session.pop("favorite", None)
     logout_user()
     flash("Successfully logged out!", "success")
     return redirect(url_for("home"))
@@ -164,6 +166,9 @@ def account():
         user_products=user_products,
         all_products=Product.select(),
         profile_pic=profile_pic,
+        on_account_page=True,
+        randomize=randomize,
+        int_splitter=int_splitter
     )
 
 
@@ -262,7 +267,7 @@ def search_results(search_term, search_tag):
         all_products=Product.select(),
         search_tuple=(search_term, search_tag),
         randomize=randomize,
-        int_splitter=int_splitter
+        int_splitter=int_splitter,
     )
 
 
@@ -509,14 +514,16 @@ def user_profile(user_id):
         },
         profile_pic=profile_pic,
         randomize=randomize,
-        int_splitter=int_splitter
+        int_splitter=int_splitter,
     )
 
 
 @app.route("/handle_product_in_cart/<int:product_id>", methods=["GET", "POST"])
 def handle_product_in_cart(product_id):
     product = get_object_or_404(Product, (Product.id == product_id))
-    if product in list_user_products(current_user.id):
+    if not current_user.is_authenticated:
+        abort(403)
+    if product in list_user_products(current_user.id) or product.stock == 0:
         abort(403)
     if "cart" not in session:
         session["cart"] = []
@@ -594,7 +601,7 @@ def checkout_payment():
         for id in session["cart"]:
             amount_bought = product_amount_form["product_id-" + str(id)].data
             purchase_product(id, current_user.id, amount_bought)
-        flash("Transaction Complete ", "success")
+        flash("Transaction Complete!!!", "info")
         session.pop("cart", None)
         return redirect(url_for("home"))
     abort(500)

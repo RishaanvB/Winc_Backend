@@ -58,6 +58,7 @@ class Product(BaseModel):
         constraints=[Check("price_per_unit >= 0")],
         decimal_places=2,
         max_digits=10,
+        auto_round=True,
     )
     stock = IntegerField(default=1)
     owner = ForeignKeyField(User, backref="products")

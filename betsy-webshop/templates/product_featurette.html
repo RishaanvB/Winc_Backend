@@ -82,9 +82,47 @@
       </ul>
 
       <div class="d-flex flex-column justify-content-between my-2">
-        {% if current_user.id == product.owner.id %} {% elif
-        current_user.is_anonymous %} {% else %} {% if product.id in
-        session['cart'] %}
+        {% if not on_account_page %}
+        {% if current_user.id == product.owner.id or current_user.is_anonymous
+        %}
+        <button
+        type="button"
+       
+        class="
+          btn btn-white
+          py-2
+          border border-dark
+          rounded-0
+          d-flex
+          justify-content-center
+        "
+        role="button"
+        aria-disabled="true"
+        disabled
+        ><i
+          class="bi bi-lock-fill text-dark text-center"
+          style="font-size: 1.2rem"
+        ></i
+      ></button>
+      {% elif product.stock == 0 %}
+      <button
+        type="button"
+       
+        class="
+          btn btn-white
+          py-2
+          border border-dark
+          rounded-0
+          d-flex
+          justify-content-center
+          text-danger
+        "
+        role="button"
+        aria-disabled="true"
+        disabled
+        >Sold out!</button>
+        {% else %} 
+        {% if product.id in session['cart'] %}
         <div class="button-2">
           <div class="slider"></div>
           <a
@@ -127,6 +165,25 @@
         </div>
 
         {% endif %} {% endif %}
+        {% elif on_account_page %}
+        {% if product.stock == 0 %}
+        <small class="alert alert-info" role="alert">
+          Product out of stock. Please update or delete your product!
+        </small>
+        {% endif %}
+        <div class="btn-group">
+          <a href="{{url_for('update_product_page', product_id=product.id)}}#updateProductForm" class="btn btn-secondary">Edit </a>
+          <button
+            type="button"
+            class="btn btn-outline-danger"
+            data-bs-toggle="modal"
+            data-bs-target="#deleteProductModal{{product.id}}"
+          >
+            Delete
+           </button>
+          </a>
+        </div> 
+        {% endif %}
       </div>
       <div class="text-muted text-end fs-small m-0 p-0 align-self-end">
         <p class="m-0 mt-auto">Since {{product.date_posted[0:10]}}</p>
