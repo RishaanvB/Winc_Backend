@@ -1,3 +1,4 @@
+{% extends "base.html" %}
 <!-- inputfield error macro -->
 {% macro with_errors(field) %}
 <!--  -->
@@ -12,8 +13,7 @@ is-invalid' + kwargs.pop('class') %}
   <small>{{ error }}</small>
   {% endfor %}
 </div>
-{% else %} {{ field(**kwargs) }} {% endif %} {% endmacro %} {% extends
-"base.html" %} {% block content %}
+{% else %} {{ field(**kwargs) }} {% endif %} {% endmacro %} {% block content %}
 <div class="container py-5">
   <div class="p-5 mb-4 bg-dark rounded-3 checkout-banner banner">
     <div class="container-fluid py-5">
@@ -140,16 +140,26 @@ is-invalid' + kwargs.pop('class') %}
       <div class="row gy-3">
         <div class="col-lg-6">
           <label for="cc-name" class="form-label">Name on card</label>
+          {% if current_user.first_name %}
           <input
             type="text"
             class="form-control"
             id="cc-name"
-            value="{{get_name_on_cc(current_user.id)}}"
+            value="{{  get_name_on_cc(current_user.id)  }}"
           />
+          {% else %}
+          <input
+            type="text"
+            class="form-control"
+            id="cc-name"
+            value="{{(  current_user.username  )}}"
+          />
+          {% endif %}
           <small class="text-muted">Full name as displayed on card</small>
         </div>
         <div class="col-lg-6">
           <label for="cc-number" class="form-label">Credit card number</label>
+          {% if current_user.cc_number %}
           <input
             type="text"
             class="form-control"
@@ -157,6 +167,15 @@ is-invalid' + kwargs.pop('class') %}
             required
             value="{{create_hidden_cc(current_user.cc_number)}}"
           />
+          {% else %}
+          <input
+            type="text"
+            class="form-control"
+            id="cc-number"
+            required
+            value=""
+          />
+          {% endif %}
           <div class="invalid-feedback">Credit card number is required</div>
         </div>
         <div class="col-sm-5 col-md-6">

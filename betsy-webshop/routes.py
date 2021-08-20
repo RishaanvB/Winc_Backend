@@ -508,6 +508,8 @@ def user_profile(user_id):
             "banner_text": f"Here you can find the products and info for user '{user.username}'",
         },
         profile_pic=profile_pic,
+        randomize=randomize,
+        int_splitter=int_splitter
     )
 
 
