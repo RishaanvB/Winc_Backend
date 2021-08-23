@@ -10,7 +10,8 @@ Git repo:  https://github.com/RishaanvB/betsy-webshop_deploy
 Ze zijn nagenoeg hetzelfde op wat installatiebestandjes na. En regel 189 is anders in product_featurette.html.
 
 Productiebuild is nog wel wat buggy. Paar dingen werken niet echt hetzelfde zoals in de devbuild; 
--reset email werkt niet-> 500 error
+
+-reset email werkt niet-> 500 error 
 -bij foute invoer van een form -->500 error
 en wss nog wat andere dingen. 
 
