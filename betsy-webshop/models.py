@@ -1,22 +1,21 @@
 # importing db for access to actual peewee database and db_wrapper to access Model
 
-from enum import unique
-from flask_login.mixins import UserMixin
-from app import db_wrapper, db, app
 from datetime import datetime
+
+from flask_login.mixins import UserMixin
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+
 from peewee import (
-    BlobField,
     CharField,
     Check,
     DecimalField,
     ForeignKeyField,
     IntegerField,
-    Model,
-    SqliteDatabase,
     TextField,
     DateTimeField,
 )
+
+from app import db_wrapper, db, app
 
 
 class BaseModel(db_wrapper.Model):
@@ -25,15 +24,15 @@ class BaseModel(db_wrapper.Model):
 
 
 class User(BaseModel, UserMixin):
-    first_name = CharField(index=True, max_length=30, null=True, default="")
-    last_name = CharField(max_length=120, null=True, default="")
-    address = CharField(max_length=200, null=True, default="")
-    city = CharField(max_length=50, null=True, default="")
+    first_name = CharField(index=True, max_length=30, null=True, default="user")
+    last_name = CharField(max_length=120, null=True, default="lastname")
+    address = CharField(max_length=200, null=True, default="street")
+    city = CharField(max_length=50, null=True, default="city")
     country = CharField(max_length=50, null=True)
-    cc_number = IntegerField(null=True, default="")
+    cc_number = IntegerField(null=True, default=12345)
     username = CharField(index=True, max_length=30, unique=True)
     email = CharField(index=True, max_length=50, unique=True)
-    password = CharField(max_length=20)
+    password = CharField(max_length=255)
     profile_pic = CharField(null=True, default="default_user.jpg")
 
     def get_reset_token(self, expires_seconds=900):
@@ -63,7 +62,7 @@ class Product(BaseModel):
     stock = IntegerField(default=1)
     owner = ForeignKeyField(User, backref="products")
     product_pic = CharField(null=True, default="default_product.jpg")
-    date_posted = DateTimeField(formats="%Y-%m-%d %H:%M", default=datetime.now())
+    date_posted = DateTimeField(formats="%Y-%m-%d %H:%M", default=datetime.now)
 
 
 Product.add_index(Product.name, Product.description)
@@ -82,10 +81,4 @@ class Transaction(BaseModel):
     buyer = ForeignKeyField(User, backref="transactions", index=True)
     product_bought = ForeignKeyField(Product, index=True)
     amount_bought = IntegerField()
-    transaction_date = DateTimeField(
-        formats="%Y-%m-%d %H:%M", default=datetime.utcnow()
-    )
-
-
-# db.connect()
-# db.create_tables([User, Product, Tag, ProductTags, Transaction])
+    transaction_date = DateTimeField(formats="%Y-%m-%d %H:%M", default=datetime.now)
