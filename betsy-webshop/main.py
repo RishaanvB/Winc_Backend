@@ -67,7 +67,6 @@ def add_product_to_catalog(user_id, product) -> Product:
         stock=product["stock"],
         description=product["description"],
         product_pic=product["product_pic"],
-        date_posted=product["date_posted"],
         owner=user_id,
     )
     return new_product
@@ -227,7 +226,7 @@ def delete_profile_picture_data(user_id):
         try:
             os.remove(picture_path)
         except:
-            abort(500)
+            pass
 
 
 def delete_product_picture_data(product_id):
@@ -238,7 +237,7 @@ def delete_product_picture_data(product_id):
         try:
             os.remove(picture_path)
         except:
-            abort(500)
+            pass
 
 
 def update_product_db(product_id, form):

@@ -149,7 +149,7 @@ def account():
     update_account_form = UpdateAccountForm(
         prefix="update_account",
         country=current_user.country,
-        profile_pic=current_user.profile_pic,
+        profile_pic=current_user.profile_pic or "default_user.jpg",
     )
     add_product_form = AddProductForm(prefix="add-product")
     search_form = SearchForm(prefix="search_form")
@@ -158,7 +158,7 @@ def account():
     user_products = list_user_products(current_user.id)
     profile_pic = url_for(
         "static", filename=f"/profile_pics/{current_user.profile_pic}"
-    )
+    ) or url_for("static", filename="/profile_pics/default_user.jpg")
 
     return render_template(
         "account.html",
@@ -181,9 +181,23 @@ def update_account():
     update_account_form = UpdateAccountForm(
         prefix="update_account",
         country=current_user.country,
-        profile_pic=current_user.profile_pic,
+        profile_pic=current_user.profile_pic or "default_user.jpg",
         password=current_user.password,
     )
+
+    update_account_form = UpdateAccountForm(
+        prefix="update_account",
+        country=current_user.country,
+        profile_pic=current_user.profile_pic or "default_user.jpg",
+    )
+    add_product_form = AddProductForm(prefix="add-product")
+    search_form = SearchForm(prefix="search_form")
+
+    search_form.search_tag.choices = get_alpha_tag_names()
+    user_products = list_user_products(current_user.id)
+    profile_pic = url_for(
+        "static", filename=f"/profile_pics/{current_user.profile_pic}"
+    ) or url_for("static", filename="/profile_pics/default_user.jpg")
 
     if update_account_form.validate_on_submit():
         update_account_db(current_user.id, update_account_form)
@@ -193,10 +207,16 @@ def update_account():
         flash("Something went wrong with your inputs. Please try again", "warning")
         return render_template(
             "account.html",
-            add_product_form=AddProductForm(prefix="add-product"),
+            title="Account",
+            add_product_form=add_product_form,
             update_account_form=update_account_form,
-            search_form=SearchForm(prefix="search_form"),
-            user_products=list_user_products(current_user.id),
+            search_form=search_form,
+            user_products=user_products,
+            all_products=Product.select(),
+            profile_pic=profile_pic,
+            on_account_page=True,
+            randomize=randomize,
+            int_splitter=int_splitter,
         )
 
 
@@ -296,10 +316,19 @@ def no_results(search_query):
 @app.route("/account/add_product", methods=["GET", "POST"])
 @login_required
 def add_product():
+
     add_product_form = AddProductForm(prefix="add-product")
     update_account_form = UpdateAccountForm(
         prefix="update_account", country=current_user.country
     )
+    search_form = SearchForm(prefix="search_form")
+
+    search_form.search_tag.choices = get_alpha_tag_names()
+    user_products = list_user_products(current_user.id)
+    profile_pic = url_for(
+        "static", filename=f"/profile_pics/{current_user.profile_pic}"
+    ) or url_for("static", filename="/profile_pics/default_user.jpg")
+
     product_name = add_product_form.name.data.lower()
     if add_product_form.product_pic.data:
         product_pic = save_picture_data(
@@ -313,7 +342,6 @@ def add_product():
         "stock": add_product_form.stock.data,
         "description": add_product_form.description.data,
         "product_pic": product_pic,
-        "date_posted": datetime.now(),
     }
 
     if check_user_owns_product_by_name(product_name, current_user.id):
@@ -345,8 +373,13 @@ def add_product():
         title="Account",
         add_product_form=add_product_form,
         update_account_form=update_account_form,
-        search_form=SearchForm(prefix="search_form"),
-        user_products=list_user_products(current_user.id),
+        search_form=search_form,
+        user_products=user_products,
+        all_products=Product.select(),
+        profile_pic=profile_pic,
+        on_account_page=True,
+        randomize=randomize,
+        int_splitter=int_splitter,
     )
 
 
@@ -476,7 +509,9 @@ def user_profile(user_id):
 
     users = User.select().where(User.id == user_id)
     user = get_object_or_404(users, User.id == user_id)
-    profile_pic = url_for("static", filename=f"/profile_pics/{user.profile_pic}")
+    profile_pic = url_for(
+        "static", filename=f"/profile_pics/{user.profile_pic}"
+    ) or url_for("static", filename="/profile_pics/default_user.jpg")
     return render_template(
         "user_profile.html",
         title=user.username,
@@ -577,12 +612,13 @@ def checkout_payment():
     product_amount_form = ProductAmountForm(prefix="product_amount")
     if product_amount_form.validate_on_submit():
         for id in session["cart"]:
-            amount_bought = product_amount_form["product_id-" + str(id)].data
-            purchase_product(id, current_user.id, amount_bought)
+            amount_bought = request.form["product_amount-product_id-" + str(id)]
+            purchase_product(id, current_user.id, int(amount_bought))
         flash("Transaction Complete!!!", "info")
         session.pop("cart", None)
         return redirect(url_for("home"))
-    abort(500)
+    flash("Something went wrong with the transaction!")
+    return redirect(url_for("checkout_page"))
 
 
 @app.route("/reset_request", methods=["GET", "POST"])
