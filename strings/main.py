@@ -21,3 +21,8 @@ last_name_len = len(player[player.find(" "): -1])
 name_short = player.replace(player[0:player.find(" ")], player[:1] + ".")
 chant = (first_name + "! ") * (len(first_name) - 1) + (first_name + "!")
 good_chant = chant[-1] != " "
+player = "Marco van Basten "
+first_name = player[0:5]
+
+# chant = (len(first_name)) * (player[-1] + first_name + "!")
+print(chant)
